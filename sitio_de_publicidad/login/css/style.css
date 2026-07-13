@@ -1,0 +1,161 @@
+
+:root {
+    --apomat-navy: #1a2332;
+    --apomat-navy-hover: #2a3648;
+    --apomat-cream: #f3f1ec;
+    --apomat-blue-soft: #c9d4dd;
+    --apomat-text-muted: #6b7280;
+    --apomat-border: #e2ddd3;
+}
+
+body {
+    font-family: 'Jost', sans-serif;
+    color: var(--apomat-navy);
+}
+
+/* Fondo con el mismo degradado suave azul-crema que usa el hero y el footer del sitio */
+.apomat-bg {
+    background: linear-gradient(160deg, var(--apomat-blue-soft) 0%, var(--apomat-cream) 55%);
+}
+
+/* Tarjeta principal del login/registro */
+.apomat-card {
+    border: none;
+    border-radius: 18px;
+    background-color: #ffffff;
+    box-shadow: 0 12px 30px rgba(26, 35, 50, 0.12) !important;
+    overflow: hidden;
+}
+
+/* Título tipo marca, usando la misma serif elegante del hero */
+.apomat-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--apomat-navy);
+    margin-bottom: 0.25rem;
+}
+
+/* Tabs de Iniciar sesión / Registrarse */
+.apomat-tabs {
+    border-bottom: 1px solid var(--apomat-border);
+}
+
+.apomat-tabs .nav-link {
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    color: var(--apomat-text-muted);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    padding: 0.85rem 0.5rem;
+    transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.apomat-tabs .nav-link:hover {
+    color: var(--apomat-navy);
+}
+
+.apomat-tabs .nav-link.active {
+    color: var(--apomat-navy);
+    background: transparent;
+    border-bottom: 2px solid var(--apomat-navy);
+    font-weight: 600;
+}
+
+/* Etiquetas de los campos */
+.card-body .form-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--apomat-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+}
+
+/* Inputs con el mismo tono cálido/crema del sitio */
+.card-body .form-control {
+    background-color: var(--apomat-cream);
+    border: 1px solid var(--apomat-border);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    font-family: 'Jost', sans-serif;
+    color: var(--apomat-navy);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.card-body .form-control::placeholder {
+    color: #a3a3a3;
+    font-weight: 400;
+}
+
+.card-body .form-control:focus {
+    background-color: #ffffff;
+    border-color: var(--apomat-navy);
+    box-shadow: 0 0 0 0.2rem rgba(26, 35, 50, 0.12);
+}
+
+/* Icono de mostrar/ocultar contraseña */
+.card-body .material-icons {
+    font-size: 20px;
+    color: #a3a3a3 !important;
+    transition: color 0.2s ease;
+}
+
+.card-body .material-icons:hover {
+    color: var(--apomat-navy) !important;
+}
+
+/* Botón principal: pill oscuro igual al "Ver productos" del hero */
+.apomat-btn {
+    background-color: var(--apomat-navy);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 0.7rem 1.5rem;
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    transition: background-color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+}
+
+.apomat-btn:hover {
+    background-color: var(--apomat-navy-hover);
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(26, 35, 50, 0.25);
+}
+
+.apomat-btn:active {
+    transform: scale(0.98);
+}
+
+/* Animación de cambio de vista entre login y registro (ya usada en el JS) */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.view-container {
+    animation: slideIn 0.4s ease;
+}
+
+/* Responsive: menos padding en móvil, tal como en las cards de producto del sitio */
+@media (max-width: 576px) {
+    .apomat-brand {
+        font-size: 1.7rem;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+}

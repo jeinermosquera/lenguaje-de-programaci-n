@@ -1,0 +1,470 @@
+/* ===== VARIABLES (colores del diseño Figma) ===== */
+:root {
+  --navy: #17233d;
+  --navy-soft: #223454;
+  --cream: #F4F1EC;
+  --blue: #a9c9db;
+  --gold-dark: #8a6412;
+  --gold: #c9960e;
+  --gold-light: #e6b32a;
+  --ink: #161616;
+  --text-muted: #6b7686;
+  --font-body: 'Poppins', sans-serif;
+  --font-brand: 'Cormorant Garamond', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--navy);
+}
+
+/* ===== NAVBAR ===== */
+.apomat-navbar {
+  background: linear-gradient(90deg, #b0cde7, #d9d9d9);
+  padding: 18px 0;
+  transition: box-shadow .3s ease, padding .3s ease;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+.apomat-navbar.is-scrolled {
+  box-shadow: 0 6px 18px rgba(23, 35, 61, .08);
+  padding: 10px 0;
+}
+.apomat-navbar .navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-mark {
+  height: 42px;
+  width: auto;
+  flex-shrink: 0;
+  display: block;
+}
+.apomat-links .nav-link {
+  position: relative;
+  color: var(--navy);
+  font-size: .92rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 6px 2px !important;
+}
+.apomat-links .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--gold);
+  transition: width .3s ease;
+}
+.apomat-links .nav-link:hover::after,
+.apomat-links .nav-link.active::after {
+  width: 100%;
+}
+.apomat-links .nav-link:hover,
+.apomat-links .nav-link.active {
+  color: var(--navy);
+}
+.apomat-auth {
+  border-color: rgba(22, 22, 22, .12) !important;
+}
+.auth-logout {
+  color: var(--ink);
+  transition: color .2s ease;
+}
+.auth-logout:hover {
+  color: var(--gold-dark);
+}
+.auth-logout i {
+  font-size: 1.05rem;
+}
+
+/* Offcanvas */
+.apomat-offcanvas {
+  background: var(--navy);
+  color: #fff;
+  width: min(320px, 82vw);
+}
+.apomat-offcanvas .offcanvas-header {
+  padding: 22px 24px 0;
+}
+.apomat-offcanvas .btn-close {
+  filter: invert(1) grayscale(1) brightness(2);
+  opacity: .8;
+}
+.apomat-offcanvas .offcanvas-body {
+  padding: 12px 24px 28px;
+  display: flex;
+  flex-direction: column;
+}
+.apomat-offcanvas .nav-link {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+  padding: 14px 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+.apomat-offcanvas .nav-link:hover,
+.apomat-offcanvas .nav-link.active {
+  color: var(--gold);
+}
+.apomat-offcanvas .contact-block {
+  margin-top: 32px;
+  font-size: .85rem;
+  color: rgba(255, 255, 255, .75);
+}
+.apomat-offcanvas .contact-block p {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.apomat-offcanvas .contact-block i {
+  color: var(--gold-dark);
+  margin-top: 3px;
+}
+.apomat-offcanvas .social-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 16px;
+}
+.apomat-offcanvas .social-row a {
+  color: #fff;
+  font-size: 1.15rem;
+  opacity: .85;
+  transition: opacity .2s ease, color .2s ease;
+}
+.apomat-offcanvas .social-row a:hover {
+  opacity: 1;
+  color: var(--gold);
+}
+
+/* Offcanvas - autenticación (solo Salir alineado a la izquierda) */
+.offcanvas-auth {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.offcanvas-auth .auth-greeting {
+  display: none;
+}
+.offcanvas-auth .auth-logout {
+  color: rgba(255, 255, 255, .75);
+  font-size: 1rem;
+  letter-spacing: .02em;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  width: 100%;
+  transition: color .2s ease;
+}
+.offcanvas-auth .auth-logout:hover {
+  color: var(--gold-light);
+}
+.offcanvas-auth .auth-logout i {
+  margin-right: 8px;
+}
+
+.apomat-navbar .navbar-toggler {
+  padding: 4px 8px;
+}
+.apomat-navbar .navbar-toggler:focus {
+  box-shadow: 0 0 0 2px rgba(23, 35, 61, .25);
+}
+.apomat-navbar .navbar-toggler-icon {
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2317233d' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* ===== SECCIONES DE CONTENIDO ===== */
+
+/* Hero con imagen de fondo */
+.hero-section {
+  background-image: url('/site/img/img.png'); /* <-- CAMBIA ESTA RUTA */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0 70px;
+}
+.hero-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(23, 35, 61, 0.7);
+  z-index: 1;
+}
+.hero-section .container {
+  position: relative;
+  z-index: 2;
+}
+.hero-section h1 {
+  font-family: var(--font-brand);
+  font-size: 3.2rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+}
+.hero-section .subhead {
+  font-size: 1.25rem;
+  font-weight: 300;
+  opacity: 0.85;
+  margin-bottom: 1.8rem;
+}
+
+/* Botón VER PRODUCTOS con degradado vertical */
+.btn-gold {
+  background: linear-gradient(to bottom, #2F5D86, #0B1620);
+  border-color: #2F5D86;
+  color: #fff;
+  font-weight: 500;
+  padding: 12px 36px;
+  border-radius: 50px;
+  transition: background .25s, transform .2s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.btn-gold:hover {
+  background: linear-gradient(to bottom, #0B1620, #2F5D86);
+  border-color: #0B1620;
+  color: #fff;
+  transform: scale(1.02);
+}
+
+/* Títulos de sección */
+.section-title {
+  font-family: var(--font-brand);
+  font-size: 2.6rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 60px;
+  height: 4px;
+  background: var(--gold);
+  border-radius: 4px;
+}
+.section-title.text-center::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ===== TARJETAS DE PRODUCTOS ===== */
+
+/* Sección de productos destacados: sobresale por arriba del hero */
+.featured-products-section {
+  background: #F4F1EC;
+  padding: 60px 0 60px;
+  margin-top: -50px;
+  position: relative;
+  z-index: 5;
+  border-radius: 30px 30px 0 0;
+}
+
+/* Tarjeta individual */
+.product-card {
+  background: #F4F1EC;
+  border-radius: 20px;
+  padding: 0 1.25rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(23, 35, 61, 0.15);
+  transition: transform .3s ease, box-shadow .3s ease;
+  height: 100%;
+  border: 1px solid rgba(201, 150, 14, 0.10);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(23, 35, 61, 0.20);
+}
+
+/* Contenedor de la imagen: proporción fija en vez de altura fija,
+   así se adapta al ancho de la tarjeta en cualquier pantalla */
+.product-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+  margin-bottom: 0.75rem;
+  background: #f5f0e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform .3s ease;
+}
+.product-card:hover .product-image img {
+  transform: scale(1.03);
+}
+
+/* Nombre y precio */
+.product-card h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--navy);
+  margin-bottom: 0.2rem;
+}
+.product-card .price {
+  font-weight: 500;
+  color: var(--gold-dark);
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+}
+.product-card .aroma-link {
+  display: inline-block;
+  color: var(--blue);
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-decoration: underline dotted;
+  transition: color .2s;
+}
+.product-card .aroma-link:hover {
+  color: var(--gold);
+}
+
+/* ===== SOBRE NOSOTROS ===== */
+.about-section {
+  background: #fff;
+  padding: 60px 0;
+}
+.about-section p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--navy-soft);
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===== CONTACTO ===== */
+.contact-section {
+  background: var(--cream);
+  padding: 60px 0;
+}
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 1.05rem;
+  margin-bottom: 1.2rem;
+}
+.contact-item i {
+  font-size: 1.6rem;
+  color: var(--gold);
+  width: 2rem;
+  text-align: center;
+}
+.contact-item a {
+  color: var(--navy);
+  text-decoration: none;
+  transition: color .2s;
+}
+.contact-item a:hover {
+  color: var(--gold-dark);
+}
+
+/* ===== FOOTER ===== */
+.footer-apomat {
+  background: var(--navy);
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  padding: 24px 0;
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.footer-apomat a {
+  color: var(--gold-light);
+  text-decoration: none;
+}
+.footer-apomat a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================ */
+/* ===== MEDIA QUERIES (responsivo) ===== */
+/* ============================================================ */
+
+/* Tablets y móviles grandes (≤768px) */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2.4rem;
+  }
+  .hero-section .subhead {
+    font-size: 1rem;
+  }
+  .section-title {
+    font-size: 2rem;
+  }
+  .product-card {
+    padding: 0 0.9rem 1.2rem;
+  }
+  .product-image {
+    padding: 0.9rem;
+  }
+  .featured-products-section {
+    margin-top: -40px;
+  }
+}
+
+/* Móviles pequeños (≤576px) */
+@media (max-width: 576px) {
+  .hero-section {
+    padding: 60px 0 50px;
+  }
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+  .btn-gold {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+  }
+  .featured-products-section {
+    margin-top: -30px;
+    padding: 40px 0 40px;
+  }
+  .product-image {
+    padding: 0.75rem;
+  }
+}
+
+/* Escritorio (≥769px) — altura completa del hero */
+@media (min-width: 769px) {
+  .hero-section {
+    min-height: 100vh;
+  }
+}
