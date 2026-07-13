@@ -1,0 +1,134 @@
+
+body {
+    background: #f5f5f5;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+
+nav ul li a {
+    color: white;
+    text-transform: uppercase;
+}
+
+/* el logo de la barra de navegación */
+nav a {
+    color: white;
+}
+
+/* introduccioon */
+.introduccion {
+    margin: 40px 8%;
+}
+
+.introduccion h1 {
+    color: #2e7d32;
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.introduccion h2{
+    font-size:2.6rem ;
+}
+
+.introduccion p {
+    color: #000;
+    text-align: justify;
+    font-size: 1.2rem;
+}
+
+/* hitoria */
+.historia {
+    margin: 40px 8%;
+}
+
+.historia h2 {
+    color: #2e7d32;
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.historia p {
+    font-size: 1.2rem;
+    text-align: justify;
+}
+
+/* todos los títulos h2 */
+
+
+
+.carousel {
+    height: 420px !important;
+    margin: 20px 0 40px;
+}
+
+.carousel .carousel-item {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.carousel .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* indicadores */
+.carousel .indicators .indicator-item {
+    background-color: #9e9e9e;
+}
+
+.carousel .indicators .indicator-item.active {
+    background-color: #2e7d32;
+}
+
+/* contacto */
+.contacto {
+    margin: 40px 8%;
+}
+
+.card-panel{
+    border-radius: 10px;
+}
+
+/* footer */
+.page-footer {
+    padding: 25px 0;
+}
+
+.page-footer p {
+    font-size: 0.9rem;
+}
+
+/* responsive */
+@media (max-width: 600px) {
+
+    .introduccion,
+    .historia,
+    .contacto {
+        margin: 20px 5%;
+    }
+
+    .introduccion h1 {
+        font-size: 2.5rem;
+    }
+
+    .introduccion h2 {
+        font-size: 2.2rem
+
+    }
+
+    .historia h2 {
+        font-size: 2rem;
+    }
+
+    nav ul li {
+        display: block;
+    }
+
+    .section h2 {
+        font-size: 2rem;
+    }
+}

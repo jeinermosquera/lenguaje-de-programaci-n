@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap');
+
+/* body */
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #f0ede4;
+    background-image:
+        radial-gradient(ellipse at 15% 0%, #c8e6c9 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 100%, #a5d6a7 0%, transparent 45%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+/* contenedor principal */
+.container {
+    width: 92% !important;
+    max-width: 860px !important;
+}
+
+.col.s12.m6.offset-m3 {
+    width: 100% !important;
+    margin-left: 0 !important;
+}
+
+/* tarjeta del login */
+.card {
+    background-color: #ffffff !important;
+    border-radius: 20px !important;
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.04),
+        0 12px 40px rgba(45, 106, 79, 0.12) !important;
+    overflow: hidden;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* contenido de la tarjeta */
+.card-content:first-child {
+    padding: 2.5rem 3rem 1rem !important;
+    background-color: #ffffff;
+}
+
+.card-content:first-child::before {
+    content: 'SISTEMA DE USUARIOS';
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    color: #2d6a4f;
+    margin-bottom: 6px;
+}
+
+.card-title {
+    font-family: 'Libre Baskerville', serif !important;
+    font-size: 36px !important;
+    font-weight: 700 !important;
+    color: #1b4332 !important;
+    letter-spacing: -0.5px;
+    display: flex !important;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.card-title::before {
+    content: 'person';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    background-color: #2d6a4f;
+    color: #ffffff;
+    font-family: 'Material Icons';
+    font-size: 24px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+/* pestañas de la tarjeta */
+.card-tabs {
+    padding: 1rem 3rem !important;
+    background-color: #ffffff !important;
+}
+
+.tabs {
+    background-color: #f3f4f0 !important;
+    border-radius: 12px !important;
+    height: 50px !important;
+    padding: 5px !important;
+    overflow: hidden;
+}
+
+.tabs .tab {
+    height: 40px !important;
+    line-height: 40px !important;
+}
+
+.tabs .tab a {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #6b7280 !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    border-radius: 9px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.tabs .tab a:hover,
+.tabs .tab a.active {
+    background-color: #ffffff !important;
+    color: #1b4332 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1), 0 0 0 1px rgba(45,106,79,0.1) !important;
+    border-radius: 9px;
+}
+
+.tabs .indicator {
+    display: none !important;
+}
+
+/* entrada de los datos */
+.view-container .card-content {
+    padding: 0.5rem 3rem !important;
+}
+
+.view-container .card-content:last-child {
+    padding-bottom: 2.5rem !important;
+}
+
+/* label */
+label {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    letter-spacing: 0.2px;
+}
+
+/* campo de entrada */
+.input-field {
+    margin-top: 0.4rem !important;
+    margin-bottom: 0 !important;
+}
+
+.input-field input[type="email"],
+.input-field input[type="password"],
+.input-field input[type="text"] {
+    height: 52px !important;
+    padding: 0 16px !important;
+    background-color: #fafaf8 !important;
+    border: 1.5px solid #e5e7e0 !important;
+    border-bottom: 1.5px solid #e5e7e0 !important;
+    border-radius: 10px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 15px !important;
+    color: #1b4332 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+    width: 100% !important;
+}
+
+.input-field input::placeholder {
+    color: #9ca3a0 !important;
+    font-weight: 300 !important;
+}
+
+.input-field input[type="email"]:focus,
+.input-field input[type="password"]:focus,
+.input-field input[type="text"]:focus {
+    border: 1.5px solid #2d6a4f !important;
+    border-bottom: 1.5px solid #2d6a4f !important;
+    background-color: #f0fdf4 !important;
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1) !important;
+}
+
+/* Quitar la línea animada de Materialize */
+.input-field input[type="email"] + label,
+.input-field input[type="password"] + label,
+.input-field input[type="text"] + label {
+    display: none !important;
+}
+
+/* Espacio a la derecha del input para que el texto no quede debajo del ojo */
+.input-field input[type="password"] {
+    padding-right: 44px !important;
+}
+
+/* Posición correcta del ícono ojo */
+.input-field .material-icons {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    cursor: pointer !important;
+    color: #9ca3a0 !important;
+    font-size: 20px !important;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+/* Color del ojo al pasar el mouse */
+.input-field .material-icons:hover {
+    color: #2d6a4f !important;
+}
+
+/* botón principal */
+.btn.waves-effect.waves-light {
+    width: 100% !important;
+    height: 52px !important;
+    line-height: 52px !important;
+    background-color: #2d6a4f !important;
+    color: #ffffff !important;
+    border-radius: 10px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.4px !important;
+    text-transform: none !important;
+    box-shadow: 0 4px 14px rgba(45, 106, 79, 0.3) !important;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s !important;
+}
+
+.btn.waves-effect.waves-light:hover {
+    background-color: #1b4332 !important;
+    box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4) !important;
+}
+
+.btn.waves-effect.waves-light:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(45, 106, 79, 0.25) !important;
+}
+
+/* animación de entrada */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.view-container {
+    animation: slideIn 0.35s ease;
+}
+
+/* responsive */
+@media (max-width: 600px) {
+    .container {
+        width: 96% !important;
+    }
+
+    .card-content:first-child,
+    .card-tabs,
+    .view-container .card-content {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    .card-title {
+        font-size: 26px !important;
+    }
+
+    .tabs .tab a {
+        font-size: 13px !important;
+    }
+}

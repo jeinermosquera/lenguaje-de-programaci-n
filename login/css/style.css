@@ -1,0 +1,175 @@
+/* reseteo general */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* body */
+body{
+    height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    background-image: url("../img/img.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* capa oscura */
+.overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.20);
+    backdrop-filter: blur(2px);
+}
+
+/* tarjeta del login */
+.login-card{
+    position: relative;
+    z-index: 2;
+    width: 420px;
+    padding: 40px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+/* icono del usuario */
+.user-icon{
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 20px auto;
+    border-radius: 50%;
+    background: #0d3b66;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-icon i{
+    font-size: 45px;
+    color: white;
+}
+
+/* titulo del login */
+.login-title{
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.login-subtitle{
+    text-align: center;
+    color: #eeeeee;
+    margin-bottom: 35px;
+}
+
+/* campo de entrada */
+.input-field{
+    position: relative;
+}
+
+.input-field input{
+    color: white !important;
+}
+
+.input-field label{
+    color: #eeeeee !important;
+}
+
+.input-field i{
+    color: #eeeeee;
+}
+
+/* linea input */
+.input-field input:focus{
+    border-bottom: 1px solid #64b5f6 !important;
+    box-shadow: 0 1px 0 0 #64b5f6 !important;
+}
+
+/* label activo */
+.input-field input:focus + label{
+    color: #64b5f6 !important;
+}
+
+/* ver la contraseña */
+.toggle-password{
+    position: absolute;
+    right: 10px;
+    top: 15px;
+    cursor: pointer;
+    color: white;
+    user-select: none;
+}
+
+/* opciones */
+.opcion{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.opcion label{
+    color: white;
+}
+
+.opcion a{
+    color: #90caf9;
+    font-size: 14px;
+}
+
+/* boton del login */
+.btn-login{
+    width: 100%;
+    height: 50px;
+    border-radius: 10px;
+    background: #0d3b66 !important;
+}
+
+.btn-login:hover{
+    background: #14558f !important;
+}
+
+/* linea divisora */
+.divider{
+    margin: 20px 0;
+}
+
+/* boton de google */
+.google-btn{
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* registro */
+.register{
+    text-align: center;
+    margin-top: 25px;
+    color: white;
+}
+
+.register a{
+    color: #90caf9;
+    font-weight: bold;
+}
+
+/* responsive */
+@media(max-width: 500px){
+    .login-card{
+        width: 90%;
+        padding: 30px 20px;
+    }
+}

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Caña de Azúcar | Cultivo y Tradición</title>
+    <!-- link para poder trabajar con Materialize -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    
+    <!--link iconos que vamos a utilizar -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- el link para conectar con el css -->
+    <link rel="stylesheet" href="/site/css/styles.css">
+
+    <!-- SweetAlert2 para alertas bonitas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/site/favicon/favicon-32x32.png" type="image/x-icon">
+</head>
+<body>
+
+    <!-- la barra de navegacion -->
+<div class="navbar-fixed">
+    <nav class="green darken-3">
+        <div class="nav-wrapper container">
+
+            <a href="#" class="brand-logo">
+                <strong>La Caña</strong>
+            </a>
+
+            <!-- menú móvil -->
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger right">
+                <i class="material-icons">menu</i>
+            </a>
+
+            <!-- barra de navegación para pantallas grandes -->
+            <ul class="right hide-on-med-and-down">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#historia">Historia</a></li>
+                <li><a href="#galeria">Galería</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+
+                <li>
+                    <a href="#" class="saludo-usuario"></a>
+                </li>
+
+                <li>
+                    <a href="#" onclick="cerrarSesion()">
+                        <i class="material-icons left">exit_to_app</i>
+                        Salir
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+</div>
+
+<!-- menú para pantallas pequeñas -->
+<ul class="sidenav" id="mobile-demo">
+    <li><a href="#inicio">Inicio</a></li>
+    <li><a href="#historia">Historia</a></li>
+    <li><a href="#galeria">Galería</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+
+    <li>
+        <a href="#" class="saludo-usuario"></a>
+    </li>
+
+    <li>
+        <a href="#" onclick="cerrarSesion()">
+            <i class="material-icons left">exit_to_app</i>
+            Salir
+        </a>
+    </li>
+</ul>
+    <!-- la introducccion  -->
+    <div class="introduccion" id="inicio">
+        <h1 class="center-align green-text text-darken-3"><strong>La Caña de Azúcar</strong></h1>
+            <h2 class="center-align green-text text-darken-3"> <strong>Introducción</strong></h2>
+            <p class="flow-text center-align">La caña de azúcar es una planta tropical ampliamente cultivada en diferentes partes del mundo por su gran importancia económica y alimenticia. Se caracteriza por sus tallos largos y dulces, de los cuales se extrae el azúcar utilizado en numerosos productos y alimentos. Además de la producción de azúcar, la caña también se utiliza para elaborar panela, melaza, alcohol y biocombustibles. Gracias a su capacidad de crecer en climas cálidos y húmedos, este cultivo se ha convertido en una de las principales actividades agrícolas de muchos países tropicales, generando empleo y contribuyendo al desarrollo industrial y comercial.</p>
+        </div>
+    </div>
+
+    <!-- la historia -->
+    <div class="historia" id="historia" >
+        <h2 class="center-align green-text text-darken-3"> <strong>Historia de la Caña de Azúcar</strong></h2>
+        <p class="flow-text">La caña de azúcar es una planta tropical originaria del sudeste asiático, especialmente de India y Papúa Nueva Guinea, donde desde hace miles de años las personas descubrieron que su jugo era dulce y podía utilizarse para producir azúcar. Con el tiempo, su cultivo se expandió hacia China, el Medio Oriente y Europa gracias al comercio y a los pueblos árabes. Durante la colonización, los europeos llevaron la caña de azúcar a América, donde encontró condiciones ideales para crecer en regiones tropicales como Brasil, Cuba y República Dominicana. Desde entonces, la caña se convirtió en uno de los cultivos más importantes del mundo debido a la producción de azúcar, panela, alcohol y biocombustibles, siendo actualmente una fuente importante de economía y empleo en muchos países tropicales.</p>
+    </div>
+
+    <!-- el acrrusel de imagenes -->
+        <div class="container" id="galeria">
+            <h2 class="center-align green-text text-darken-3"><strong>Galería</strong></h2>
+            <div class="carousel">
+                <a class="carousel-item" href="#uno!">
+                    <img src="/site/img/img-1.jpg" alt="Campo de caña">
+                </a>
+                <a class="carousel-item" href="#dos!">
+                    <img src="/site/img/img-2.jpg" alt="Tallos de caña">
+                </a>
+                <a class="carousel-item" href="#tres!">
+                    <img src="/site/img/img-3.jpg" alt="Cosecha de caña">
+                </a>
+                <a class="carousel-item" href="#cuatro!">
+                    <img src="/site/img/img-4.jpg" alt="Producción de azúcar">
+                </a>
+                <a class="carousel-item" href="#cinco!">
+                    <img src="/site/img/img-5.jpg" alt="Plantación tropical">
+                </a>
+            </div>
+        </div>
+
+    <!-- SECCIÓN CONTACTO -->
+        <div class="contacto" id="contacto">
+            <h2 class="center-align green-text text-darken-3">Contacto</h2>
+
+            <div class="row">
+                <div class="col s12 m6 offset-m3">
+                    <div class="card-panel white center-align">
+                        <p><i class="material-icons green-text">phone</i> +57 300 123 4567</p>
+                        <p><i class="material-icons green-text">email</i> info@lacana.com</p>
+                        <p><i class="material-icons green-text">location_on</i> Carrera 4 # 12-34, Quibdó, Colombia</p>
+                        <hr>
+                        <p class="green-text">📢 ¿Tienes preguntas sobre el cultivo de caña? ¡Escríbenos!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- FOOTER -->
+    <footer class="page-footer green darken-3">
+        <div class="container center-align">
+            <p>© 2025 La Caña de Azúcar - Cultivo, tradición y sostenibilidad</p>
+            <p class="grey-text text-lighten-2"> Un mundo más dulce gracias a la caña</p>
+        </div>
+    </footer>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<script>
+let sesionValidada = false;
+
+async function validarAutenticacion(razon = "carga_normal") {
+    // No validar dos veces en la misma carga
+    if (sesionValidada) return true;
+    
+    try {
+        // Incluir timestamp para forzar que el servidor NO cachee la respuesta
+        // También incluir un parámetro de razón para debugging en servidor
+        const timestamp = Date.now();
+        const respuesta = await fetch("/usuario?t=" + timestamp + "&r=" + razon, {
+            method: "GET",
+            cache: "no-store",  // Prevenir caché en nivel de fetch API
+            headers: {
+                "Pragma": "no-cache",
+                "Cache-Control": "no-cache, no-store, must-revalidate"
+            }
+        });
+
+        console.log("Validación de autenticación (" + razon + "): Status", respuesta.status);
+
+        if (respuesta.status === 401) {
+            console.warn("Sesión no válida - Usuario no autenticado");
+            // Usuario no autenticado - redirigir al login
+            window.location.replace("/");
+            return false;
+        }
+
+        sesionValidada = true;
+        return true;
+        
+    } catch (error) {
+        console.error("Error al validar autenticación:", error);
+        // En caso de error de red, también redirigir (es más seguro errar del lado de la seguridad)
+        window.location.replace("/");
+        return false;
+    }
+}
+
+// VALIDACIÓN 2: Validar cuando el navegador dispara "load"
+window.addEventListener("load", async function () {
+    console.log("Validación en evento load");
+    const esValida = await validarAutenticacion("evento_load");
+    if (!esValida) {
+        window.location.replace("/");
+    }
+});
+
+// VALIDACIÓN 3: Validar cuando regresa con forward después de back
+// Este es el evento CRÍTICO que previene el acceso via bfcache
+window.addEventListener("pageshow", async function (event) {
+
+    // Forzar una nueva validación al volver con Atrás/Adelante
+    sesionValidada = false;
+
+    if (event.persisted) {
+        console.warn("Página viene del bfcache - Revalidando sesión...");
+        const esValida = await validarAutenticacion("bfcache_detected");
+
+        if (!esValida) {
+            window.location.replace("/");
+        }
+    }
+});
+
+// VALIDACIÓN 4: Validar cuando la pestaña vuelve a ser visible
+// Esto cubre casos donde el usuario minimizó la ventana/pestaña
+document.addEventListener("visibilitychange", async function () {
+    if (document.visibilityState === "visible") {
+        console.log("Página se hizo visible - Validando sesión...");
+        const esValida = await validarAutenticacion("visibility_change");
+        if (!esValida) {
+            window.location.replace("/");
+        }
+    }
+});
+
+// VALIDACIÓN 6: Prevenir que bfcache guarde la página si el usuario hace logout
+// Usar unload para marcar que la sesión se cerró
+window.addEventListener("beforeunload", function () {
+    if (window.location.href.includes("logout")) {
+        // El usuario está haciendo logout - marcar para que bfcache no cachee
+        console.log("Usuario haciendo logout - Deshabilitando bfcache");
+        sessionStorage.setItem("bfcache_disabled", "true");
+    }
+});
+
+// VALIDACIÓN 7: Verificar si el bfcache está deshabilitado
+if (sessionStorage.getItem("bfcache_disabled") === "true") {
+    console.warn("bfcache estaba deshabilitado - Revalidando...");
+    sessionStorage.removeItem("bfcache_disabled");
+    validarAutenticacion("bfcache_was_disabled");
+}
+</script>
+
+<!-- SCRIPT NORMAL DE PÁGINA (Después de las validaciones de seguridad) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Carrusel
+    var elems = document.querySelectorAll('.carousel');
+    M.Carousel.init(elems, {
+        duration: 200,
+        dist: -80,
+        shift: 40,
+        padding: 20,
+        numVisible: 3,
+        indicators: true
+    });
+
+    // SIDENAV (menú hamburguesa)
+    var elemsSidenav = document.querySelectorAll('.sidenav');
+    M.Sidenav.init(elemsSidenav);
+
+    // Mostrar nombre del usuario
+    const timestamp = Date.now();
+    fetch("/usuario?t=" + timestamp + "&r=mostrar_nombre", {
+        cache: "no-store",
+        method: "GET",
+        headers: {
+            "Pragma": "no-cache",
+            "Cache-Control": "no-cache, no-store, must-revalidate"
+        }
+    })
+        .then(response => {
+            if (response.status === 401) {
+                console.error("No autorizado al obtener nombre - Redirigiendo");
+                window.location.replace("/");
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.nombre) {
+                const primerNombre = data.nombre.split(" ")[0];
+                document.querySelectorAll(".saludo-usuario")
+                    .forEach(elemento => {
+                        elemento.textContent = "Hola, " + primerNombre;
+                    });
+            }
+        })
+        .catch(error => {
+            console.error("Error al obtener datos del usuario:", error);
+            window.location.replace("/");
+        });
+
+});
+
+// Función para cerrar sesión
+function cerrarSesion() {
+    // Usar replace para que no se pueda volver atrás una vez que hace logout
+    // Marcar en sessionStorage que el caché debe deshabilitarse
+    sessionStorage.setItem("bfcache_disabled", "true");
+    window.location.replace("/logout");
+}
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("login") === "success") {
+
+        Swal.fire({
+            icon: "success",
+            title: "¡Bienvenido!",
+            text: "Has iniciado sesión correctamente.",
+            confirmButtonText: "Continuar",
+            confirmButtonColor: "#4CAF50"
+        });
+
+}
+
+if (params.get("register") === "success") {
+
+    Swal.fire({
+        icon: "success",
+        title: "¡Cuenta creada!",
+        text: "Tu cuenta se registró correctamente.",
+        confirmButtonText: "Continuar",
+        confirmButtonColor: "#4CAF50"
+    });
+
+}
+
+
+
+</script>
+</body>
+</html>

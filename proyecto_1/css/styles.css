@@ -1,0 +1,109 @@
+/* 1. Reset básico y tipografía */
+* {
+    box-sizing: border-box; /* Para que el padding no afecte el ancho total [1, 2] */
+    margin: 0;
+    padding: 0;
+}
+
+/* 2. Contenedor Principal */
+body {
+    font-family: 'Montserrat', sans-serif; /* Una tipografía limpia y moderna [3, 4] */
+    background-color: #f4f7f9; /* Un color de fondo suave para descanso visual [5] */
+    color: #333; /* Un gris oscuro para mejor legibilidad [6, 7] */
+    line-height: 1.6; /* Espaciado entre líneas para facilitar la lectura [8, 9] */
+    padding: 20px;
+    max-width: 800px; /* Limitamos el ancho para que el texto no sea eterno de leer [10, 11] */
+    margin: 40px auto; /* Centramos el contenido horizontalmente [12, 13] */
+    background: white; /* Fondo blanco para el área del mensaje [14] */
+    padding: 40px;
+    border-radius: 8px; /* Bordes redondeados para suavizar el diseño [15, 16] */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Sombra leve para dar profundidad [17, 18] */
+
+}
+
+/* 3. Estilos de Encabezados */
+h1 {
+    color: #4488ee; /* El azul "48e" recomendado en las fuentes [19, 20] */
+    text-align: center; /* Título principal centrado [21, 22] */
+    margin-bottom: 20px;
+    text-transform: uppercase; /* En mayúsculas para dar autoridad al aviso [23, 24] */
+    font-size: 2.2rem; /* Tamaño responsivo [25] */
+}
+
+img {
+    display: block;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 450px; /* Limita el tamaño de la imagen para que no sea demasiado grande [26] */
+    height: auto; /* Mantiene la proporción de la imagen [27] */
+    border-radius: 20px; /* Bordes redondeados para suavizar la imagen [28] */
+}
+h2{
+    color: #2c3e50;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #4488ee; /* Línea decorativa para separar secciones [26, 27] */
+    padding-bottom: 5px;
+}
+audio {
+    display: block;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 450px; /* Limita el tamaño del audio para que no sea demasiado grande [26] */
+}
+
+h3 {
+    color: #2c3e50;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #4488ee; /* Línea decorativa para separar secciones [26, 27] */
+    padding-bottom: 5px;
+}
+
+/* 4. Contenido y Advertencias */
+p {
+    margin-bottom: 15px;
+    text-align: justify; /* Texto justificado para una apariencia ordenada [9, 28] */
+}
+
+strong {
+    color: #ff4444; /* Rojo para resaltar peligro o términos clave como "crecido" [19, 29] */
+    font-weight: 700; /* Negrita pronunciada [30, 31] */
+}
+
+/* 5. Lista de Recomendaciones */
+ul {
+    list-style-position: inside; /* Mantiene los puntos dentro del flujo del texto [32, 33] */
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+li {
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #f9f9f9; /* Fondo ligero para cada item de la lista [34] */
+    border-radius: 20px;
+}
+
+/* 6. Videos */
+video {
+    display: block;
+    margin: 20px auto;
+    width: 450px;   /* más ancho */
+    height: 300px;  /* menos alto */
+    object-fit: cover; /* recorta sin deformar */
+    border-radius: 20px;
+}
+
+/* 6. Pie de página */
+hr {
+    border: 0;
+    border-top: 1px solid #ddd; /* Línea sutil de separación [27] */
+    margin: 40px 0 20px;
+}
+
+footer p, body > p:last-of-type {
+    font-size: 0.9rem;
+    color: #777; /* Texto de autoría en gris claro [6, 7] */
+    text-align: center;
+}

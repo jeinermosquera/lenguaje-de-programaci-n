@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Playas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m6 offset-m3">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title"><strong>Playas</strong></span>
+                    </div>
+
+                    <div class="card-tabs">
+                        <ul class="tabs tabs-fixed-width">
+                            <li class="tab"><a href="#login" id="login-tab">Iniciar Sesión</a></li>
+                            <li class="tab"><a href="#register" id="register-tab">Registrarse</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- secion visible del login -->
+                    <div id="login-view" class="view-container">
+                        <form autocomplete="off" onsubmit="iniciarSesion(); return false;">
+                            <div class="card-content">
+                                <div class="correo">
+                                    <label for="email">Correo electrónico</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="email" required placeholder="ejemplo@correo.com" id="email" name="email" class="validate">
+                                </div>
+                            </div>
+
+                            <div class="card-content">
+                                <div class="contraseña">
+                                    <label for="password">Contraseña</label>
+                                </div>
+                                <div class="input-field" style="position: relative;">
+                                    <input type="password" required placeholder="Tu contraseña" id="password" name="password" class="validate">
+                                    <i class="material-icons" id="toggle-login-password"
+                                        onclick="togglePassword('password', 'toggle-login-password')"
+                                        style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9e9e9e;">
+                                        visibility
+                                    </i>
+                                </div>
+                            </div>
+
+                            <!-- Mensaje de error -->
+                            <div class="card-content" id="error-msg" style="display: none;">
+                                <p class="red-text">
+                                    <i class="material-icons" style="vertical-align: middle; font-size: 18px;">error</i>
+                                    Correo o contraseña incorrectos.
+                                </p>
+                            </div>
+
+                            <div class="card-content">
+                                <button class="btn waves-effect waves-light" type="submit">
+                                    Iniciar Sesión
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- la secion de registro del sitio -->
+                    <div id="register-view" class="view-container" style="display: none;">
+                        <form id="register-form" autocomplete="off" onsubmit="registrarUsuario(); return false;">
+                            <div class="card-content">
+                                <div class="nombre">
+                                    <label for="register-name">Nombre completo</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="text" required placeholder="Tu nombre completo" id="register-name" name="full_name" class="validate">
+                                </div>
+
+                                <div class="correo">
+                                    <label for="register-email">Correo electrónico</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="email" required placeholder="ejemplo@correo.com" id="register-email" name="email" class="validate">
+                                </div>
+
+                                <div class="contraseña">
+                                    <label for="register-password">Contraseña</label>
+                                </div>
+                                <div class="input-field password-container">
+                                    <input type="password" autocomplete="off" required placeholder="Mínimo 8 caracteres" id="register-password" name="password" class="validate">
+                                    <i class="material-icons" id="toggle-register-password"
+                                        onclick="togglePassword('register-password', 'toggle-register-password')">
+                                        visibility
+                                    </i>
+                                </div>
+
+                                <p id="register-error" class="red-text" style="display: none;"></p>
+                                <p id="register-ok" class="green-text" style="display: none;"></p>
+                            </div>
+
+                            <div class="card-content">
+                                <button class="btn waves-effect waves-light" type="submit">
+                                    Crear cuenta
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="../js/strit.js"></script>
+    <script>
+        // Inicializar tabs de Materialize
+        document.addEventListener('DOMContentLoaded', function() {
+            var tabs = document.querySelector('.tabs');
+            if (tabs) {
+                M.Tabs.init(tabs);
+            }
+        });
+
+        // Cuando el usuario llega al login, borra la sesión anterior
+        localStorage.removeItem("sesion_activa");
+        localStorage.removeItem("sesion_nombre");
+        localStorage.removeItem("sesion_email");
+
+        // Mostrar u ocultar contraseña
+        function togglePassword(inputId, iconId) {
+            var input = document.getElementById(inputId);
+            var icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        // iniciar secion
+        function iniciarSesion() {
+            var email = document.getElementById("email").value.trim();
+            var password = document.getElementById("password").value;
+            var errorMsg = document.getElementById("error-msg");
+
+            errorMsg.style.display = "none";
+
+            var usuario = verificarCredenciales(email, password);
+
+            if (usuario) {
+                guardarSesion(usuario.nombre, usuario.email);
+                // redirije a la web
+                window.location.href = "../web/index.html";
+            } else {
+                errorMsg.style.display = "block";
+            }
+        }
+
+        // registra el usuario
+        function registrarUsuario() {
+            var nombre = document.getElementById("register-name").value.trim();
+            var email = document.getElementById("register-email").value.trim();
+            var password = document.getElementById("register-password").value;
+            var error = document.getElementById("register-error");
+            var ok = document.getElementById("register-ok");
+
+            error.style.display = "none";
+            ok.style.display = "none";
+            error.textContent = "";
+            ok.textContent = "";
+
+            if (nombre === "" || email === "" || password === "") {
+                error.textContent = "Todos los campos son obligatorios.";
+                error.style.display = "block";
+                return;
+            }
+
+            if (password.length < 8) {
+                error.textContent = "La contraseña debe tener mínimo 8 caracteres.";
+                error.style.display = "block";
+                return;
+            }
+
+            if (existeEmail(email)) {
+                error.textContent = "Ese correo ya está registrado.";
+                error.style.display = "block";
+                return;
+            }
+
+            guardarUsuario(nombre, email, password);
+            ok.textContent = "✓ Cuenta creada. Iniciando sesión...";
+            ok.style.display = "block";
+
+            // Limpia los campos
+            document.getElementById("register-name").value = "";
+            document.getElementById("register-email").value = "";
+            document.getElementById("register-password").value = "";
+
+            // Guarda sesión y redirige automáticamente
+            setTimeout(function() {
+                guardarSesion(nombre, email);
+                window.location.href = "../web/index.html";
+            }, 1500);
+        }
+
+        // Cambio entre vistas
+        var loginTab = document.getElementById('login-tab');
+        var registerTab = document.getElementById('register-tab');
+        var loginView = document.getElementById('login-view');
+        var registerView = document.getElementById('register-view');
+
+        function showLogin() {
+            registerView.style.display = 'none';
+            loginView.style.display = 'block';
+        }
+
+        function showRegister() {
+            loginView.style.display = 'none';
+            registerView.style.display = 'block';
+        }
+
+        if (loginTab && registerTab) {
+            loginTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                showLogin();
+            });
+
+            registerTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                showRegister();
+            });
+        }
+    </script>
+</body>
+</html>

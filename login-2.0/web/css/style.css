@@ -1,0 +1,217 @@
+/* importacion de las fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap');
+
+/* body */
+body {
+    background-color: #f5e6c8;
+    font-family: 'Nunito', sans-serif;
+    color: #2c2c2c;
+}
+
+/* barra de navegación */
+nav {
+    background-color: #0f4a63 !important;
+    box-shadow: 0 3px 0 #e07b5a;
+}
+
+nav .brand-logo {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem !important;
+    font-weight: 700;
+    color: #f5e6c8 !important;
+}
+
+nav ul li a {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #d4eef7 !important;
+    padding: 0 10px;
+}
+
+nav ul li a:hover {
+    color: #e07b5a !important;
+    background: transparent !important;
+}
+
+/* barra de navegación lateral */
+.sidenav {
+    background-color: #0f4a63;
+}
+
+.sidenav li a {
+    color: #d4eef7 !important;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+}
+
+/* secciones */
+.section {
+    padding: 2.5rem 0;
+    border-bottom: 2px dashed #e8d5a3;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+/* títulos */
+h1, h2 {
+    font-family: 'Caveat', cursive;
+    color: #0f4a63;
+}
+
+h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+}
+
+h1::after {
+    content: '🌊';
+    margin-left: 10px;
+}
+
+h2 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+h2::before {
+    content: '— ';
+    color: #e07b5a;
+}
+
+h2::after {
+    content: ' —';
+    color: #e07b5a;
+}
+
+/* texto */
+.flow-text {
+    font-size: 1.05rem !important;
+    line-height: 1.85;
+    color: #5a5a5a;
+    background-color: #fffdf7;
+    border-left: 4px solid #1a6b8a;
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.4rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 2px 2px 0 #e8d5a3;
+}
+
+/* tarjetas */
+.card {
+    background-color: #fffdf7 !important;
+    border-radius: 10px !important;
+    border: 2px solid #e8d5a3;
+    box-shadow: 4px 4px 0 #e8d5a3 !important;
+}
+
+.card .card-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.5rem !important;
+    font-weight: 700;
+    color: #0f4a63 !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.card .card-title .material-icons {
+    color: #e07b5a;
+}
+
+.card .card-content p {
+    font-size: 0.92rem;
+    color: #5a5a5a;
+    line-height: 1.6;
+}
+
+/* imagen de la galería */
+.galeria-img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 3px solid #fffdf7;
+    box-shadow: 4px 4px 0 #e8d5a3;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* panel de tarjeta */
+.card-panel {
+    background-color: #fffdf7 !important;
+    border-radius: 10px !important;
+    border: 2px solid #e8d5a3;
+    box-shadow: 4px 4px 0 #e8d5a3 !important;
+    padding: 1.5rem 2rem !important;
+}
+
+.card-panel p {
+    color: #5a5a5a;
+    margin-bottom: 1rem;
+}
+
+.card-panel ul {
+    list-style: none;
+    padding: 0;
+}
+
+.card-panel ul li {
+    margin-bottom: 1rem;
+}
+
+audio {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 30px;
+}
+
+video {
+    border-radius: 10px;
+    border: 3px solid #e8d5a3;
+    box-shadow: 4px 4px 0 #e8d5a3;
+    max-width: 100%;
+}
+
+/* íconos pequeños en el panel de tarjeta */
+.card-panel .material-icons.tiny {
+    color: #e07b5a;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+/* footer */
+footer {
+    background-color: #0f4a63 !important;
+    border-top: 3px solid #e07b5a;
+    padding: 1.8rem 0;
+    margin-top: 2rem;
+}
+
+footer p {
+    color: #d4eef7;
+    font-size: 0.88rem;
+    margin: 0.4rem 0;
+}
+
+footer a {
+    color: #f5e6c8 !important;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #e07b5a !important;
+}
+
+/* responsive */
+@media (max-width: 600px) {
+    h1 { font-size: 2.4rem; }
+    h2 { font-size: 2rem; }
+    .flow-text { font-size: 0.97rem !important; }
+    .galeria-img { height: 180px; }
+}

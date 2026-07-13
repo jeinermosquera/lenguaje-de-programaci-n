@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login y Registro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" href="/favicon/favicon-32x32.png">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m6 offset-m3">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title"><strong>La caña</strong></span>
+                    </div>
+
+                    <div class="card-tabs">
+                        <ul class="tabs tabs-fixed-width">
+                            <li class="tab"><a href="#login" id="login-tab">Iniciar Sesión</a></li>
+                            <li class="tab"><a href="#register" id="register-tab">Registrarse</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Vista de LOGIN -->
+                    <div id="login-view" class="view-container">
+                        <form action="/login" method="POST" autocomplete="off">
+                            <div class="card-content">
+                                <div class="correo">
+                                    <label for="email">Correo electrónico</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="email" required placeholder="ejemplo@correo.com" id="email" name="email" class="validate">
+                                </div>
+                            </div>
+
+                            <div class="card-content">
+                                <div class="contraseña">
+                                    <label for="password">Contraseña</label>
+                                </div>
+                                <div class="input-field" style="position: relative;">
+                                    <input type="password" required placeholder="Tu contraseña" id="password" name="password" class="validate">
+                                    <i class="material-icons" id="toggle-login-password"
+                                        onclick="togglePassword('password', 'toggle-login-password')"
+                                        style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9e9e9e;">
+                                        visibility
+                                    </i>
+                                </div>
+                            </div>
+
+                            <div class="card-content">
+                                <button class="btn waves-effect waves-light" type="submit" name="action">
+                                    Iniciar Sesión
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- la secion del registro -->
+                    <div id="register-view" class="view-container" style="display: none;">
+                        <form id="register-form" action="/register" method="POST" autocomplete="off">
+                            <div class="card-content">
+                                <div class="nombre">
+                                    <label for="register-name">Nombre completo</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="text" required placeholder="Tu nombre completo" id="register-name" name="full_name" class="validate">
+                                </div>
+
+                                <div class="correo">
+                                    <label for="register-email">Correo electrónico</label>
+                                </div>
+                                <div class="input-field">
+                                    <input type="email" required placeholder="ejemplo@correo.com" id="register-email" name="email" class="validate">
+                                </div>
+
+                                <div class="contraseña">
+                        <label for="register-password">Contraseña</label>
+                    </div>
+
+                    <div class="input-field password-container">
+                        <input type="password" autocomplete="off" required placeholder="Mínimo 8 caracteres" id="register-password" name="password" class="validate">
+                        <i class="material-icons" id="toggle-register-password" onclick="togglePassword('register-password','toggle-register-password' )">
+                        visibility
+                        </i>
+                    </div>
+
+                    <div class="card-content">
+                        <button class="btn waves-effect waves-light" type="submit" name="action">
+                                crear cuenta
+                            </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Muestra el mensaje de error si la URL tiene ?error=credenciales
+        const params = new URLSearchParams(window.location.search);
+
+    if (params.get("error") === "credenciales") {
+
+    Swal.fire({
+        icon: "error",
+        title: "Inicio de sesión fallido",
+        text: "Correo o contraseña incorrectos.",
+        confirmButtonText: "Intentar nuevamente",
+        confirmButtonColor: "#d32f2f"
+    });
+
+}
+
+
+        // Función para mostrar u ocultar la contraseña
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
+        // Animación de cambio entre vistas
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginView = document.getElementById('login-view');
+        const registerView = document.getElementById('register-view');
+
+        // Función para mostrar la vista de login
+        function showLogin() {
+            registerView.style.animation = 'slideIn 0.5s ease reverse';
+            setTimeout(() => {
+                registerView.style.display = 'none';
+                loginView.style.display = 'block';
+                loginView.style.animation = 'slideIn 0.5s ease';
+            }, 250);
+        }
+
+        // Función para mostrar la vista de registro
+        function showRegister() {
+            loginView.style.animation = 'slideIn 0.5s ease reverse';
+            setTimeout(() => {
+                loginView.style.display = 'none';
+                registerView.style.display = 'block';
+                registerView.style.animation = 'slideIn 0.5s ease';
+            }, 250);
+        }
+
+        loginTab.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLogin();
+        });
+
+        registerTab.addEventListener('click', (e) => {
+            e.preventDefault();
+            showRegister();
+        });
+
+        const registerForm =
+            document.getElementById("register-form");
+
+        registerForm.addEventListener(
+        "submit",
+
+        // Validación de contraseña en el formulario de registro
+        function(event) {
+
+            const password =
+                document.getElementById(
+                "register-password"
+                ).value;
+
+            // Validar que la contraseña tenga al menos 8 caracteres
+            if (password.length < 8) {
+                event.preventDefault();
+
+                Swal.fire({
+                    icon: "warning",
+                    title: "Contraseña muy corta",
+                    text: "La contraseña debe tener mínimo 8 caracteres.",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: "#d32f2f"
+                });
+
+                return;
+            }
+
+        });
+        
+        // Validar que la contraseña contenga al menos un número
+        window.addEventListener("pageshow", function () {
+
+    const formulario = document.querySelector("form");
+
+    if (formulario) {
+        formulario.reset();
+    }
+
+});
+
+if (params.get("error") === "correo_existente") {
+    showRegister();
+}
+
+if (params.get("error") === "correo_existente") {
+
+    Swal.fire({
+        icon: "warning",
+        title: "Correo ya registrado",
+        text: "Ya existe una cuenta con ese correo electrónico.",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#d32f2f"
+    });
+
+}
+
+if (params.get("error") === "password_corta") {
+    showRegister();
+
+    Swal.fire({
+        icon: "warning",
+        title: "Contraseña muy corta",
+        text: "La contraseña debe tener mínimo 8 caracteres.",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#d32f2f"
+    });
+}
+
+</script>
+</body>
+</html>

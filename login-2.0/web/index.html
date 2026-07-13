@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link  rel= "icon"  type= "image/png"  sizes= "96x96"  href= "favicon/favicon-96x96.png" >
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- la barra de navegación fija -->
+    <div class="navbar-fixed">
+        <nav class="blue darken-3">
+            <div class="nav-wrapper container">
+                <a href="#inicio" class="brand-logo">Playas</a>
+                <a href="#" data-target="mobile-menu" class="sidenav-trigger">
+                    <i class="material-icons">menu</i>
+                </a>
+                <ul class="right hide-on-med-and-down">
+                    <li><a href="#introduccion">Introducción</a></li>
+                    <li><a href="#historia">Historia</a></li>
+                    <li><a href="#importancia">Importancia</a></li>
+                    <li><a href="#galeria">Galería</a></li>
+                    <li><a href="#canciones">Canciones</a></li>
+                    <li><a href="#videos">Videos</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                    <li><a href="#" id="saludo-usuario"></a></li>
+                    <li><a href="#" onclick="cerrarSesion()"><i class="material-icons left">exit_to_app</i>Salir</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- barra de navegación para móvil -->
+    <ul class="sidenav" id="mobile-menu">
+        <li><a href="#introduccion">Introducción</a></li>
+        <li><a href="#historia">Historia</a></li>
+        <li><a href="#importancia">Importancia</a></li>
+        <li><a href="#galeria">Galería</a></li>
+        <li><a href="#canciones">Canciones</a></li>
+        <li><a href="#videos">Videos</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+        <li><a href="#" id="saludo-movil"></a></li>
+        <li><a href="#" onclick="cerrarSesion()"><i class="material-icons left">exit_to_app</i>Salir</a></li>
+    </ul>
+
+    <main class="container">
+
+        <!-- introducción a las playas -->
+        <section id="introduccion" class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h1 class="center-align">Introducción sobre playas</h1>
+                    <p class="flow-text">
+                        Las playas son zonas de transición entre la tierra y cuerpos de agua como mares, océanos,
+                        lagos o ríos. Se forman por la acumulación de materiales como arena, grava, piedras o restos
+                        de coral, transportados y depositados por la acción del agua, las olas, las corrientes y el viento.
+                        Estos espacios naturales constituyen uno de los ecosistemas costeros más importantes del planeta,
+                        ya que albergan una gran diversidad de flora y fauna y actúan como barreras naturales que protegen
+                        las costas de la erosión y el impacto de las tormentas.
+                    </p>
+                    <p class="flow-text">
+                        Además de su importancia ecológica, las playas tienen un gran valor social, cultural y económico.
+                        Son destinos turísticos que atraen a millones de personas cada año para actividades recreativas,
+                        deportivas y de descanso.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- la historia de las playas -->
+        <section id="historia" class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h2 class="center-align">Historia de las playas</h2>
+                    <p class="flow-text">
+                        La historia de las playas se remonta a millones de años atrás, cuando los procesos geológicos
+                        y climáticos comenzaron a moldear las costas del planeta.
+                    </p>
+                    <p class="flow-text">
+                        En la antigüedad, las playas eran utilizadas por las civilizaciones costeras para actividades
+                        como la pesca, el comercio y la navegación. Con el tiempo se transformaron en lugares de
+                        recreación y turismo.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- la importancia de las playas -->
+        <section id="importancia" class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h2 class="center-align">Importancia de las playas</h2>
+                    <p class="flow-text">
+                        Las playas son mucho más que un destino turístico. Son ecosistemas vitales que protegen las
+                        costas, albergan biodiversidad y representan una fuente importante de bienestar económico,
+                        social y ambiental para millones de personas en todo el mundo.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s12 m6 l3">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title"><i class="material-icons">eco</i> Ecológica</span>
+                            <p>Son hábitat de numerosas especies y actúan como barreras naturales contra la erosión costera.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12 m6 l3">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title"><i class="material-icons">attach_money</i> Económica</span>
+                            <p>Generan ingresos turísticos e impulsan la economía de las comunidades costeras.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12 m6 l3">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title"><i class="material-icons">people</i> Social</span>
+                            <p>Son espacios de recreación y bienestar para millones de personas en el mundo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12 m6 l3">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title"><i class="material-icons">science</i> Científica</span>
+                            <p>Permiten el estudio del cambio climático, la biodiversidad y los procesos costeros.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- la galería de imágenes -->
+        <section id="galeria" class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h2 class="center-align">Galería de imágenes</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s12 m6 l4">
+                    <img class="galeria-img" src="img/arena.jpg" alt="Playa 1">
+                </div>
+                <div class="col s12 m6 l4">
+                    <img class="galeria-img" src="img/artificiales.jpg" alt="Playa 2">
+                </div>
+                <div class="col s12 m6 l4">
+                    <img class="galeria-img" src="img/deposicion.jpg" alt="Playa 3">
+                </div>
+                <div class="col s12 m6 l4">
+                    <img class="galeria-img" src="img/descarga.jpg" alt="Playa 4">
+                </div>
+                <div class="col s12 m6 l4">
+                    <img class="galeria-img" src="img/erosion.jpg" alt="Playa 5">
+                </div>
+                <div class="col s12 m6 l4">
+                    <img class="galeria-img" src="img/grava.jpg" alt="Playa 6">
+                </div>
+            </div>
+        </section>
+
+        <!-- las canciones de playa -->
+        <section id="canciones" class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h2 class="center-align">Canciones de playa</h2>
+                    <div class="card-panel">
+                        <p>Estas son canciones para disfrutar cuando estamos en la playa.</p>
+                        <ul>
+                            <li><audio controls src="audio/Kafu Banton - Pa La Playa (Audio Oficial)(MP3_160K).mp3"></audio></li>
+                            <li><audio controls src="audio/Luis Fonsi - Despacito ft. Daddy Yankee(MP3_160K).mp3"></audio></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- videos de playa -->
+        <section id="videos" class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h2 class="center-align">Videos de playa</h2>
+                    <div class="card-panel">
+                        <p>Estos son videos para disfrutar cuando estamos en la playa.</p>
+                        <video width="320" height="240" controls>
+                            <source src="videos/Pedro Capó_ Farruko - Calma (Remix - Official Video)(720P_HD).mp4" type="video/mp4">
+                            Tu navegador no soporta el elemento de video.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contacto -->
+        <section id="contacto" class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h2 class="center-align">Contacto</h2>
+                    <div class="card-panel">
+                        <p>
+                            <i class="material-icons tiny">email</i>
+                            info@playas.com
+                        </p>
+                        <p>
+                            <i class="material-icons tiny">phone</i>
+                            +57 3127250386
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="blue darken-3">
+        <div class="container center-align">
+            <p>© 2025 Playas. Todos los derechos reservados.</p>
+            <p>
+                <a href="#introduccion">Introducción</a> |
+                <a href="#historia">Historia</a> |
+                <a href="#importancia">Importancia</a> |
+                <a href="#galeria">Galería</a> |
+                <a href="#canciones">Canciones</a> |
+                <a href="#videos">Videos</a> |
+                <a href="#contacto">Contacto</a>
+            </p>
+        </div>
+    </footer>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="../js/strit.js"></script>
+    <script>
+        // la protección: Si no hay sesión, redirige al login
+        if (!haySesion()) {
+            window.location.href = "../login/index.html";
+        }
+
+        // Muestra el nombre del usuario en el navbar
+        var nombre = localStorage.getItem("sesion_nombre");
+        if (nombre) {
+            var saludoUsuario = document.getElementById("saludo-usuario");
+            var saludoMovil = document.getElementById("saludo-movil");
+            if (saludoUsuario) saludoUsuario.textContent = "Hola, " + nombre;
+            if (saludoMovil) saludoMovil.textContent = "Hola, " + nombre;
+        }
+
+        // Inicializa el sidenav de Materialize
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.sidenav');
+            M.Sidenav.init(elems);
+        });
+    </script>
+</body>
+</html>
