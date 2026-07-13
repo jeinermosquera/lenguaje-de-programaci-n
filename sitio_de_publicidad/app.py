@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 LOGIN_DIR = BASE_DIR / "login"
 SITE_DIR = BASE_DIR / "web"
+STATIC_DIR = BASE_DIR / "static"
 
 # crear la app de Flask
 app = Flask(__name__)
@@ -46,7 +47,7 @@ def home():
 def css_files(filename):
     return send_from_directory(LOGIN_DIR / "css", filename)
 
-# ruta para imágenes del login
+# ruta para imágenes del login (aquí va el logo)
 @app.route("/img/<path:filename>")
 def img_files(filename):
     return send_from_directory(LOGIN_DIR / "img", filename)
@@ -75,6 +76,11 @@ def site_js(filename):
 @app.route("/site/favicon/<path:filename>")
 def site_favicon(filename):
     return send_from_directory(SITE_DIR / "favicon", filename)
+
+# ruta para imágenes estáticas (opcional, si prefieres usar /static/img en vez de /img)
+@app.route("/static/img/<path:filename>")
+def static_img(filename):
+    return send_from_directory(STATIC_DIR / "img", filename)
 
 # registro de usuario
 @app.route("/register", methods=["POST"])
@@ -188,6 +194,15 @@ def dashboard():
     print("Usuario autorizado")
 
     return send_from_directory(SITE_DIR, "index.html")
+
+# ruta protegida para la página de productos
+@app.route("/productos")
+def productos():
+
+    if "logueado" not in session:
+        return redirect("/")
+
+    return send_from_directory(SITE_DIR, "productos.html")
 
 # obtener datos del usuario logueado
 @app.route("/usuario")

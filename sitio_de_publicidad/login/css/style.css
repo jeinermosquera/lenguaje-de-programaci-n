@@ -36,6 +36,14 @@ body {
     color: var(--apomat-navy);
     margin-bottom: 0.25rem;
 }
+/* Logo de Apomat centrado, con tamaño máximo de 220px */
+.apomat-logo {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
 
 /* Tabs de Iniciar sesión / Registrarse */
 .apomat-tabs {

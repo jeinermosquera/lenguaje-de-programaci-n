@@ -276,7 +276,8 @@ body {
   transform: translateX(-50%);
 }
 
-/* ===== TARJETAS DE PRODUCTOS ===== */
+/* ===== TARJETAS DE PRODUCTOS =====
+   (compartidas entre index.html y productos.html) */
 
 /* Sección de productos destacados: sobresale por arriba del hero */
 .featured-products-section {
@@ -292,7 +293,7 @@ body {
 .product-card {
   background: #F4F1EC;
   border-radius: 20px;
-  padding: 0 1.25rem 1.5rem;
+  padding: 1rem 1.25rem 1.5rem;
   text-align: center;
   box-shadow: 0 12px 40px rgba(23, 35, 61, 0.15);
   transition: transform .3s ease, box-shadow .3s ease;
@@ -309,23 +310,23 @@ body {
 }
 
 /* Contenedor de la imagen: proporción fija en vez de altura fija,
-   así se adapta al ancho de la tarjeta en cualquier pantalla */
+   así se adapta al ancho de la tarjeta en cualquier pantalla.
+   Queda con un pequeño marco a los 4 lados dentro de la tarjeta. */
 .product-image {
   width: 100%;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  border-radius: 20px 20px 0 0;
-  margin-bottom: 0.75rem;
+  border-radius: 16px;
+  margin-bottom: 0.9rem;
   background: #f5f0e8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
 }
 .product-image img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 16px;
+  display: block;
   transition: transform .3s ease;
 }
 .product-card:hover .product-image img {
@@ -431,10 +432,7 @@ body {
     font-size: 2rem;
   }
   .product-card {
-    padding: 0 0.9rem 1.2rem;
-  }
-  .product-image {
-    padding: 0.9rem;
+    padding: 0.85rem 0.9rem 1.2rem;
   }
   .featured-products-section {
     margin-top: -40px;
@@ -456,9 +454,6 @@ body {
   .featured-products-section {
     margin-top: -30px;
     padding: 40px 0 40px;
-  }
-  .product-image {
-    padding: 0.75rem;
   }
 }
 
