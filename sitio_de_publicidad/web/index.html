@@ -90,7 +90,8 @@
 
   <!-- ===== SECCIÓN INICIO (HERO con IMAGEN DE FONDO y altura completa) ===== -->
   <section id="inicio" class="hero-section">
-    <div class="container">
+    <div class="hero-overlay"></div>
+    <div class="container animate-fade-in">
       <h1>No solo perfumamos espacios,<br />creamos ambientes.</h1>
       <p class="subhead">Aromatizantes para el hogar, oficina y cualquier ambiente.</p>
       <a href="/productos" class="btn btn-gold">VER PRODUCTOS</a>
@@ -98,7 +99,7 @@
   </section>
 
   <!-- ===== SECCIÓN PRODUCTOS DESTACADOS ===== -->
-<section id="productos" class="featured-products-section">
+<section id="productos" class="featured-products-section animate-on-scroll">
   <div class="container">
     <div class="text-center mb-5">
       <h2 class="section-title text-center">Aromatizantes Destacados</h2>
@@ -106,53 +107,56 @@
     <div class="row g-4">
       <!-- Tarjeta 1 -->
       <div class="col-6 col-lg-3">
-        <div class="product-card">
+        <a href="/producto/1" class="product-card product-card-link">
           <div class="product-image">
             <img src="/site/img/img-1.png" alt="Cofe Mocka">
           </div>
           <h5>Cofe Mocka</h5>
           <div class="price">$ 20.000</div>
-        </div>
+        </a>
       </div>
       <!-- Tarjeta 2 -->
       <div class="col-6 col-lg-3">
-        <div class="product-card">
+        <a href="/producto/2" class="product-card product-card-link">
           <div class="product-image">
-            <img src="/site/img/img-8.png" alt="Moro azul">
+            <img src="/site/img/img-8.png" alt="Mora azul">
           </div>
           <h5>Mora azul</h5>
           <div class="price">$ 20.000</div>
-        </div>
+        </a>
       </div>
       <!-- Tarjeta 3 -->
       <div class="col-6 col-lg-3">
-        <div class="product-card">
+        <a href="/producto/3" class="product-card product-card-link">
           <div class="product-image">
-            <img src="/site/img/img-2.png" alt="Celeste Coton">
+            <img src="/site/img/img-2.png" alt="Celeste Cotton">
           </div>
-          <h5>Celeste Coton</h5>
+          <h5>Celeste Cotton</h5>
           <div class="price">$ 20.000</div>
-        </div>
+        </a>
       </div>
       <!-- Tarjeta 4 -->
       <div class="col-6 col-lg-3">
-        <div class="product-card">
+        <a href="/producto/4" class="product-card product-card-link">
           <div class="product-image">
             <img src="/site/img/img-4.png" alt="Sandia pasion">
           </div>
           <h5>Sandia pasion</h5>
           <div class="price">$ 20.000</div>
-        </div>
+        </a>
+      </div>
+      </div>
+      <div class="text-center mt-5">
+        <a href="/productos" class="btn btn-gold">Ver catálogo completo</a>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <!-- ===== SECCIÓN SOBRE NOSOTROS ===== -->
-  <section id="sobre-nosotros" class="about-section">
+  <section id="sobre-nosotros" class="about-section animate-on-scroll">
     <div class="container text-center">
       <h2 class="section-title text-center">Sobre nosotros</h2>
-      <p>
+      <p class="about-text">
         Somos una marca colombiana apasionada por capturar la esencia de los paisajes que nos rodean y convertirla en experiencias olfativas que transforman hogares. Cada una de nuestras fragancias está creada con ingredientes naturales seleccionados a mano, porque creemos que lo que huele bien también debe hacer bien.
 
         No solo aromatizamos espacios: diseñamos atmósferas que invitan a la calma, despiertan la creatividad y fortalecen los vínculos entre las personas y sus entornos.
@@ -160,27 +164,84 @@
         Apomat es el puente entre la naturaleza y tu bienestar. Porque cuando tu casa huele a nosotros, tu alma respira paz.
       </p>
     </div>
+    <div class="container values-row">
+      <div class="row g-4 justify-content-center">
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="value-card">
+            <div class="value-icon"><i class="bi bi-droplet"></i></div>
+            <h5>100% Natural</h5>
+            <p>Ingredientes naturales seleccionados a mano para fragancias auténticas.</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="value-card">
+            <div class="value-icon"><i class="bi bi-geo-alt"></i></div>
+            <h5>Hecho en Colombia</h5>
+            <p>Orgullosamente creado en el Chocó, capturando la esencia de nuestras tierras.</p>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="value-card">
+            <div class="value-icon"><i class="bi bi-hand-thumbs-up"></i></div>
+            <h5>Artesanal</h5>
+            <p>Cada producto es elaborado de forma artesanal con dedicación y pasión.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ===== SECCIÓN CONTACTO ===== -->
-  <section id="contacto" class="contact-section">
+  <section id="contacto" class="contact-section animate-on-scroll">
     <div class="container">
       <div class="text-center mb-5">
-        <h2 class="section-title text-center">Contactos</h2>
+        <h2 class="section-title text-center">Contacto</h2>
       </div>
-      <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-          <div class="contact-item">
-            <i class="bi bi-telephone"></i>
-            <span><a href="tel:+573127320463">312 732 0463</a></span>
+      <div class="row justify-content-center g-5">
+        <div class="col-md-5">
+          <div class="contact-info-card">
+            <h4 class="contact-subtitle">Información de contacto</h4>
+            <div class="contact-item">
+              <div class="contact-icon"><i class="bi bi-telephone"></i></div>
+              <div class="contact-text">
+                <span class="contact-label">Teléfono</span>
+                <a href="tel:+573127320463">312 732 0463</a>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon"><i class="bi bi-envelope"></i></div>
+              <div class="contact-text">
+                <span class="contact-label">Correo electrónico</span>
+                <a href="mailto:apomat@gmail.com">apomat@gmail.com</a>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon"><i class="bi bi-geo-alt"></i></div>
+              <div class="contact-text">
+                <span class="contact-label">Ubicación</span>
+                <span>Carrera 16 # 12-165, barrio La Yesquita, Quibdó, Chocó.</span>
+              </div>
+            </div>
           </div>
-          <div class="contact-item">
-            <i class="bi bi-envelope"></i>
-            <span><a href="mailto:apomat@gmail.com">apomat@gmail.com</a></span>
-          </div>
-          <div class="contact-item">
-            <i class="bi bi-geo-alt"></i>
-            <span>carrera 16 # 12-165, barrio la yesquita, Quibdó, Chocó.</span>
+        </div>
+        <div class="col-md-5">
+          <div class="contact-form-card">
+            <h4 class="contact-subtitle">Envíanos un mensaje</h4>
+            <form id="contactForm" action="/enviar-contacto" method="POST">
+              <div class="mb-3">
+                <label for="contact-name" class="form-label">Nombre completo</label>
+                <input type="text" class="form-control" id="contact-name" name="nombre" required placeholder="Tu nombre">
+              </div>
+              <div class="mb-3">
+                <label for="contact-email" class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" id="contact-email" name="email" required placeholder="tu@correo.com">
+              </div>
+              <div class="mb-3">
+                <label for="contact-message" class="form-label">Mensaje</label>
+                <textarea class="form-control" id="contact-message" name="mensaje" rows="4" required placeholder="Escribe tu mensaje aquí..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-gold w-100">Enviar mensaje</button>
+            </form>
           </div>
         </div>
       </div>
@@ -190,7 +251,36 @@
   <!-- ===== FOOTER ===== -->
   <footer class="footer-apomat">
     <div class="container">
-      <span>©️ Imagenes de autor reservadas</span>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h5 class="footer-title">Apomat</h5>
+          <p class="footer-text">Aromatizantes que transforman tus espacios en experiencias olfativas únicas.</p>
+        </div>
+        <div class="col-md-4">
+          <h5 class="footer-title">Enlaces</h5>
+          <ul class="footer-links">
+            <li><a href="/dashboard#inicio">Inicio</a></li>
+            <li><a href="/productos">Productos</a></li>
+            <li><a href="/dashboard#sobre-nosotros">Sobre nosotros</a></li>
+            <li><a href="/dashboard#contacto">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h5 class="footer-title">Contacto</h5>
+          <ul class="footer-links">
+            <li><i class="bi bi-geo-alt"></i> Cra 16 # 12-165, Quibdó, Chocó</li>
+            <li><i class="bi bi-telephone"></i> 312 732 0463</li>
+            <li><i class="bi bi-envelope"></i> apomat@gmail.com</li>
+          </ul>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; Imágenes de autor reservadas</span>
+      </div>
     </div>
   </footer>
 
@@ -202,6 +292,17 @@
     window.addEventListener('scroll', () => {
       navbar.classList.toggle('is-scrolled', window.scrollY > 10);
     });
+
+    // Animación de aparición al hacer scroll (Intersection Observer)
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 
     // Evitar recarga completa cuando ya estamos en el sitio (/dashboard):
     // si el link apunta a "/dashboard#seccion" y ya estamos ahí, hacemos scroll
@@ -267,25 +368,36 @@
       cerrarSesion();
     });
 
-    // SweetAlert para mensajes de login/register
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("login") === "success") {
+    // SweetAlert para mensajes con estilo de marca
+    function mostrarAlerta(icono, titulo, texto, btnTexto) {
       Swal.fire({
-        icon: "success",
-        title: "¡Bienvenido!",
-        text: "Has iniciado sesión correctamente.",
-        confirmButtonText: "Continuar",
-        confirmButtonColor: "#4CAF50"
+        icon: icono,
+        title: titulo,
+        text: texto,
+        confirmButtonText: btnTexto || "Continuar",
+        confirmButtonColor: "#c9960e",
+        customClass: {
+          popup: "swal-brand-popup",
+          title: "swal-brand-title",
+          htmlContainer: "swal-brand-text",
+          confirmButton: "swal-brand-confirm",
+          icon: "swal-brand-icon"
+        }
       });
     }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("login") === "success") {
+      mostrarAlerta("success", "¡Bienvenido!", "Has iniciado sesión correctamente.");
+    }
     if (params.get("register") === "success") {
-      Swal.fire({
-        icon: "success",
-        title: "¡Cuenta creada!",
-        text: "Tu cuenta se registró correctamente.",
-        confirmButtonText: "Continuar",
-        confirmButtonColor: "#4CAF50"
-      });
+      mostrarAlerta("success", "¡Cuenta creada!", "Tu cuenta se registró correctamente.");
+    }
+    if (params.get("contacto") === "exito") {
+      mostrarAlerta("success", "Mensaje enviado", "Gracias por contactarnos. Te responderemos pronto.");
+    }
+    if (params.get("contacto") === "error") {
+      mostrarAlerta("warning", "Error", "Completa todos los campos del formulario.", "Entendido");
     }
   </script>
 </body>

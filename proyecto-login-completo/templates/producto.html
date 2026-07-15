@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ producto.nombre }} | La Caña de Azúcar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/site/css/styles.css">
+    <link rel="shortcut icon" href="/site/favicon/favicon-32x32.png" type="image/x-icon">
+    <style>
+        .detalle-wrapper {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .detalle-card {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 12px 40px rgba(45,106,79,0.12);
+            background: #fff;
+        }
+        .detalle-imagen {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+        .detalle-body {
+            padding: 2.5rem 3rem;
+        }
+        .detalle-body h2 {
+            font-family: 'Libre Baskerville', serif;
+            color: #1b4332;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .detalle-body .precio {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #2d6a4f;
+            margin-bottom: 1rem;
+        }
+        .detalle-body .descripcion {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            margin-bottom: 1.5rem;
+        }
+        .detalle-body h5 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: #1b4332;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .detalle-body ul {
+            padding-left: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .detalle-body ul li {
+            list-style: disc;
+            color: #374151;
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+        .tabla-especs {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        .tabla-especs td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7e0;
+            font-size: 0.95rem;
+        }
+        .tabla-especs td:first-child {
+            font-weight: 600;
+            color: #1b4332;
+            width: 35%;
+        }
+        .disponible {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .disponible.si {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .disponible.no {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #2d6a4f;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn-back:hover {
+            background: #1b4332;
+            box-shadow: 0 4px 14px rgba(45,106,79,0.3);
+        }
+        @media (max-width: 600px) {
+            .detalle-imagen { height: 250px; }
+            .detalle-body { padding: 1.5rem 1.2rem; }
+            .detalle-body h2 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="detalle-wrapper">
+        <div class="detalle-card">
+            <img src="/site/img/{{ producto.imagen }}" alt="{{ producto.nombre }}" class="detalle-imagen">
+            <div class="detalle-body">
+                <h2>{{ producto.nombre }}</h2>
+                <div class="precio">$ {{ producto.precio }}</div>
+                <span class="disponible {% if producto.disponibilidad == 'Disponible' %}si{% else %}no{% endif %}">
+                    {{ producto.disponibilidad }}
+                </span>
+
+                <h5>Descripción</h5>
+                <p class="descripcion">{{ producto.descripcion }}</p>
+
+                <h5>Características</h5>
+                <ul>
+                    {% for c in producto.caracteristicas %}
+                    <li>{{ c }}</li>
+                    {% endfor %}
+                </ul>
+
+                {% if producto.especificaciones %}
+                <h5>Especificaciones técnicas</h5>
+                <table class="tabla-especs">
+                    {% for key, value in producto.especificaciones.items() %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endif %}
+
+                <a href="/dashboard#productos" class="btn-back">
+                    <i class="material-icons">arrow_back</i> Volver al catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

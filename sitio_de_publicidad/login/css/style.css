@@ -1,169 +1,193 @@
 
 :root {
-    --apomat-navy: #1a2332;
-    --apomat-navy-hover: #2a3648;
-    --apomat-cream: #f3f1ec;
-    --apomat-blue-soft: #c9d4dd;
-    --apomat-text-muted: #6b7280;
-    --apomat-border: #e2ddd3;
+  --navy: #17233d;
+  --navy-soft: #223454;
+  --cream: #F4F1EC;
+  --blue: #a9c9db;
+  --gold-dark: #8a6412;
+  --gold: #c9960e;
+  --gold-light: #e6b32a;
+  --ink: #161616;
+  --text-muted: #6b7686;
+  --font-body: 'Poppins', sans-serif;
+  --font-brand: 'Cormorant Garamond', serif;
 }
 
 body {
-    font-family: 'Jost', sans-serif;
-    color: var(--apomat-navy);
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--navy);
 }
 
-/* Fondo con el mismo degradado suave azul-crema que usa el hero y el footer del sitio */
 .apomat-bg {
-    background: linear-gradient(160deg, var(--apomat-blue-soft) 0%, var(--apomat-cream) 55%);
+  background: linear-gradient(160deg, var(--blue) 0%, var(--cream) 55%);
 }
 
-/* Tarjeta principal del login/registro */
 .apomat-card {
-    border: none;
-    border-radius: 18px;
-    background-color: #ffffff;
-    box-shadow: 0 12px 30px rgba(26, 35, 50, 0.12) !important;
-    overflow: hidden;
+  border: none;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 12px 40px rgba(23, 35, 61, 0.12) !important;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+.apomat-card:hover {
+  box-shadow: 0 20px 50px rgba(23, 35, 61, 0.18) !important;
 }
 
-/* Título tipo marca, usando la misma serif elegante del hero */
-.apomat-brand {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    color: var(--apomat-navy);
-    margin-bottom: 0.25rem;
-}
-/* Logo de Apomat centrado, con tamaño máximo de 220px */
 .apomat-logo {
-    max-width: 220px;
-    width: 120%;
-    height: auto;
-    margin: 0 auto;
-    display: block;
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
 }
 
-/* Tabs de Iniciar sesión / Registrarse */
+/* Tabs */
 .apomat-tabs {
-    border-bottom: 1px solid var(--apomat-border);
+  border-bottom: 1px solid rgba(23, 35, 61, 0.1);
 }
-
 .apomat-tabs .nav-link {
-    font-family: 'Jost', sans-serif;
-    font-weight: 500;
-    color: var(--apomat-text-muted);
-    border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: 0;
-    padding: 0.85rem 0.5rem;
-    transition: color 0.25s ease, border-color 0.25s ease;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0.85rem 0.5rem;
+  transition: color 0.25s ease, border-color 0.25s ease;
+  position: relative;
 }
-
 .apomat-tabs .nav-link:hover {
-    color: var(--apomat-navy);
+  color: var(--navy);
 }
-
 .apomat-tabs .nav-link.active {
-    color: var(--apomat-navy);
-    background: transparent;
-    border-bottom: 2px solid var(--apomat-navy);
-    font-weight: 600;
+  color: var(--navy);
+  background: transparent;
+  border-bottom: 2px solid var(--gold);
+  font-weight: 600;
 }
 
-/* Etiquetas de los campos */
-.card-body .form-label {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--apomat-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.4rem;
+/* Form labels */
+.form-label {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
 }
 
-/* Inputs con el mismo tono cálido/crema del sitio */
-.card-body .form-control {
-    background-color: var(--apomat-cream);
-    border: 1px solid var(--apomat-border);
-    border-radius: 10px;
-    padding: 0.65rem 0.9rem;
-    font-family: 'Jost', sans-serif;
-    color: var(--apomat-navy);
-    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+/* Inputs */
+.form-control {
+  background-color: var(--cream);
+  border: 1px solid rgba(23, 35, 61, 0.1);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  font-family: var(--font-body);
+  color: var(--navy);
+  font-size: 0.95rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+.form-control::placeholder {
+  color: #a3a3a3;
+  font-weight: 400;
+}
+.form-control:focus {
+  background-color: #ffffff;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 0.2rem rgba(23, 35, 61, 0.1);
 }
 
-.card-body .form-control::placeholder {
-    color: #a3a3a3;
-    font-weight: 400;
+/* Password toggle */
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 42px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #a3a3a3;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+.password-toggle:hover {
+  color: var(--navy);
 }
 
-.card-body .form-control:focus {
-    background-color: #ffffff;
-    border-color: var(--apomat-navy);
-    box-shadow: 0 0 0 0.2rem rgba(26, 35, 50, 0.12);
-}
-
-/* Icono de mostrar/ocultar contraseña */
-.card-body .material-icons {
-    font-size: 20px;
-    color: #a3a3a3 !important;
-    transition: color 0.2s ease;
-}
-
-.card-body .material-icons:hover {
-    color: var(--apomat-navy) !important;
-}
-
-/* Botón principal: pill oscuro igual al "Ver productos" del hero */
+/* Botón con degradado (mismo estilo btn-gold del sitio) */
 .apomat-btn {
-    background-color: var(--apomat-navy);
-    color: #ffffff;
-    border: none;
-    border-radius: 50px;
-    padding: 0.7rem 1.5rem;
-    font-family: 'Jost', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    transition: background-color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+  background: linear-gradient(to bottom, #2F5D86, #0B1620);
+  border: none;
+  border-radius: 50px;
+  padding: 0.7rem 1.5rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
 }
-
 .apomat-btn:hover {
-    background-color: var(--apomat-navy-hover);
-    color: #ffffff;
-    box-shadow: 0 8px 18px rgba(26, 35, 50, 0.25);
+  background: linear-gradient(to bottom, #0B1620, #2F5D86);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(23, 35, 61, 0.3);
+  transform: translateY(-1px);
 }
-
 .apomat-btn:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
-/* Animación de cambio de vista entre login y registro (ya usada en el JS) */
+/* Animación de cambio de vista */
 @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
 .view-container {
-    animation: slideIn 0.4s ease;
+  animation: slideIn 0.4s ease;
 }
 
-/* Responsive: menos padding en móvil, tal como en las cards de producto del sitio */
-@media (max-width: 576px) {
-    .apomat-brand {
-        font-size: 1.7rem;
-    }
+/* Estilos personalizados para SweetAlert2 */
+.swal-brand-popup {
+  border-radius: 20px !important;
+  padding: 1.5rem !important;
+}
+.swal-brand-title {
+  font-family: var(--font-brand) !important;
+  font-size: 1.6rem !important;
+  color: var(--navy) !important;
+}
+.swal-brand-text {
+  font-family: var(--font-body) !important;
+  color: var(--navy-soft) !important;
+}
+.swal-brand-confirm {
+  border-radius: 50px !important;
+  font-family: var(--font-body) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.03em !important;
+  padding: 0.6rem 2rem !important;
+}
+.swal-brand-icon {
+  border-color: var(--gold) !important;
+  color: var(--gold) !important;
+}
 
-    .card-body {
-        padding: 1.25rem;
-    }
+@media (max-width: 576px) {
+  .apomat-logo {
+    max-width: 160px;
+  }
+  .card-body {
+    padding: 1.25rem;
+  }
 }
