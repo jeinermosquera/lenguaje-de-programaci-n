@@ -13,82 +13,107 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="container-fluid d-flex align-items-center justify-content-center apomat-bg" style="min-height: 100vh;">
-        <div class="row w-100 justify-content-center">
-            <div class="col-11 col-sm-8 col-md-5 col-lg-4">
-                <div class="card apomat-card">
-                    <div class="card-body text-center pb-0">
-                        <img src="/img/logo-apomat.png" alt="Apomat" class="apomat-logo">
-                    </div>
+    <div class="split-layout">
+        <div class="split-brand">
+            <div class="brand-overlay"></div>
+            <div class="brand-content">
+                <img src="/img/logo-apomat.png" alt="Apomat" class="brand-logo">
+                <h2 class="brand-heading">Aromatizantes que transforman tus espacios</h2>
+                <p class="brand-desc">Fragancias artesanales colombianas, creadas con ingredientes naturales para convertir tu hogar en una experiencia olfativa única.</p>
+                <div class="brand-testimonial">
+                    <span>"Cada aroma cuenta una historia"</span>
+                </div>
+            </div>
+        </div>
+        <div class="split-form">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h3>Bienvenido</h3>
+                    <p>Accede a tu cuenta o crea una nueva</p>
+                </div>
+                <ul class="nav nav-tabs nav-fill apomat-tabs" id="auth-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" href="#login" id="login-tab">Iniciar Sesión</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" href="#register" id="register-tab">Registrarse</a>
+                    </li>
+                </ul>
 
-                    <ul class="nav nav-tabs nav-fill apomat-tabs" id="auth-tabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link active" href="#login" id="login-tab">Iniciar Sesión</a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a class="nav-link" href="#register" id="register-tab">Registrarse</a>
-                        </li>
-                    </ul>
-
-                    <div id="login-view" class="view-container">
-                        <form action="/login" method="POST" autocomplete="off" novalidate>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Correo electrónico</label>
-                                    <input type="email" required placeholder="ejemplo@correo.com" id="email" name="email" class="form-control" autocomplete="off">
-                                </div>
-
-                                <div class="mb-3 position-relative">
-                                    <label for="password" class="form-label">Contraseña</label>
-                                    <input type="password" required placeholder="Tu contraseña" id="password" name="password" class="form-control" autocomplete="new-password">
-                                    <i class="bi bi-eye password-toggle" id="toggle-login-password" onclick="togglePassword('password', this)"></i>
-                                </div>
-
-                                <button class="btn apomat-btn w-100" type="submit">
-                                    Iniciar Sesión
-                                </button>
+                <div id="login-view" class="view-container">
+                    <form action="/login" method="POST" autocomplete="off" novalidate>
+                        <div class="form-body">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Correo electrónico</label>
+                                <input type="email" required placeholder="ejemplo@correo.com" id="email" name="email" class="form-control" autocomplete="off">
                             </div>
-                        </form>
-                    </div>
 
-                    <div id="register-view" class="view-container" style="display: none;">
-                        <form id="register-form" action="/register" method="POST" autocomplete="off" novalidate>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="register-name" class="form-label">Nombre completo</label>
-                                    <input type="text" required placeholder="Tu nombre completo" id="register-name" name="full_name" class="form-control">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="register-email" class="form-label">Correo electrónico</label>
-                                    <input type="email" required placeholder="ejemplo@correo.com" id="register-email" name="email" class="form-control" autocomplete="off">
-                                </div>
-
-                                <div class="mb-3 position-relative">
-                                    <label for="register-password" class="form-label">Contraseña</label>
-                                    <input type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" id="register-password" name="password" class="form-control">
-                                    <i class="bi bi-eye password-toggle" id="toggle-register-password" onclick="togglePassword('register-password', this)"></i>
-                                </div>
-
-                                <div class="mb-3 position-relative">
-                                    <label for="register-confirm-password" class="form-label">Confirmar contraseña</label>
-                                    <input type="password" autocomplete="new-password" required placeholder="Repite tu contraseña" id="register-confirm-password" name="confirm_password" class="form-control">
-                                    <i class="bi bi-eye password-toggle" id="toggle-register-confirm-password" onclick="togglePassword('register-confirm-password', this)"></i>
-                                </div>
-
-                                <button class="btn apomat-btn w-100" type="submit">
-                                    Crear Cuenta
-                                </button>
+                            <div class="mb-3 position-relative">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <input type="password" required placeholder="Tu contraseña" id="password" name="password" class="form-control" autocomplete="new-password">
+                                <i class="bi bi-eye password-toggle" id="toggle-login-password" onclick="togglePassword('password', this)"></i>
                             </div>
-                        </form>
-                    </div>
+
+                            <button class="btn apomat-btn w-100" type="submit">
+                                Iniciar Sesión
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="register-view" class="view-container" style="display: none;">
+                    <form id="register-form" action="/register" method="POST" autocomplete="off" novalidate>
+                        <div class="form-body">
+                            <div class="mb-3">
+                                <label for="register-name" class="form-label">Nombre completo</label>
+                                <input type="text" required placeholder="Tu nombre completo" id="register-name" name="full_name" class="form-control">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="register-email" class="form-label">Correo electrónico</label>
+                                <input type="email" required placeholder="ejemplo@correo.com" id="register-email" name="email" class="form-control" autocomplete="off">
+                            </div>
+
+                            <div class="mb-3 position-relative">
+                                <label for="register-password" class="form-label">Contraseña</label>
+                                <input type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" id="register-password" name="password" class="form-control">
+                                <i class="bi bi-eye password-toggle" id="toggle-register-password" onclick="togglePassword('register-password', this)"></i>
+                            </div>
+
+                            <div class="mb-3 position-relative">
+                                <label for="register-confirm-password" class="form-label">Confirmar contraseña</label>
+                                <input type="password" autocomplete="new-password" required placeholder="Repite tu contraseña" id="register-confirm-password" name="confirm_password" class="form-control">
+                                <i class="bi bi-eye password-toggle" id="toggle-register-confirm-password" onclick="togglePassword('register-confirm-password', this)"></i>
+                            </div>
+
+                            <button class="btn apomat-btn w-100" type="submit">
+                                Crear Cuenta
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+  <div class="page-loader" id="pageLoader">
+    <div class="spinner-border text-gold" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      document.body.classList.add('page-ready');
+    });
+
+    document.querySelectorAll('form').forEach(function(f) {
+      f.addEventListener('submit', function() {
+        document.getElementById('pageLoader').classList.add('active');
+        document.body.classList.add('page-exit');
+      });
+    });
         function mostrarAlerta(icono, titulo, texto) {
             Swal.fire({
                 icon: icono,

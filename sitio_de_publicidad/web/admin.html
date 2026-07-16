@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apomat — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="icon" type="image/png" href="favicon/favico-32x32.png">
+  <link rel="stylesheet" href="/site/css/style.css" />
+  <link rel="stylesheet" href="/site/css/admin.css" />
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg apomat-navbar" id="apomatNavbar">
+    <div class="container d-flex align-items-center">
+      <a class="navbar-brand" href="/dashboard">
+        <img class="brand-mark" src="/site/img/logo-apomat.png" alt="Apomat" />
+      </a>
+      <div class="d-none d-lg-flex align-items-center gap-4 ms-auto">
+        <ul class="navbar-nav apomat-links flex-row align-items-center gap-4 mb-0">
+          <li class="nav-item"><a class="nav-link" href="/dashboard">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/admin">Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-3 ps-3 border-start apomat-auth">
+          <span class="auth-greeting saludo-usuario">Admin</span>
+          <a href="#" class="d-inline-flex align-items-center gap-1 text-decoration-none auth-logout" id="logoutBtn">
+            <i class="bi bi-box-arrow-right"></i>Salir
+          </a>
+        </div>
+      </div>
+      <button class="navbar-toggler d-lg-none border-0 ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#apomatOffcanvas">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="offcanvas offcanvas-end apomat-offcanvas" tabindex="-1" id="apomatOffcanvas">
+    <div class="offcanvas-header">
+      <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav flex-column mb-0">
+        <li class="nav-item"><a class="nav-link" href="/dashboard" data-bs-dismiss="offcanvas">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/admin" data-bs-dismiss="offcanvas">Admin</a></li>
+      </ul>
+      <div class="offcanvas-auth">
+        <a href="#" class="text-decoration-none auth-logout" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Salir</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <a href="#" class="active" data-section="productos"><i class="bi bi-box-seam"></i> <span>Productos</span></a>
+      <a href="#" data-section="pedidos"><i class="bi bi-receipt"></i> <span>Pedidos</span></a>
+      <a href="/dashboard"><i class="bi bi-arrow-left"></i> <span>Volver al sitio</span></a>
+    </aside>
+    <main class="admin-content">
+      <div class="admin-header">
+        <h2>Gestión de Productos</h2>
+        <button class="btn btn-admin" id="addProductBtn" data-bs-toggle="modal" data-bs-target="#addModal">
+          <i class="bi bi-plus-lg"></i> Agregar Producto
+        </button>
+      </div>
+
+      <div class="admin-table-wrap" id="productos-section">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Imagen</th>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Disponible</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="productos-tbody">
+            <tr><td colspan="5" class="text-center text-muted py-4">Cargando productos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-table-wrap" id="pedidos-section" style="display:none;">
+        <div class="admin-header">
+          <h2>Gestión de Pedidos</h2>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-admin btn-admin-sm" id="btn-filtro-activos" onclick="filtrarPedidos('activos')" style="background:var(--gold-dark);">Pendientes</button>
+            <button class="btn btn-admin btn-admin-sm" id="btn-filtro-todos" onclick="filtrarPedidos('todos')">Todos</button>
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Referencia</th>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody id="pedidos-tbody">
+            <tr><td colspan="6" class="text-center text-muted py-4">Cargando pedidos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Agregar Producto -->
+  <div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content" style="border-radius: 20px; border: none; padding: 0.5rem;">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" style="font-family:var(--font-brand);font-size:1.4rem;color:var(--navy);">Agregar Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body pt-0">
+          <form action="/admin/productos/agregar" method="POST" enctype="multipart/form-data">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre del producto</label>
+                <input type="text" class="form-control" name="nombre" required placeholder="Ej: Vainilla del bosque">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Precio ($)</label>
+                <input type="number" class="form-control" name="precio" required placeholder="20000">
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" name="disponible" id="disponibleCheck" checked>
+                  <label class="form-check-label" for="disponibleCheck" style="font-size:0.9rem;">Disponible</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del producto..."></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Características (una por línea)</label>
+                <textarea class="form-control" name="caracteristicas" rows="4" placeholder="Aroma fresco&#10;Duración prolongada&#10;Ideal para hogar"></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Especificaciones (una por línea)</label>
+                <textarea class="form-control" name="especificaciones" rows="4" placeholder="Presentación: 250 ml&#10;Duración: 30 días"></textarea>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Stock</label>
+                <input type="number" class="form-control" name="stock" value="10" placeholder="10">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Precio en rebaja (opcional)</label>
+                <input type="number" class="form-control" name="precio_rebaja" placeholder="15000">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Imagen del producto</label>
+                <input type="file" class="form-control" name="imagen" accept="image/png,image/jpeg,image/webp">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-admin w-100 mt-4">Guardar Producto</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Producto -->
+  <div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius: 20px; border: none; padding: 0.5rem;">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" style="font-family:var(--font-brand);font-size:1.4rem;color:var(--navy);" id="editModalTitle">Editar Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body pt-0">
+          <form id="editForm" method="POST">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="editNombre" disabled style="background:#f0f0f0;">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Precio normal ($)</label>
+              <input type="number" class="form-control" name="precio" id="editPrecio" required placeholder="20000">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Stock</label>
+              <input type="number" class="form-control" name="stock" id="editStock" placeholder="10">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Precio en rebaja <span class="text-muted" style="font-weight:400;text-transform:none;">(dejar vacío para quitar rebaja)</span></label>
+              <input type="number" class="form-control" name="precio_rebaja" id="editRebaja" placeholder="15000">
+            </div>
+            <button type="submit" class="btn btn-admin w-100">Guardar Cambios</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer-apomat" style="margin-top:0;">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <h5 class="footer-title">Apomat</h5>
+          <p class="footer-text">Panel de administración.</p>
+        </div>
+        <div class="col-md-4">
+          <h5 class="footer-title">Enlaces</h5>
+          <ul class="footer-links">
+            <li><a href="/dashboard">Inicio</a></li>
+            <li><a href="/productos">Productos</a></li>
+            <li><a href="/admin">Admin</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h5 class="footer-title">Contacto</h5>
+          <ul class="footer-links">
+            <li><i class="bi bi-geo-alt"></i> Cra 16 # 12-165, Quibdó, Chocó</li>
+            <li><i class="bi bi-telephone"></i> 312 732 0463</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>&copy; Apomat</span></div>
+    </div>
+  </footer>
+
+  <div class="page-loader" id="pageLoader">
+    <div class="spinner-border text-gold" role="status"><span class="visually-hidden">Cargando...</span></div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    window.addEventListener('load', function() { document.body.classList.add('page-ready'); });
+    function navegar(url) { document.body.classList.add('page-fade-out'); document.getElementById('pageLoader').classList.add('active'); setTimeout(function() { window.location.replace(url); }, 300); }
+    function mostrarAlerta(icono, titulo, texto, btnTexto) {
+      Swal.fire({
+        icon: icono, title: titulo, text: texto,
+        confirmButtonText: btnTexto || "Continuar",
+        confirmButtonColor: "#c9960e",
+        customClass: {
+          popup: "swal-brand-popup", title: "swal-brand-title",
+          htmlContainer: "swal-brand-text", confirmButton: "swal-brand-confirm",
+          icon: "swal-brand-icon"
+        }
+      });
+    }
+
+    function cargarProductos() {
+      const tbody = document.getElementById("productos-tbody");
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Cargando...</td></tr>';
+
+      fetch("/admin/api/productos?t=" + Date.now(), { cache: "no-store" })
+        .then(r => { if (r.status === 401) { window.location.replace("/dashboard"); return null; } return r.json(); })
+        .then(data => {
+          if (!data) return;
+          if (data.error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error al cargar</td></tr>'; return; }
+          if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No hay productos. Agrega uno.</td></tr>'; return; }
+          tbody.innerHTML = data.map(p => `
+            <tr>
+              <td><img src="/site/img/${p.imagen}" class="prod-img" alt="${p.nombre}"></td>
+              <td><strong>${p.nombre}</strong>${p.en_rebaja ? ' <span class="badge bg-danger badge-admin">Rebaja</span>' : ''}</td>
+              <td>${p.en_rebaja ? '<span style="text-decoration:line-through;color:#999;">' + p.precio_formateado + '</span> <strong style="color:#dc3545;">' + p.precio_rebaja_formateado + '</strong>' : p.precio_formateado}</td>
+              <td><span class="badge ${p.stock > 0 ? 'bg-success' : 'bg-secondary'} badge-admin">${p.stock}</span></td>
+              <td><a href="#" class="toggle-disponible" data-id="${p.id}" data-disponible="${p.disponible}">${p.disponible ? '<span class="badge bg-success badge-admin">Disponible</span>' : '<span class="badge bg-secondary badge-admin">Agotado</span>'}</a></td>
+              <td>
+                <div class="actions">
+                  <button class="btn-admin-sm btn-admin" onclick="abrirEditar(${p.id}, '${p.nombre}', ${p.precio}, ${p.precio_rebaja || 'null'}, ${p.stock != null ? p.stock : 'null'})"><i class="bi bi-pencil"></i></button>
+                  <form method="POST" action="/admin/productos/eliminar/${p.id}" onsubmit="return confirmarEliminar(event, '${p.nombre}')">
+                    <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          `).join("");
+          document.querySelectorAll(".toggle-disponible").forEach(el => {
+            el.addEventListener("click", function(e) {
+              e.preventDefault();
+              toggleDisponible(this);
+            });
+          });
+        })
+        .catch(() => { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Error de conexión</td></tr>'; });
+    }
+
+    function toggleDisponible(el) {
+      const id = el.dataset.id;
+      const form = new FormData();
+      fetch("/admin/productos/toggle/" + id, { method: "POST", body: form })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            el.dataset.disponible = data.disponible;
+            el.innerHTML = data.disponible
+              ? '<span class="badge bg-success badge-admin">Disponible</span>'
+              : '<span class="badge bg-secondary badge-admin">Agotado</span>';
+          }
+        });
+    }
+
+    function abrirEditar(id, nombre, precio, precioRebaja, stock) {
+      document.getElementById("editModalTitle").textContent = "Editar: " + nombre;
+      document.getElementById("editNombre").value = nombre;
+      document.getElementById("editPrecio").value = precio;
+      document.getElementById("editRebaja").value = precioRebaja || "";
+      document.getElementById("editStock").value = stock != null ? stock : "";
+      document.getElementById("editForm").action = "/admin/productos/editar/" + id;
+      var modal = new bootstrap.Modal(document.getElementById("editModal"));
+      modal.show();
+    }
+
+    function confirmarEliminar(event, nombre) {
+      event.preventDefault();
+      const form = event.target;
+      Swal.fire({
+        title: "¿Eliminar producto?",
+        text: "Se eliminará \"" + nombre + "\" permanentemente.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        customClass: {
+          popup: "swal-brand-popup", title: "swal-brand-title",
+          htmlContainer: "swal-brand-text", confirmButton: "swal-brand-confirm"
+        }
+      }).then((result) => {
+        if (result.isConfirmed) form.submit();
+      });
+    }
+
+    var pedidosData = [];
+    var pedidosFiltro = "activos";
+
+    function cambiarSeccion(seccion) {
+      document.querySelectorAll(".admin-sidebar a[data-section]").forEach(el => el.classList.remove("active"));
+      document.querySelector(".admin-sidebar a[data-section='" + seccion + "']").classList.add("active");
+      document.getElementById("productos-section").style.display = seccion === "productos" ? "" : "none";
+      document.getElementById("pedidos-section").style.display = seccion === "pedidos" ? "" : "none";
+      document.querySelector(".admin-header h2").textContent = seccion === "productos" ? "Gesti\u00f3n de Productos" : "Gesti\u00f3n de Pedidos";
+      document.getElementById("addProductBtn").style.display = seccion === "productos" ? "" : "none";
+      if (seccion === "pedidos") { pedidosFiltro = "activos"; cargarPedidos(); }
+    }
+
+    function filtrarPedidos(filtro) {
+      pedidosFiltro = filtro;
+      document.getElementById("btn-filtro-activos").style.background = filtro === "activos" ? "var(--gold-dark)" : "var(--gold)";
+      document.getElementById("btn-filtro-todos").style.background = filtro === "todos" ? "var(--gold-dark)" : "var(--gold)";
+      renderizarPedidos();
+    }
+
+    document.querySelectorAll(".admin-sidebar a[data-section]").forEach(function(el) {
+      el.addEventListener("click", function(e) {
+        e.preventDefault();
+        cambiarSeccion(this.dataset.section);
+      });
+    });
+
+    var estadosMap = {
+      pendiente: "Pendiente", enviado: "Enviado",
+      entregado: "Entregado", cancelado: "Cancelado"
+    };
+
+    function actualizarEstado(pedidoId, select) {
+      var form = new FormData();
+      form.append("estado", select.value);
+      fetch("/admin/api/pedidos/estado/" + pedidoId, { method: "POST", body: form })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.ok) {
+            for (var i = 0; i < pedidosData.length; i++) {
+              if (pedidosData[i].id === pedidoId) { pedidosData[i].estado = select.value; break; }
+            }
+            renderizarPedidos();
+          } else {
+            Swal.fire({ icon: "error", title: "Error", text: d.error || "No se pudo actualizar", confirmButtonColor: "#c9960e" });
+            select.value = select.dataset.original;
+          }
+        })
+        .catch(function() { Swal.fire({ icon: "error", title: "Error", text: "Error de conexi\u00f3n", confirmButtonColor: "#c9960e" }); });
+    }
+
+    function renderizarPedidos() {
+      var tbody = document.getElementById("pedidos-tbody");
+      var filtrados = pedidosFiltro === "activos"
+        ? pedidosData.filter(function(p) { return p.estado !== "entregado" && p.estado !== "cancelado"; })
+        : pedidosData;
+
+      if (filtrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">' +
+          (pedidosFiltro === "activos" ? "No hay pedidos pendientes." : "No hay pedidos.") +
+          '</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(function(p, idx) {
+        var itemsHtml = p.items.map(function(it) {
+          return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f0f0f0;font-size:0.85rem;">' +
+            '<span>' + it.nombre_producto + ' x' + it.cantidad + '</span>' +
+            '<span>$ ' + (it.precio * it.cantidad).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</span></div>';
+        }).join("");
+
+        var opts = Object.keys(estadosMap).map(function(k) {
+          var sel = k === p.estado ? " selected" : "";
+          return '<option value="' + k + '"' + sel + ">" + estadosMap[k] + "</option>";
+        }).join("");
+
+        var estadoCls = p.estado === "pendiente" ? "badge bg-warning text-dark badge-admin"
+          : p.estado === "enviado" ? "badge bg-primary badge-admin"
+          : p.estado === "entregado" ? "badge bg-success badge-admin"
+          : p.estado === "cancelado" ? "badge bg-danger badge-admin"
+          : "badge bg-secondary badge-admin";
+
+        return '<tr>' +
+          '<td><strong>' + p.referencia + '</strong></td>' +
+          '<td>' + (p.nombre || p.usuario_nombre || "\u2014") + '<br><small style="color:#999;">' + (p.email || "") + '</small></td>' +
+          '<td><strong>$ ' + p.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</strong></td>' +
+          '<td><span class="estado-label ' + estadoCls + '" style="cursor:pointer;">' + (estadosMap[p.estado] || p.estado) + '</span>' +
+          '<select class="estado-select" style="display:none;font-size:0.8rem;padding:2px 4px;" data-original="' + p.estado + '" onchange="actualizarEstado(' + p.id + ', this)">' + opts + '</select>' +
+          ' <a href="#" class="btn-editar-estado" style="font-size:0.75rem;color:var(--gold);text-decoration:none;" onclick="event.preventDefault();var pp=this.parentNode;var ll=pp.querySelector(\'.estado-label\');var ss=pp.querySelector(\'.estado-select\');ll.style.display=\'none\';this.style.display=\'none\';ss.style.display=\'inline\';ss.focus();">\u270f</a></td>' +
+          '<td><small>' + (p.fecha ? p.fecha.substring(0, 10) : "\u2014") + '</small></td>' +
+          '<td><a href="#" class="toggle-detalle" data-idx="' + idx + '" style="color:var(--gold);text-decoration:none;font-size:0.85rem;">Ver items</a></td>' +
+          '</tr>' +
+          '<tr id="detalle-' + idx + '" style="display:none;"><td colspan="6" style="padding:0.8rem 1rem;background:#fafafa;">' +
+          '<div style="max-width:400px;">' + itemsHtml + '</div>' +
+          '<small style="color:#999;">' + (p.direccion ? "Dir: " + p.direccion : "") + (p.telefono ? " | Tel: " + p.telefono : "") + '</small>' +
+          '</td></tr>';
+      }).join("");
+
+      document.querySelectorAll(".toggle-detalle").forEach(function(el) {
+        el.addEventListener("click", function(e) {
+          e.preventDefault();
+          var row = document.getElementById("detalle-" + this.dataset.idx);
+          row.style.display = row.style.display === "none" ? "" : "none";
+          this.textContent = row.style.display === "none" ? "Ver items" : "Ocultar";
+        });
+      });
+    }
+
+    function cargarPedidos() {
+      var tbody = document.getElementById("pedidos-tbody");
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Cargando...</td></tr>';
+
+      fetch("/admin/api/pedidos?t=" + Date.now(), { cache: "no-store" })
+        .then(function(r) { if (r.status === 401) { window.location.replace("/dashboard"); return null; } return r.json(); })
+        .then(function(data) {
+          if (!data) return;
+          if (data.error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error al cargar</td></tr>'; return; }
+          pedidosData = data;
+          renderizarPedidos();
+        })
+        .catch(function() { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error de conexi\u00f3n</td></tr>'; });
+    }
+
+    function cerrarSesion() { sessionStorage.setItem("bfcache_disabled", "true"); navegar("/logout"); }
+    document.getElementById("logoutBtn")?.addEventListener("click", function(e) { e.preventDefault(); cerrarSesion(); });
+    document.getElementById("logoutBtnMobile")?.addEventListener("click", function(e) { e.preventDefault(); cerrarSesion(); });
+
+    cargarProductos();
+
+    fetch("/usuario?t=" + Date.now(), { cache: "no-store" })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.nombre) {
+          const primerNombre = data.nombre.split(" ")[0];
+          document.querySelectorAll(".saludo-usuario").forEach(el => el.textContent = "Admin, " + primerNombre);
+        }
+      });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("ok") === "agregado") mostrarAlerta("success", "Producto agregado", "El producto se agregó correctamente.");
+    if (params.get("ok") === "eliminado") mostrarAlerta("success", "Producto eliminado", "El producto se eliminó correctamente.");
+    if (params.get("ok") === "editado") mostrarAlerta("success", "Producto actualizado", "El precio se actualizó correctamente.");
+    if (params.get("login") === "success") mostrarAlerta("success", "Bienvenido", "Has iniciado sesión como administrador.");
+    if (params.get("register") === "success") mostrarAlerta("success", "Cuenta creada", "Tu cuenta de administrador se registró correctamente.");
+    if (params.get("error") === "campos") mostrarAlerta("warning", "Error", "Completa los campos obligatorios.", "Entendido");
+    if (params.get("error") === "precio") mostrarAlerta("warning", "Error", "El precio no es válido.", "Entendido");
+  </script>
+</body>
+</html>

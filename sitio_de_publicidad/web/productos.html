@@ -33,14 +33,29 @@
         <ul class="navbar-nav apomat-links flex-row align-items-center gap-4 mb-0">
           <li class="nav-item"><a class="nav-link" href="/dashboard#inicio">Inicio</a></li>
           <li class="nav-item"><a class="nav-link active" href="/productos">Productos</a></li>
+          <li class="nav-item"><a class="nav-link" href="/mis-pedidos">Mis Pedidos</a></li>
           <li class="nav-item"><a class="nav-link" href="/dashboard#sobre-nosotros">Sobre nosotros</a></li>
           <li class="nav-item"><a class="nav-link" href="/dashboard#contacto">Contacto</a></li>
         </ul>
-        <div class="d-flex align-items-center gap-3 ps-3 border-start apomat-auth">
-          <span class="auth-greeting saludo-usuario">Hola</span>
-          <a href="#" class="d-inline-flex align-items-center gap-1 text-decoration-none auth-logout" id="logoutBtn">
-            <i class="bi bi-box-arrow-right"></i>Salir
-          </a>
+        <a href="#" class="cart-icon-link position-relative" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" title="Carrito">
+          <i class="bi bi-cart3 fs-5"></i>
+          <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill" style="display:none;">0</span>
+        </a>
+        <div class="d-flex align-items-center ps-3 border-start apomat-auth">
+          <div class="dropdown">
+            <button class="btn dropdown-toggle user-dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="user-avatar"><i class="bi bi-person-circle"></i></span>
+              <span class="saludo-usuario">Hola</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#cambiarPasswordModal"><i class="bi bi-lock"></i> Cambiar contraseña</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" id="deleteAccountBtn"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -60,9 +75,12 @@
       <ul class="navbar-nav flex-column mb-0">
         <li class="nav-item"><a class="nav-link" href="/dashboard#inicio" data-bs-dismiss="offcanvas">Inicio</a></li>
         <li class="nav-item"><a class="nav-link active" href="/productos" data-bs-dismiss="offcanvas">Productos</a></li>
+        <li class="nav-item"><a class="nav-link" href="/mis-pedidos" data-bs-dismiss="offcanvas">Mis Pedidos</a></li>
         <li class="nav-item"><a class="nav-link" href="/dashboard#sobre-nosotros" data-bs-dismiss="offcanvas">Sobre nosotros</a></li>
         <li class="nav-item"><a class="nav-link" href="/dashboard#contacto" data-bs-dismiss="offcanvas">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas"><i class="bi bi-cart3"></i> Carrito</a></li>
       </ul>
+      <ul class="navbar-nav flex-column mb-0" id="adminNavMobile"></ul>
 
       <div class="offcanvas-auth d-flex align-items-center justify-content-start">
         <a href="#" class="text-decoration-none auth-logout" id="logoutBtnMobile">
@@ -92,96 +110,12 @@
   <!-- ===================== GRID DE PRODUCTOS ===================== -->
   <section class="catalog-section">
     <div class="container">
-      <div class="row g-4">
-
-        <!-- Tarjeta 1 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/1" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-1.png" alt="Cofe Mocka">
-            </div>
-            <h5>Cofe Mocka</h5>
-            <div class="price">$ 20.000</div>
-          </a>
+      <div class="row g-4" id="productos-grid">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-gold" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
         </div>
-
-        <!-- Tarjeta 2 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/2" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-8.png" alt="Mora azul">
-            </div>
-            <h5>Mora azul</h5>
-            <div class="price">$ 20.000</div>
-          </a>
-        </div>
-
-        <!-- Tarjeta 3 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/3" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-2.png" alt="Celeste Cotton">
-            </div>
-            <h5>Celeste Cotton</h5>
-            <div class="price">$ 20.000</div>
-          </a>
-        </div>
-
-        <!-- Tarjeta 4 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/4" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-4.png" alt="Sandia pasion">
-            </div>
-            <h5>Sandía pasión</h5>
-            <div class="price">$ 20.000</div>
-          </a>
-        </div>
-
-        <!-- Tarjeta 5 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/5" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-1.png" alt="Sabor maracuya">
-            </div>
-            <h5>Sabor maracuyá</h5>
-            <div class="price">$ 20.000</div>
-          </a>
-        </div>
-
-        <!-- Tarjeta 6 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/6" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-8.png" alt="Paloma natural">
-            </div>
-            <h5>Paloma natural</h5>
-            <div class="price">$ 20.000</div>
-          </a>
-        </div>
-
-        <!-- Tarjeta 7 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/7" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-2.png" alt="Naturaleza kiwi">
-            </div>
-            <h5>Naturaleza kiwi</h5>
-            <div class="price">$ 20.000</div>
-          </a>
-        </div>
-
-        <!-- Tarjeta 8 -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="/producto/8" class="product-card product-card-link">
-            <div class="product-image">
-              <img src="/site/img/img-4.png" alt="Fresa carnaval">
-            </div>
-            <h5>Fresa carnaval</h5>
-            <div class="price">$ 20.000</div>
-          </a>
-        </div>
-
       </div>
     </div>
   </section>
@@ -257,6 +191,73 @@
     </div>
   </section>
 
+  <!-- ===== MODAL EDITAR PERFIL ===== -->
+  <div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius:20px;border:none;padding:1rem;">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title" style="font-family:var(--font-brand);color:var(--navy);">Editar perfil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editarPerfilForm">
+            <div class="mb-3">
+              <label class="form-label">Nombre completo</label>
+              <input type="text" class="form-control" id="edit-name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo electrónico</label>
+              <input type="email" class="form-control" id="edit-email" required>
+            </div>
+            <button type="submit" class="btn btn-gold w-100">Guardar cambios</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL CAMBIAR CONTRASEÑA ===== -->
+  <div class="modal fade" id="cambiarPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius:20px;border:none;padding:1rem;">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title" style="font-family:var(--font-brand);color:var(--navy);">Cambiar contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="cambiarPasswordForm">
+            <div class="mb-3">
+              <label class="form-label">Contraseña actual</label>
+              <input type="password" class="form-control" id="pw-actual" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nueva contraseña</label>
+              <input type="password" class="form-control" id="pw-nueva" required minlength="8" placeholder="Mínimo 8 caracteres">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Confirmar nueva contraseña</label>
+              <input type="password" class="form-control" id="pw-confirmar" required>
+            </div>
+            <button type="submit" class="btn btn-gold w-100">Cambiar contraseña</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CARRITO OFFCANVAS ===== -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header">
+      <h5>Carrito</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cart-offcanvas-body">
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-cart-x" style="font-size:3rem;display:block;margin-bottom:1rem;"></i>Tu carrito está vacío
+      </div>
+    </div>
+  </div>
+
   <!-- ===== FOOTER ===== -->
   <footer class="footer-apomat">
     <div class="container">
@@ -270,6 +271,7 @@
           <ul class="footer-links">
             <li><a href="/dashboard#inicio">Inicio</a></li>
             <li><a href="/productos">Productos</a></li>
+            <li><a href="/mis-pedidos">Mis Pedidos</a></li>
             <li><a href="/dashboard#sobre-nosotros">Sobre nosotros</a></li>
             <li><a href="/dashboard#contacto">Contacto</a></li>
           </ul>
@@ -294,12 +296,74 @@
   </footer>
 
   <!-- ===================== SCRIPTS ===================== -->
+  <div class="page-loader" id="pageLoader">
+    <div class="spinner-border text-gold" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/site/js/carrito.js"></script>
   <script>
+    window.addEventListener('load', function() {
+      document.body.classList.add('page-ready');
+    });
+
+    function navegar(url) {
+      document.body.classList.add('page-fade-out');
+      document.getElementById('pageLoader').classList.add('active');
+      setTimeout(function() { window.location.replace(url); }, 300);
+    }
     const navbar = document.getElementById('apomatNavbar');
     window.addEventListener('scroll', () => {
       navbar.classList.toggle('is-scrolled', window.scrollY > 10);
     });
+
+    // Cargar productos desde la API
+    function cargarProductos() {
+      const grid = document.getElementById('productos-grid');
+
+      fetch("/api/productos?t=" + Date.now(), { cache: "no-store" })
+        .then(r => { if (r.status === 401) { window.location.replace("/"); return null; } return r.json(); })
+        .then(data => {
+          if (!data || data.length === 0) {
+            grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No hay productos disponibles.</p></div>';
+            return;
+          }
+          grid.innerHTML = data.map(function(p) {
+            var precioHtml = p.en_rebaja
+              ? '<span style="text-decoration:line-through;color:#999;font-size:0.9rem;margin-right:6px;">' + p.precio_formateado + '</span><span style="color:#dc3545;">' + p.precio_rebaja_formateado + '</span>'
+              : p.precio_formateado;
+            var badgeHtml = !p.disponible
+              ? '<span class="badge bg-secondary" style="position:absolute;top:10px;right:10px;border-radius:50px;">Agotado</span>'
+              : p.en_rebaja
+              ? '<span class="badge bg-danger" style="position:absolute;top:10px;right:10px;border-radius:50px;">Rebaja</span>'
+              : '';
+            return '<div class="col-6 col-md-4 col-lg-3">' +
+              '<div class="product-card">' +
+                '<a href="/producto/' + p.id + '" class="product-card-link">' +
+                  '<div class="product-image">' +
+                    '<img src="/site/img/' + p.imagen + '" alt="' + p.nombre + '" loading="lazy">' +
+                    badgeHtml +
+                  '</div>' +
+                  '<h5>' + p.nombre + '</h5>' +
+                  '<div class="price">' + precioHtml + '</div>' +
+                  '<div style="font-size:0.7rem;color:' + (p.stock > 0 ? '#28a745' : '#999') + ';margin-top:2px;">' + (p.stock > 0 ? (p.stock + ' en stock') : 'Sin stock') + '</div>' +
+                '</a>' +
+                (p.disponible && p.stock > 0
+                  ? '<button class="btn btn-gold btn-sm w-100 mt-2" onclick="Carrito.agregar({id:' + p.id + ',nombre:\'' + p.nombre.replace(/'/g, "\\'") + '\',precio:' + p.precio + ',precio_rebaja:' + (p.precio_rebaja || 'null') + ',imagen:\'' + p.imagen + '\'});mostrarToastCarrito(\'' + p.nombre.replace(/'/g, "\\'") + '\');">' +
+                    '<i class="bi bi-cart-plus"></i> Agregar' +
+                  '</button>'
+                  : '') +
+              '</div>' +
+            '</div>';
+          }).join("");
+        })
+        .catch(() => {
+          grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Error al cargar productos.</p></div>';
+        });
+    }
+    cargarProductos();
 
     const timestamp = Date.now();
     fetch("/usuario?t=" + timestamp + "&r=mostrar_nombre", {
@@ -325,6 +389,22 @@
             .forEach(elemento => {
               elemento.textContent = "Hola, " + primerNombre;
             });
+          if (data.admin) {
+            var ul = document.querySelector(".apomat-navbar .apomat-links");
+            if (ul) {
+              var li = document.createElement("li");
+              li.className = "nav-item";
+              li.innerHTML = '<a class="nav-link" href="/admin"><i class="bi bi-shield-lock"></i> Admin</a>';
+              ul.appendChild(li);
+            }
+            var ulMobile = document.getElementById("adminNavMobile");
+            if (ulMobile) {
+              var liM = document.createElement("li");
+              liM.className = "nav-item";
+              liM.innerHTML = '<a class="nav-link" href="/admin" data-bs-dismiss="offcanvas"><i class="bi bi-shield-lock"></i> Admin</a>';
+              ulMobile.appendChild(liM);
+            }
+          }
         }
       })
       .catch(error => {
@@ -334,15 +414,94 @@
 
     function cerrarSesion() {
       sessionStorage.setItem("bfcache_disabled", "true");
-      window.location.replace("/logout");
+      navegar("/logout");
     }
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    document.querySelectorAll('#logoutBtn').forEach(function(el) {
+      el.addEventListener('click', function(e) { e.preventDefault(); cerrarSesion(); });
+    });
+    document.getElementById('logoutBtnMobile').addEventListener('click', function(e) {
       e.preventDefault();
       cerrarSesion();
     });
-    document.getElementById('logoutBtnMobile').addEventListener('click', (e) => {
+
+    document.getElementById('editarPerfilModal').addEventListener('show.bs.modal', function() {
+      fetch("/usuario?t=" + Date.now(), { cache: "no-store" })
+        .then(function(r) { return r.json(); })
+        .then(function(u) {
+          document.getElementById('edit-name').value = u.nombre || '';
+          document.getElementById('edit-email').value = u.email || '';
+        });
+    });
+    document.getElementById('editarPerfilForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      cerrarSesion();
+      fetch("/api/usuario/editar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: document.getElementById('edit-name').value.trim(),
+          email: document.getElementById('edit-email').value.trim()
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.ok) {
+          Swal.fire({ icon: "success", title: "Perfil actualizado", timer: 2000, showConfirmButton: false, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          document.querySelector('[data-bs-dismiss="modal"]').click();
+        } else {
+          Swal.fire({ icon: "error", title: "Error", text: res.error, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+        }
+      });
+    });
+    document.getElementById('cambiarPasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var nueva = document.getElementById('pw-nueva').value;
+      var confirmar = document.getElementById('pw-confirmar').value;
+      if (nueva.length < 8) {
+        Swal.fire({ icon: "warning", title: "Contraseña muy corta", text: "Mínimo 8 caracteres", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+        return;
+      }
+      if (nueva !== confirmar) {
+        Swal.fire({ icon: "warning", title: "No coinciden", text: "Las contraseñas no son iguales", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+        return;
+      }
+      fetch("/api/usuario/cambiar-contrasena", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ actual: document.getElementById('pw-actual').value, nueva: nueva })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.ok) {
+          Swal.fire({ icon: "success", title: "Contraseña actualizada", timer: 2000, showConfirmButton: false, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          document.getElementById('cambiarPasswordForm').reset();
+          document.querySelector('[data-bs-dismiss="modal"]').click();
+        } else {
+          Swal.fire({ icon: "error", title: "Error", text: res.error, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+        }
+      });
+    });
+    document.getElementById('deleteAccountBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      Swal.fire({
+        title: "¿Eliminar tu cuenta?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6b7686",
+        customClass: { popup: "swal-brand-popup", title: "swal-brand-title", htmlContainer: "swal-brand-text", confirmButton: "swal-brand-confirm", cancelButton: "swal-brand-confirm", icon: "swal-brand-icon" }
+      }).then(function(r) {
+        if (r.isConfirmed) {
+          fetch("/api/usuario/eliminar", { method: "POST" })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+              if (data.ok) { window.location.replace("/logout"); }
+              else { Swal.fire({ icon: "error", title: "Error", text: data.error, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } }); }
+            });
+        }
+      });
     });
 
     function mostrarAlerta(icono, titulo, texto, btnTexto) {

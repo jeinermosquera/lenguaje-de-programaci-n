@@ -1,0 +1,21 @@
+.admin-layout { display:flex; min-height:calc(100vh - 80px); }
+.admin-sidebar { width:240px; background:var(--navy); padding:2rem 0; flex-shrink:0; }
+.admin-sidebar a { display:flex; align-items:center; gap:12px; color:rgba(255,255,255,0.6); text-decoration:none; padding:12px 24px; font-size:0.9rem; transition:all 0.2s; border-left:3px solid transparent; }
+.admin-sidebar a:hover, .admin-sidebar a.active { color:#fff; background:rgba(255,255,255,0.05); border-left-color:var(--gold); }
+.admin-sidebar a i { font-size:1.1rem; width:20px; }
+.admin-content { flex:1; padding:2rem; background:var(--cream); }
+.admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+.admin-header h2 { font-family:var(--font-brand); font-size:1.8rem; color:var(--navy); margin:0; }
+.admin-table-wrap { background:#fff; border-radius:20px; padding:1.5rem; box-shadow:0 8px 30px rgba(23,35,61,0.08); overflow-x:auto; }
+.admin-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+.admin-table th { text-align:left; padding:0.8rem 0.6rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; font-size:0.75rem; letter-spacing:0.06em; border-bottom:2px solid var(--cream); }
+.admin-table td { padding:0.8rem 0.6rem; border-bottom:1px solid var(--cream); color:var(--navy); vertical-align:middle; }
+.admin-table .prod-img { width:48px; height:48px; border-radius:10px; object-fit:cover; background:var(--cream); }
+.admin-table .actions { display:flex; gap:6px; }
+.btn-admin { background:var(--gold); border:none; border-radius:50px; color:#fff; padding:0.5rem 1.2rem; font-size:0.85rem; font-weight:500; transition:background 0.2s; }
+.btn-admin:hover { background:var(--gold-dark); color:#fff; }
+.btn-admin-sm { padding:0.35rem 0.9rem; font-size:0.8rem; }
+.btn-danger-sm { background:#dc3545; border:none; border-radius:50px; color:#fff; padding:0.35rem 0.9rem; font-size:0.8rem; transition:background 0.2s; }
+.btn-danger-sm:hover { background:#b02a37; color:#fff; }
+.badge-admin { font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:50px; }
+@media (max-width:768px) { .admin-sidebar { width:60px; } .admin-sidebar a span { display:none; } .admin-sidebar a { justify-content:center; padding:12px; } .admin-content { padding:1rem; } }

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apomat — Checkout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <link rel="icon" type="image/png" href="/site/favicon/favico-32x32.png">
+  <link rel="stylesheet" href="/site/css/checkout.css" />
+</head>
+<body>
+
+  <div class="page-loader" id="pageLoader">
+    <div class="spinner-border text-gold" role="status"><span class="visually-hidden">Cargando...</span></div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="checkout-topbar">
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <a href="/dashboard"><img class="brand-mark" src="/site/img/logo-apomat.png" alt="Apomat" /></a>
+        <a href="/productos"><i class="bi bi-arrow-left"></i> Seguir comprando</a>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-sm dropdown-toggle" style="background:none;border:none;color:var(--navy);font-weight:500;padding:0;" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-person-circle"></i> <span class="saludo-usuario">Cuenta</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" style="border-radius:12px;border:1px solid #ece7df;box-shadow:0 8px 25px rgba(0,0,0,0.08);">
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil" style="margin-right:8px;color:var(--gold);"></i> Editar perfil</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#cambiarPasswordModal"><i class="bi bi-key" style="margin-right:8px;color:var(--gold);"></i> Cambiar contraseña</a></li>
+          <li><a class="dropdown-item" href="#" id="deleteAccountBtn"><i class="bi bi-trash" style="margin-right:8px;color:#dc3545;"></i> Eliminar cuenta</a></li>
+          <li><hr class="dropdown-divider" style="margin:0.25rem 0;" /></li>
+          <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right" style="margin-right:8px;"></i> Cerrar sesión</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main layout -->
+  <div class="checkout-layout">
+
+    <!-- LEFT: Form -->
+    <div>
+      <!-- Steps -->
+      <div class="checkout-steps" id="checkoutSteps">
+        <div class="checkout-step active" id="step1">
+          <span class="step-label">Tus datos</span>
+          <a href="#" class="step-edit" onclick="irAlPaso1();return false;" title="Editar datos"><i class="bi bi-pencil"></i></a>
+        </div>
+        <div class="checkout-step" id="step2">
+          <span class="step-label">Pago</span>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <form id="checkoutForm">
+          <!-- Step 1: Datos personales -->
+          <div class="step-panel active" id="step1-panel">
+            <h2>Tus datos</h2>
+            <p class="form-subtitle">Información de envío y contacto</p>
+            <div class="mb-3">
+              <label for="nombre">Nombre completo</label>
+              <input type="text" class="form-control" id="nombre" required placeholder="Tu nombre" autocomplete="name" />
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label for="email">Correo electrónico</label>
+                <input type="email" class="form-control" id="email" required placeholder="tu@correo.com" autocomplete="email" />
+              </div>
+              <div class="col-sm-6">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" class="form-control" id="telefono" required placeholder="300 123 4567" autocomplete="tel" />
+              </div>
+            </div>
+            <div class="mb-4">
+              <label for="direccion">Dirección de envío</label>
+              <textarea class="form-control" id="direccion" rows="2" required placeholder="Calle 1 # 2-3, barrio, ciudad"></textarea>
+            </div>
+            <button type="button" class="btn-continuar" id="btn-continuar" onclick="irAlPaso2()">
+              Continuar <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+
+          <!-- Step 2: Pago -->
+          <div class="step-panel" id="step2-panel">
+            <h2>Método de pago</h2>
+            <p class="form-subtitle">Tarjeta de crédito o débito</p>
+            <div class="stripe-fields">
+              <div class="mb-3">
+                <label for="card-number">Número de tarjeta</label>
+                <div id="card-number" class="stripe-input"></div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                  <label for="card-expiry">Fecha de vencimiento</label>
+                  <div id="card-expiry" class="stripe-input"></div>
+                </div>
+                <div class="col-sm-6">
+                  <label for="card-cvc">Código de seguridad (CVC)</label>
+                  <div id="card-cvc" class="stripe-input"></div>
+                </div>
+              </div>
+              <div id="card-errors" style="font-size:0.8rem;color:#dc3545;min-height:1.2em;"></div>
+            </div>
+            <button type="submit" class="btn-pagar" id="btn-pagar">
+              <i class="bi bi-lock-fill"></i> Pagar ahora
+            </button>
+            <div class="secure-badge">
+              <i class="bi bi-shield-check"></i> Pago seguro procesado por Stripe
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT: Summary -->
+    <div>
+      <div class="summary-card">
+        <h3>Resumen del pedido</h3>
+        <div id="summary-items"><div class="empty-cart"><i class="bi bi-cart"></i><p>Cargando...</p></div></div>
+        <div class="summary-divider"></div>
+        <div class="summary-total">
+          <span class="summary-total-label">Total</span>
+          <span class="summary-total-value" id="summary-total-value">$ 0</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="checkout-footer">
+    Apomat &copy; 2026 &mdash; <a href="/dashboard">Inicio</a> &middot; <a href="/productos">Productos</a> &middot; <a href="/mis-pedidos">Mis Pedidos</a>
+  </div>
+
+  <!-- Modales de usuario -->
+  <div class="modal fade" id="editarPerfilModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="font-family:var(--font-brand);color:var(--navy);">Editar perfil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editarPerfilForm">
+            <div class="mb-3"><label class="form-label">Nombre</label><input type="text" class="form-control" id="edit-name" required></div>
+            <div class="mb-3"><label class="form-label">Correo</label><input type="email" class="form-control" id="edit-email" required></div>
+            <button type="submit" class="btn btn-gold w-100">Guardar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="cambiarPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="font-family:var(--font-brand);color:var(--navy);">Cambiar contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="cambiarPasswordForm">
+            <div class="mb-3"><label class="form-label">Actual</label><input type="password" class="form-control" id="pw-actual" required></div>
+            <div class="mb-3"><label class="form-label">Nueva (mín. 8)</label><input type="password" class="form-control" id="pw-nueva" required minlength="8"></div>
+            <div class="mb-3"><label class="form-label">Confirmar</label><input type="password" class="form-control" id="pw-confirmar" required></div>
+            <button type="submit" class="btn btn-gold w-100">Cambiar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/site/js/carrito.js"></script>
+  <script>
+    window.addEventListener('load', function() { document.body.classList.add('page-ready'); });
+
+    function navegar(url) {
+      document.body.classList.add('page-fade-out');
+      document.getElementById('pageLoader').classList.add('active');
+      setTimeout(function() { window.location.replace(url); }, 300);
+    }
+
+    function formatearPrecio(v) {
+      return '$ ' + v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function renderizarResumen() {
+      var items = Carrito.getItems();
+      var container = document.getElementById('summary-items');
+      var totalEl = document.getElementById('summary-total-value');
+      if (items.length === 0) {
+        container.innerHTML = '<div class="empty-cart"><i class="bi bi-cart"></i><p style="font-size:0.85rem;">Tu carrito está vacío</p></div>';
+        totalEl.textContent = '$ 0';
+        document.getElementById('btn-pagar').disabled = true;
+        return;
+      }
+      var html = '<ul class="summary-items">';
+      var total = 0;
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        total += item.precio * item.cantidad;
+        html += '<li class="summary-item">' +
+          '<img src="/site/img/' + item.imagen + '" alt="' + item.nombre + '" loading="lazy" />' +
+          '<div class="summary-item-info">' +
+          '<span class="summary-item-name">' + item.nombre + '</span>' +
+          '<span class="summary-item-qty">Cant: ' + item.cantidad + '</span></div>' +
+          '<span class="summary-item-price">' + formatearPrecio(item.precio * item.cantidad) + '</span></li>';
+      }
+      html += '</ul>';
+      container.innerHTML = html;
+      totalEl.textContent = formatearPrecio(total);
+    }
+    renderizarResumen();
+
+    function validarPaso1() {
+      var valido = true;
+      ['nombre','email','telefono','direccion'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el.value.trim()) { el.classList.add('is-invalid'); valido = false; }
+        else el.classList.remove('is-invalid');
+      });
+      var email = document.getElementById('email');
+      if (email.value.trim() && email.value.indexOf('@') === -1) { email.classList.add('is-invalid'); valido = false; }
+      return valido;
+    }
+
+    function irAlPaso2() {
+      if (!validarPaso1()) {
+        Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completa todos los datos antes de continuar.', confirmButtonColor: '#c9960e' });
+        return;
+      }
+      var items = Carrito.getItems();
+      if (items.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'No hay productos para pagar.', confirmButtonColor: '#c9960e' });
+        return;
+      }
+      document.getElementById('step1').classList.remove('active');
+      document.getElementById('step1').classList.add('completed');
+      document.getElementById('step2').classList.add('active');
+      document.getElementById('step1-panel').classList.remove('active');
+      document.getElementById('step2-panel').classList.add('active');
+      document.getElementById('checkoutSteps').classList.add('has-completed');
+      setTimeout(function() { cardNumber.focus(); }, 300);
+    }
+
+    function irAlPaso1() {
+      document.getElementById('step1').classList.add('active');
+      document.getElementById('step1').classList.remove('completed');
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step1-panel').classList.add('active');
+      document.getElementById('step2-panel').classList.remove('active');
+      document.getElementById('checkoutSteps').classList.remove('has-completed');
+      document.getElementById('nombre').focus();
+    }
+
+    function restaurarFormulario() {
+      document.getElementById('checkoutForm').querySelectorAll('input,textarea,button').forEach(function(el) { el.disabled = false; });
+      var b = document.getElementById('btn-pagar');
+      b.disabled = false; b.innerHTML = '<i class="bi bi-lock-fill"></i> Pagar ahora';
+      document.getElementById('step1').classList.remove('completed');
+      document.getElementById('step1').classList.add('active');
+      document.getElementById('step2').classList.remove('active');
+      document.getElementById('step1-panel').classList.add('active');
+      document.getElementById('step2-panel').classList.remove('active');
+      document.getElementById('checkoutSteps').classList.remove('has-completed');
+    }
+
+    // Stripe
+    var stripe = Stripe('pk_test_51TtqTFRpOVPy2kqfNJXgGC8eAZi9LTqWBzZd1lThTvFhTuIIGvJMvpeXU46Qhj70oi9uiiqDeUTimMuDvleJLVrt00G9MK1NiS');
+    var elements = stripe.elements();
+
+    var style = {
+      base: { fontSize: '15px', fontFamily: 'Poppins, sans-serif', color: '#1c2e4a', fontSmoothing: 'antialiased', '::placeholder': { color: '#bbb' } },
+      invalid: { color: '#dc3545' }
+    };
+
+    var cardNumber = elements.create('cardNumber', { style: style, placeholder: '4242 4242 4242 4242' });
+    var cardExpiry = elements.create('cardExpiry', { style: style });
+    var cardCvc = elements.create('cardCvc', { style: style, placeholder: '123' });
+
+    cardNumber.mount('#card-number');
+    cardExpiry.mount('#card-expiry');
+    cardCvc.mount('#card-cvc');
+
+    function stripeErrorHandler(ev) {
+      document.getElementById('card-errors').textContent = ev.error ? ev.error.message : '';
+    }
+    cardNumber.addEventListener('change', stripeErrorHandler);
+    cardExpiry.addEventListener('change', stripeErrorHandler);
+    cardCvc.addEventListener('change', stripeErrorHandler);
+
+    document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var form = document.getElementById('checkoutForm');
+      form.querySelectorAll('input,textarea,button').forEach(function(el) { el.disabled = true; });
+      var btn = document.getElementById('btn-pagar');
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando pago...';
+
+      var items = Carrito.getItems();
+      if (items.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'Agrega productos antes de pagar.', confirmButtonColor: '#c9960e' });
+        restaurarFormulario(); return;
+      }
+
+      var total = 0;
+      for (var i = 0; i < items.length; i++) { total += items[i].precio * items[i].cantidad; }
+
+      var payload = {
+        nombre: document.getElementById('nombre').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        telefono: document.getElementById('telefono').value.trim(),
+        direccion: document.getElementById('direccion').value.trim(),
+        items: items.map(function(it) { return { id: it.id, cantidad: it.cantidad, precio: it.precio, nombre: it.nombre }; }),
+        total: total
+      };
+
+      try {
+        var resp = await fetch('/api/checkout', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        });
+        var data = await resp.json();
+
+        if (data.error) {
+          Swal.fire({ icon: 'error', title: 'Error', text: data.error, confirmButtonColor: '#c9960e' });
+          restaurarFormulario(); return;
+        }
+
+        var result = await stripe.confirmCardPayment(data.client_secret, {
+          payment_method: { card: cardNumber, billing_details: { name: payload.nombre, email: payload.email } }
+        });
+
+        if (result.error) {
+          Swal.fire({ icon: 'error', title: 'Error de pago', text: result.error.message, confirmButtonColor: '#c9960e' });
+          restaurarFormulario();
+        } else {
+          localStorage.setItem('apomat_carrito_backup', localStorage.getItem('apomat_carrito'));
+          Carrito.vaciar();
+          window.location.replace('/pedido-exitoso?referencia=' + data.referencia);
+        }
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo procesar el pago.', confirmButtonColor: '#c9960e' });
+        restaurarFormulario();
+      }
+    });
+
+    // User modals
+    document.querySelectorAll('#logoutBtn').forEach(function(el) {
+      el.addEventListener('click', function(e) { e.preventDefault(); navegar('/logout'); });
+    });
+
+
+    document.getElementById('editarPerfilModal').addEventListener('show.bs.modal', function() {
+      fetch('/usuario?t=' + Date.now(), { cache: 'no-store' })
+        .then(function(r) { return r.json(); })
+        .then(function(u) {
+          document.getElementById('edit-name').value = u.nombre || '';
+          document.getElementById('edit-email').value = u.email || '';
+        });
+    });
+    document.getElementById('editarPerfilForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      fetch('/api/usuario/editar', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: document.getElementById('edit-name').value.trim(), email: document.getElementById('edit-email').value.trim() })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.ok) {
+          Swal.fire({ icon: 'success', title: 'Perfil actualizado', timer: 2000, showConfirmButton: false });
+          document.querySelector('[data-bs-dismiss="modal"]').click();
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: res.error, confirmButtonColor: '#c9960e' });
+        }
+      });
+    });
+    document.getElementById('cambiarPasswordForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var n = document.getElementById('pw-nueva').value, c = document.getElementById('pw-confirmar').value;
+      if (n.length < 8) { Swal.fire({ icon: 'warning', title: 'Muy corta', text: 'Mínimo 8 caracteres' }); return; }
+      if (n !== c) { Swal.fire({ icon: 'warning', title: 'No coinciden', text: 'Las contraseñas no son iguales' }); return; }
+      fetch('/api/usuario/cambiar-contrasena', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actual: document.getElementById('pw-actual').value, nueva: n })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.ok) {
+          Swal.fire({ icon: 'success', title: 'Contraseña actualizada', timer: 2000, showConfirmButton: false });
+          document.getElementById('cambiarPasswordForm').reset();
+          document.querySelector('[data-bs-dismiss="modal"]').click();
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: res.error, confirmButtonColor: '#c9960e' });
+        }
+      });
+    });
+    document.getElementById('deleteAccountBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      Swal.fire({
+        title: '¿Eliminar tu cuenta?', text: 'Esta acción no se puede deshacer.', icon: 'warning',
+        showCancelButton: true, confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545', cancelButtonColor: '#6b7686'
+      }).then(function(r) {
+        if (r.isConfirmed) {
+          fetch('/api/usuario/eliminar', { method: 'POST' })
+            .then(function(r2) { return r2.json(); })
+            .then(function(d) { if (d.ok) window.location.replace('/logout'); else Swal.fire({ icon: 'error', title: 'Error', text: d.error }); });
+        }
+      });
+    });
+
+    fetch('/usuario?t=' + Date.now(), { cache: 'no-store' })
+      .then(function(r) { if (r.status === 401) { window.location.replace('/'); return null; } return r.json(); })
+      .then(function(d) {
+        if (d && d.nombre) {
+          document.querySelectorAll('.saludo-usuario').forEach(function(el) { el.textContent = 'Hola, ' + d.nombre.split(' ')[0]; });
+        }
+      });
+  </script>
+</body>
+</html>
