@@ -109,10 +109,6 @@
   <!-- ===== SECCIÓN INICIO (HERO con IMAGEN DE FONDO y altura completa) ===== -->
   <section id="inicio" class="hero-section">
     <div class="hero-overlay"></div>
-    <div class="hero-greeting" id="heroGreeting" style="display:none;">
-      <span class="hero-greeting-icon"><i class="bi bi-hand-wave"></i></span>
-      <span class="hero-greeting-text" id="heroGreetingText">Bienvenido</span>
-    </div>
     <div class="container animate-fade-in">
       <h1>No solo perfumamos espacios,<br />creamos ambientes.</h1>
       <p class="subhead">Aromatizantes para el hogar, oficina y cualquier ambiente.</p>
@@ -461,12 +457,7 @@
             .forEach(elemento => {
               elemento.textContent = "Hola, " + primerNombre;
             });
-          var greetingEl = document.getElementById("heroGreeting");
-          var greetingText = document.getElementById("heroGreetingText");
-          if (greetingEl && greetingText) {
-            greetingText.textContent = "Bienvenido, " + primerNombre;
-            greetingEl.style.display = "inline-flex";
-          }
+
           if (data.admin) {
             var ul = document.querySelector(".apomat-navbar .apomat-links");
             if (ul) {

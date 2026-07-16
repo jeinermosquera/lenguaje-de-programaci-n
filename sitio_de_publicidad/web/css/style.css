@@ -840,44 +840,7 @@ body.page-fade-out {
 }
 
 /* ===== HERO GREETING ===== */
-.hero-greeting {
-  position: absolute;
-  top: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 50px;
-  padding: 0.6rem 1.8rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  animation: greetingFadeIn 0.8s ease forwards;
-  pointer-events: none;
-}
-@keyframes greetingFadeIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-.hero-greeting-icon {
-  font-size: 1.3rem;
-  animation: handWave 1.5s ease-in-out infinite;
-}
-@keyframes handWave {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(15deg); }
-  75% { transform: rotate(-10deg); }
-}
-.hero-greeting-text {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: 0.02em;
-}
+
 
 /* ===== CARRITO ===== */
 .cart-icon-link {
