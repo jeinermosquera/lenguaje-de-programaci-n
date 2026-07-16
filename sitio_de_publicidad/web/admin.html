@@ -384,6 +384,12 @@
         .catch(function() { Swal.fire({ icon: "error", title: "Error", text: "Error de conexi\u00f3n", confirmButtonColor: "#c9960e" }); });
     }
 
+    function formatearFecha(f) {
+      if (!f) return "\u2014";
+      var d = new Date(f);
+      return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
     function renderizarPedidos() {
       var tbody = document.getElementById("pedidos-tbody");
       var filtrados = pedidosFiltro === "activos"
@@ -422,7 +428,7 @@
           '<td><span class="estado-label ' + estadoCls + '" style="cursor:pointer;">' + (estadosMap[p.estado] || p.estado) + '</span>' +
           '<select class="estado-select" style="display:none;font-size:0.8rem;padding:2px 4px;" data-original="' + p.estado + '" onchange="actualizarEstado(' + p.id + ', this)">' + opts + '</select>' +
           ' <a href="#" class="btn-editar-estado" style="font-size:0.75rem;color:var(--gold);text-decoration:none;" onclick="event.preventDefault();var pp=this.parentNode;var ll=pp.querySelector(\'.estado-label\');var ss=pp.querySelector(\'.estado-select\');ll.style.display=\'none\';this.style.display=\'none\';ss.style.display=\'inline\';ss.focus();">\u270f</a></td>' +
-          '<td><small>' + (p.fecha ? p.fecha.substring(0, 10) : "\u2014") + '</small></td>' +
+          '<td><small>' + formatearFecha(p.fecha) + '</small></td>' +
           '<td><a href="#" class="toggle-detalle" data-idx="' + idx + '" style="color:var(--gold);text-decoration:none;font-size:0.85rem;">Ver items</a></td>' +
           '</tr>' +
           '<tr id="detalle-' + idx + '" style="display:none;"><td colspan="6" style="padding:0.8rem 1rem;background:#fafafa;">' +

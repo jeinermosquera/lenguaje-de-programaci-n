@@ -178,6 +178,12 @@
       cancelado: { label: 'Cancelado', cls: 'bg-danger' }
     };
 
+    function formatearFecha(f) {
+      if (!f) return '';
+      var d = new Date(f);
+      return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
     function formatearPrecio(v) {
       return '$ ' + v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
@@ -204,7 +210,7 @@
             }).join('');
             return '<div class="pedido-card">' +
               '<div class="pedido-header">' +
-              '<div><div class="pedido-ref">' + p.referencia + '</div><div class="pedido-fecha">' + (p.fecha ? p.fecha.substring(0, 10) : '') + '</div></div>' +
+              '<div><div class="pedido-ref">' + p.referencia + '</div><div class="pedido-fecha">' + formatearFecha(p.fecha) + '</div></div>' +
               '<div class="d-flex align-items-center gap-2"><span class="estado-badge ' + est.cls + '">' + est.label + '</span><span class="pedido-total">' + formatearPrecio(p.total) + '</span></div>' +
               '</div>' +
               '<div class="pedido-items">' + itemsHtml + '</div>' +
