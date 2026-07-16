@@ -421,10 +421,11 @@
           : p.estado === "cancelado" ? "badge bg-danger badge-admin"
           : "badge bg-secondary badge-admin";
 
+        var envioStr = p.costo_envio > 0 ? 'Envío: $' + p.costo_envio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : 'Envío: <span style="color:#28a745;">GRATIS</span>';
         return '<tr>' +
           '<td><strong>' + p.referencia + '</strong></td>' +
           '<td>' + (p.nombre || p.usuario_nombre || "\u2014") + '<br><small style="color:#999;">' + (p.email || "") + '</small></td>' +
-          '<td><strong>$ ' + p.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</strong></td>' +
+          '<td><strong>$ ' + p.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</strong><br><small style="color:#999;">' + envioStr + '</small></td>' +
           '<td><span class="estado-label ' + estadoCls + '" style="cursor:pointer;">' + (estadosMap[p.estado] || p.estado) + '</span>' +
           '<select class="estado-select" style="display:none;font-size:0.8rem;padding:2px 4px;" data-original="' + p.estado + '" onchange="actualizarEstado(' + p.id + ', this)">' + opts + '</select>' +
           ' <a href="#" class="btn-editar-estado" style="font-size:0.75rem;color:var(--gold);text-decoration:none;" onclick="event.preventDefault();var pp=this.parentNode;var ll=pp.querySelector(\'.estado-label\');var ss=pp.querySelector(\'.estado-select\');ll.style.display=\'none\';this.style.display=\'none\';ss.style.display=\'inline\';ss.focus();">\u270f</a></td>' +

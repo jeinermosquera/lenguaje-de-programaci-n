@@ -124,6 +124,10 @@
         <h3>Resumen del pedido</h3>
         <div id="summary-items"><div class="empty-cart"><i class="bi bi-cart"></i><p>Cargando...</p></div></div>
         <div class="summary-divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;font-size:0.85rem;color:var(--text-muted);">
+          <span id="summary-envio-label">Envío</span>
+          <span id="summary-envio">$ 0</span>
+        </div>
         <div class="summary-total">
           <span class="summary-total-label">Total</span>
           <span class="summary-total-value" id="summary-total-value">$ 0</span>
@@ -187,8 +191,15 @@
       setTimeout(function() { window.location.replace(url); }, 300);
     }
 
+    var COSTO_ENVIO = 5000;
+    var ENVIO_GRATIS_MIN = 150000;
+
     function formatearPrecio(v) {
       return '$ ' + v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function calcularEnvio(subtotal) {
+      return subtotal >= ENVIO_GRATIS_MIN ? 0 : COSTO_ENVIO;
     }
 
     function renderizarResumen() {
@@ -202,10 +213,10 @@
         return;
       }
       var html = '<ul class="summary-items">';
-      var total = 0;
+      var subtotal = 0;
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
-        total += item.precio * item.cantidad;
+        subtotal += item.precio * item.cantidad;
         html += '<li class="summary-item">' +
           '<img src="/site/img/' + item.imagen + '" alt="' + item.nombre + '" loading="lazy" />' +
           '<div class="summary-item-info">' +
@@ -215,7 +226,17 @@
       }
       html += '</ul>';
       container.innerHTML = html;
-      totalEl.textContent = formatearPrecio(total);
+      var envio = calcularEnvio(subtotal);
+      var envioEl = document.getElementById('summary-envio');
+      if (envioEl) envioEl.textContent = formatearPrecio(envio);
+      if (envio === 0) {
+        var envioLabel = document.getElementById('summary-envio-label');
+        if (envioLabel) envioLabel.innerHTML = 'Envío <span style="color:#28a745;font-weight:600;">GRATIS</span>';
+      } else {
+        var envioLabel = document.getElementById('summary-envio-label');
+        if (envioLabel) envioLabel.textContent = 'Envío';
+      }
+      totalEl.textContent = formatearPrecio(subtotal + envio);
     }
     renderizarResumen();
 
@@ -309,8 +330,10 @@
         restaurarFormulario(); return;
       }
 
-      var total = 0;
-      for (var i = 0; i < items.length; i++) { total += items[i].precio * items[i].cantidad; }
+      var subtotal = 0;
+      for (var i = 0; i < items.length; i++) { subtotal += items[i].precio * items[i].cantidad; }
+      var envio = calcularEnvio(subtotal);
+      var total = subtotal + envio;
 
       var payload = {
         nombre: document.getElementById('nombre').value.trim(),
@@ -318,7 +341,8 @@
         telefono: document.getElementById('telefono').value.trim(),
         direccion: document.getElementById('direccion').value.trim(),
         items: items.map(function(it) { return { id: it.id, cantidad: it.cantidad, precio: it.precio, nombre: it.nombre }; }),
-        total: total
+        total: total,
+        costo_envio: envio
       };
 
       try {

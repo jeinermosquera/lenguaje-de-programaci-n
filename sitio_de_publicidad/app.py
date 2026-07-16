@@ -101,6 +101,11 @@ def inicializar_base_datos():
             )
         """)
 
+        try:
+            cursor.execute("ALTER TABLE pedido ADD COLUMN costo_envio INT DEFAULT 0")
+        except:
+            pass
+
         cursor.execute("SELECT COUNT(*) FROM producto")
         count = cursor.fetchone()[0]
 
@@ -604,10 +609,12 @@ def api_checkout():
         connection = get_connection()
         cursor = connection.cursor()
 
+        costo_envio = data.get("costo_envio", 0)
+
         cursor.execute("""
-            INSERT INTO pedido (usuario_id, referencia, total, estado, nombre, email, telefono, direccion)
-            VALUES (%s, %s, %s, 'pendiente', %s, %s, %s, %s)
-        """, (session.get("usuario_id"), referencia, total, nombre, email, telefono, direccion))
+            INSERT INTO pedido (usuario_id, referencia, total, costo_envio, estado, nombre, email, telefono, direccion)
+            VALUES (%s, %s, %s, %s, 'pendiente', %s, %s, %s, %s)
+        """, (session.get("usuario_id"), referencia, total, costo_envio, nombre, email, telefono, direccion))
         pedido_id = cursor.lastrowid
 
         for item in items_data:
@@ -682,7 +689,7 @@ def api_mis_pedidos():
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
-            SELECT id, referencia, total, estado, fecha
+            SELECT id, referencia, total, costo_envio, estado, fecha
             FROM pedido
             WHERE usuario_id = %s
             ORDER BY fecha DESC
@@ -882,7 +889,7 @@ def admin_api_pedidos():
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
-            SELECT p.id, p.referencia, p.total, p.estado, p.nombre, p.email, p.telefono,
+            SELECT p.id, p.referencia, p.total, p.costo_envio, p.estado, p.nombre, p.email, p.telefono,
                    p.direccion, p.fecha, u.nombre AS usuario_nombre
             FROM pedido p
             LEFT JOIN usuario u ON p.usuario_id = u.id
