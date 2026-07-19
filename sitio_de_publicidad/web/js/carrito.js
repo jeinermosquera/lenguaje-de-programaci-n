@@ -1,12 +1,15 @@
 var Carrito = {
+  /** Obtiene los items del carrito desde localStorage */
   getItems: function () {
     return JSON.parse(localStorage.getItem("apomat_carrito") || "[]");
   },
+  /** Guarda items en localStorage y actualiza badge + offcanvas */
   setItems: function (items) {
     localStorage.setItem("apomat_carrito", JSON.stringify(items));
     this.actualizarBadge();
     this.renderizarOffcanvas();
   },
+  /** Agrega un producto al carrito o incrementa su cantidad */
   agregar: function (producto, cantidad) {
     if (cantidad === undefined) cantidad = 1;
     var items = this.getItems();
@@ -24,9 +27,11 @@ var Carrito = {
     }
     this.setItems(items);
   },
+  /** Elimina un producto del carrito por su id */
   eliminar: function (id) {
     this.setItems(this.getItems().filter(function (i) { return i.id !== id; }));
   },
+  /** Actualiza la cantidad de un producto; si <= 0 lo elimina */
   actualizarCantidad: function (id, cantidad) {
     var items = this.getItems();
     var item = items.find(function (i) { return i.id === id; });
@@ -39,10 +44,12 @@ var Carrito = {
       }
     }
   },
+  /** Vacía el carrito y elimina el backup */
   vaciar: function () {
     this.setItems([]);
     localStorage.removeItem("apomat_carrito_backup" + (this._userId ? "_" + this._userId : ""));
   },
+  /** Calcula el total sumando precio × cantidad de cada item */
   getTotal: function () {
     var items = this.getItems();
     var total = 0;
@@ -51,6 +58,7 @@ var Carrito = {
     }
     return total;
   },
+  /** Cuenta la cantidad total de unidades en el carrito */
   getCantidadTotal: function () {
     var items = this.getItems();
     var count = 0;
@@ -59,9 +67,11 @@ var Carrito = {
     }
     return count;
   },
+  /** Formatea número a moneda COP: "$ 1.234" */
   formatearPrecio: function (precio) {
     return "$ " + precio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   },
+  /** Actualiza el badge del carrito en la navbar */
   actualizarBadge: function () {
     var count = this.getCantidadTotal();
     document.querySelectorAll(".cart-badge").forEach(function (b) {
@@ -69,6 +79,7 @@ var Carrito = {
       b.style.display = count > 0 ? "inline" : "none";
     });
   },
+  /** Renderiza el contenido del offcanvas del carrito */
   renderizarOffcanvas: function () {
     var container = document.getElementById("cart-offcanvas-body");
     if (!container) return;

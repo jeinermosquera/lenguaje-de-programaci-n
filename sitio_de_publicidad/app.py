@@ -37,8 +37,9 @@ app = Flask(__name__)
 app.secret_key = "clave_super_secreta"
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
-# crear tablas y sembrar datos iniciales si es necesario
 def inicializar_base_datos():
+    """Crea las tablas producto, pedido, detalle_pedido y contacto si no existen.
+    Agrega columnas precio_rebaja, stock y costo_envio si faltan."""
     try:
         connection = get_connection()
         cursor = connection.cursor()
@@ -116,16 +117,16 @@ def inicializar_base_datos():
         if "connection" in locals() and connection.is_connected():
             connection.close()
 
-# evitar que el navegador guarde páginas en caché
 @app.after_request
 def add_header(response):
+    """Desactiva caché del navegador en todas las respuestas."""
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
 
-# función para obtener la conexión a la base de datos
 def get_connection():
+    """Retorna conexión MySQL a jeiner_db (127.0.0.1, root sin contraseña)."""
     return mysql.connector.connect(
         host="127.0.0.1",
         user="root",
@@ -133,8 +134,8 @@ def get_connection():
         database="jeiner_db"
     )
 
-# función para obtener producto de la BD como dict
 def producto_db_a_dict(row):
+    """Convierte una fila de la BD (tupla) en dict con precios formateados y JSONs parseados."""
     precio_rebaja = row[8] if len(row) > 8 else None
     stock = row[9] if len(row) > 9 else 0
     return {
@@ -153,54 +154,54 @@ def producto_db_a_dict(row):
         "stock": stock if stock is not None else 0
     }
 
-# rutas para el html del login
 @app.route("/")
 def home():
+    """Sirve login/index.html (página pública de login/registro)."""
     return send_from_directory(LOGIN_DIR, "index.html")
 
-# rutas para el css del login
 @app.route("/css/<path:filename>")
 def css_files(filename):
+    """Sirve archivos CSS del login."""
     return send_from_directory(LOGIN_DIR / "css", filename)
 
-# ruta para imágenes del login (aquí va el logo)
 @app.route("/img/<path:filename>")
 def img_files(filename):
+    """Sirve imágenes del login."""
     return send_from_directory(LOGIN_DIR / "img", filename)
 
-# ruta para archivos de favicon del login
 @app.route("/favicon/<path:filename>")
 def favicon_files(filename):
+    """Sirve favicons del login."""
     return send_from_directory(LOGIN_DIR / "favicon", filename)
 
-# ruta para css del sitio web (carpeta "web")
 @app.route("/site/css/<path:filename>")
 def site_css(filename):
+    """Sirve archivos CSS del sitio protegido."""
     return send_from_directory(SITE_DIR / "css", filename)
 
-# ruta para imágenes del sitio web
 @app.route("/site/img/<path:filename>")
 def site_img(filename):
+    """Sirve imágenes del sitio protegido."""
     return send_from_directory(SITE_DIR / "img", filename)
 
-# ruta para js del sitio web
 @app.route("/site/js/<path:filename>")
 def site_js(filename):
+    """Sirve archivos JS del sitio protegido."""
     return send_from_directory(SITE_DIR / "js", filename)
 
-# ruta para archivos de favicon del sitio web
 @app.route("/site/favicon/<path:filename>")
 def site_favicon(filename):
+    """Sirve favicons del sitio protegido."""
     return send_from_directory(SITE_DIR / "favicon", filename)
 
-# ruta para imágenes estáticas (opcional, si prefieres usar /static/img en vez de /img)
 @app.route("/static/img/<path:filename>")
 def static_img(filename):
+    """Sirve imágenes estáticas desde static/img/ (ruta opcional)."""
     return send_from_directory(STATIC_DIR / "img", filename)
 
-# registro de usuario
 @app.route("/register", methods=["POST"])
 def register():
+    """Registra un nuevo usuario, hashea la contraseña, inicia sesión y redirige."""
 
     full_name = request.form.get("full_name", "").strip()
     email = request.form.get("email", "").strip().lower()
@@ -258,9 +259,9 @@ def register():
 
     return redirect("/dashboard?register=success")
 
-# login de usuario
 @app.route("/login", methods=["POST"])
 def login():
+    """Autentica usuario contra BD, inicia sesión y redirige a dashboard o admin."""
 
     email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
@@ -310,40 +311,32 @@ def login():
     return redirect("/dashboard?login=success")
 
 
-# ruta protegida
 @app.route("/dashboard")
 def dashboard():
-
+    """Sirve web/index.html (dashboard con productos destacados). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
-
     return send_from_directory(SITE_DIR, "index.html")
 
-# ruta protegida para la página de productos
 @app.route("/productos")
 def productos():
-
+    """Sirve web/productos.html (catálogo completo). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
-
     return send_from_directory(SITE_DIR, "productos.html")
 
-# ruta protegida para detalle de producto
 @app.route("/producto/<int:producto_id>")
 def producto_detalle(producto_id):
-
+    """Sirve web/producto.html (detalle de producto). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
-
     return send_from_directory(SITE_DIR, "producto.html")
 
-# ruta para obtener datos de un producto (API desde BD)
 @app.route("/api/producto/<int:producto_id>")
 def api_producto(producto_id):
-
+    """Retorna JSON de un producto individual desde la BD."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
-
     try:
         connection = get_connection()
         cursor = connection.cursor()
@@ -356,19 +349,15 @@ def api_producto(producto_id):
             cursor.close()
         if "connection" in locals() and connection.is_connected():
             connection.close()
-
     if not row:
         return {"error": "No encontrado"}, 404
-
     return producto_db_a_dict(row)
 
-# ruta para listar todos los productos (API)
 @app.route("/api/productos")
 def api_productos():
-
+    """Retorna JSON con todos los productos ordenados por id."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
-
     try:
         connection = get_connection()
         cursor = connection.cursor()
@@ -381,12 +370,11 @@ def api_productos():
             cursor.close()
         if "connection" in locals() and connection.is_connected():
             connection.close()
-
     return [producto_db_a_dict(r) for r in rows]
 
-# obtener datos del usuario logueado
 @app.route("/usuario")
 def usuario():
+    """Retorna JSON con id, nombre, email y admin del usuario logueado."""
 
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
@@ -420,7 +408,7 @@ def usuario():
 
 @app.route("/api/usuario/editar", methods=["POST"])
 def api_editar_usuario():
-
+    """Actualiza nombre y correo del usuario logueado. Verifica que el correo no esté en uso."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
 
@@ -462,7 +450,7 @@ def api_editar_usuario():
 
 @app.route("/api/usuario/cambiar-contrasena", methods=["POST"])
 def api_cambiar_contrasena():
-
+    """Cambia la contraseña del usuario verificando la actual primero."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
 
@@ -504,7 +492,7 @@ def api_cambiar_contrasena():
 
 @app.route("/api/usuario/eliminar", methods=["POST"])
 def api_eliminar_usuario():
-
+    """Elimina la cuenta del usuario y todos sus pedidos asociados."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
 
@@ -534,7 +522,7 @@ def api_eliminar_usuario():
 
 @app.route("/checkout")
 def checkout():
-
+    """Sirve web/checkout.html (página de pago con Stripe). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
 
@@ -542,7 +530,7 @@ def checkout():
 
 @app.route("/pedido-exitoso")
 def pedido_exitoso():
-
+    """Sirve web/pedido-exitoso.html (confirmación de pago). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
 
@@ -550,7 +538,7 @@ def pedido_exitoso():
 
 @app.route("/pedido-fallido")
 def pedido_fallido():
-
+    """Sirve web/pedido-fallido.html (pago rechazado). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
 
@@ -558,7 +546,7 @@ def pedido_fallido():
 
 @app.route("/api/checkout", methods=["POST"])
 def api_checkout():
-
+    """Crea PaymentIntent en Stripe + pedido en BD con items y descuento de stock."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
 
@@ -624,7 +612,7 @@ def api_checkout():
 
 @app.route("/api/stripe/webhook", methods=["POST"])
 def stripe_webhook():
-
+    """Escucha webhook payment_intent.succeeded de Stripe y actualiza estado del pedido."""
     payload = request.get_data()
     sig_header = request.headers.get("Stripe-Signature", "")
 
@@ -655,7 +643,7 @@ def stripe_webhook():
 # ===== PEDIDOS DEL USUARIO =====
 @app.route("/mis-pedidos")
 def mis_pedidos():
-
+    """Sirve web/mis-pedidos.html (historial de pedidos del usuario). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
 
@@ -663,7 +651,7 @@ def mis_pedidos():
 
 @app.route("/api/mis-pedidos")
 def api_mis_pedidos():
-
+    """Retorna JSON con los pedidos del usuario logueado, cada uno con sus items."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401
 
@@ -700,7 +688,7 @@ def api_mis_pedidos():
 
 @app.route("/admin/api/pedidos/estado/<int:pedido_id>", methods=["POST"])
 def admin_actualizar_estado(pedido_id):
-
+    """Cambia el estado de un pedido (admin only). Estados válidos: pendiente, enviado, entregado, cancelado."""
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
@@ -724,10 +712,9 @@ def admin_actualizar_estado(pedido_id):
 
     return {"ok": True}
 
-# ruta para enviar mensaje de contacto
 @app.route("/enviar-contacto", methods=["POST"])
 def enviar_contacto():
-
+    """Guarda mensaje del formulario de contacto en BD y redirige."""
     if "logueado" not in session:
         return redirect("/")
 
@@ -777,7 +764,7 @@ def enviar_contacto():
 
 @app.route("/admin")
 def admin_panel():
-
+    """Sirve web/admin.html (panel de administración). Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return redirect("/dashboard")
 
@@ -785,7 +772,7 @@ def admin_panel():
 
 @app.route("/admin/api/productos")
 def admin_api_productos():
-
+    """Retorna JSON con todos los productos para el panel admin. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
@@ -806,7 +793,7 @@ def admin_api_productos():
 
 @app.route("/admin/productos/agregar", methods=["POST"])
 def admin_agregar_producto():
-
+    """Crea un nuevo producto con imagen subida. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
@@ -864,7 +851,7 @@ def admin_agregar_producto():
 
 @app.route("/admin/api/pedidos")
 def admin_api_pedidos():
-
+    """Retorna JSON con todos los pedidos y sus items. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
@@ -900,7 +887,7 @@ def admin_api_pedidos():
 
 @app.route("/admin/productos/toggle/<int:producto_id>", methods=["POST"])
 def admin_toggle_producto(producto_id):
-
+    """Activa/desactiva la disponibilidad de un producto. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
@@ -925,7 +912,7 @@ def admin_toggle_producto(producto_id):
 
 @app.route("/admin/productos/editar/<int:producto_id>", methods=["POST"])
 def admin_editar_producto(producto_id):
-
+    """Edita precio, precio_rebaja y stock de un producto. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
@@ -962,7 +949,7 @@ def admin_editar_producto(producto_id):
 
 @app.route("/admin/productos/eliminar/<int:producto_id>", methods=["POST"])
 def admin_eliminar_producto(producto_id):
-
+    """Elimina un producto y su archivo de imagen del servidor. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return redirect("/dashboard")
 
@@ -988,10 +975,9 @@ def admin_eliminar_producto(producto_id):
 
     return redirect("/admin?ok=eliminado")
 
-# cerrar sesión
 @app.route("/logout")
 def logout():
-
+    """Limpia la sesión y redirige al login con headers sin caché."""
     session.clear()
 
     response = redirect("/")
