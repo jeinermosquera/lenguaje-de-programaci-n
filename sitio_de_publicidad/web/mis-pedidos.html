@@ -205,7 +205,8 @@
           container.innerHTML = data.map(function(p) {
             var est = mapEstado[p.estado] || { label: p.estado, cls: 'bg-secondary' };
             var itemsHtml = p.items.map(function(it) {
-              return '<div class="pedido-item"><span>' + it.nombre_producto + ' x' + it.cantidad + '</span><span>' + formatearPrecio(it.precio * it.cantidad) + '</span></div>';
+              var subtotal = it.precio * it.cantidad;
+              return '<div class="pedido-item"><span class="pedido-item-nombre">' + it.nombre_producto + ' <small style="color:#999;">x' + it.cantidad + '</small></span><span class="pedido-item-precio">$ ' + it.precio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '</span><span class="pedido-item-subtotal">' + formatearPrecio(subtotal) + '</span></div>';
             }).join('');
             var envioHtml = p.costo_envio > 0 ? '<div class="pedido-envio">Envío: ' + formatearPrecio(p.costo_envio) + '</div>' : '<div class="pedido-envio" style="color:#28a745;">Envío: GRATIS</div>';
             return '<div class="pedido-card">' +
@@ -213,7 +214,9 @@
               '<div><div class="pedido-ref">' + p.referencia + '</div><div class="pedido-fecha">' + formatearFecha(p.fecha) + '</div></div>' +
               '<div class="d-flex align-items-center gap-2"><span class="estado-badge ' + est.cls + '">' + est.label + '</span><span class="pedido-total">' + formatearPrecio(p.total) + '</span></div>' +
               '</div>' +
-              '<div class="pedido-items">' + itemsHtml + '</div>' + envioHtml +
+              '<div class="pedido-items">' +
+              '<div class="pedido-item pedido-item-header"><span class="pedido-item-nombre">Producto</span><span class="pedido-item-precio">Precio</span><span class="pedido-item-subtotal">Subtotal</span></div>' +
+              itemsHtml + '</div>' + envioHtml +
               '</div>';
           }).join('');
         })

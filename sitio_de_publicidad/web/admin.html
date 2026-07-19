@@ -98,14 +98,16 @@
             <tr>
               <th>Referencia</th>
               <th>Cliente</th>
-              <th>Total</th>
+              <th>Producto</th>
+              <th style="text-align:right;">Precio</th>
+              <th style="text-align:right;">Subtotal</th>
+              <th>Envío / Total</th>
               <th>Estado</th>
-              <th>Fecha</th>
-              <th>Detalle</th>
+              <th>Contacto</th>
             </tr>
           </thead>
           <tbody id="pedidos-tbody">
-            <tr><td colspan="6" class="text-center text-muted py-4">Cargando pedidos...</td></tr>
+            <tr><td colspan="8" class="text-center text-muted py-4">Cargando pedidos...</td></tr>
           </tbody>
         </table>
       </div>
@@ -397,55 +399,61 @@
         : pedidosData;
 
       if (filtrados.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">' +
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">' +
           (pedidosFiltro === "activos" ? "No hay pedidos pendientes." : "No hay pedidos.") +
           '</td></tr>';
         return;
       }
 
-      tbody.innerHTML = filtrados.map(function(p, idx) {
-        var itemsHtml = p.items.map(function(it) {
-          return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f0f0f0;font-size:0.85rem;">' +
-            '<span>' + it.nombre_producto + ' x' + it.cantidad + '</span>' +
-            '<span>$ ' + (it.precio * it.cantidad).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</span></div>';
-        }).join("");
-
-        var opts = Object.keys(estadosMap).map(function(k) {
-          var sel = k === p.estado ? " selected" : "";
-          return '<option value="' + k + '"' + sel + ">" + estadosMap[k] + "</option>";
-        }).join("");
-
-        var estadoCls = p.estado === "pendiente" ? "badge bg-warning text-dark badge-admin"
-          : p.estado === "enviado" ? "badge bg-primary badge-admin"
-          : p.estado === "entregado" ? "badge bg-success badge-admin"
-          : p.estado === "cancelado" ? "badge bg-danger badge-admin"
-          : "badge bg-secondary badge-admin";
-
+      var rowsHtml = "";
+      for (var idx = 0; idx < filtrados.length; idx++) {
+        var p = filtrados[idx];
         var envioStr = p.costo_envio > 0 ? 'Envío: $' + p.costo_envio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : 'Envío: <span style="color:#28a745;">GRATIS</span>';
-        return '<tr>' +
-          '<td><strong>' + p.referencia + '</strong></td>' +
-          '<td>' + (p.nombre || p.usuario_nombre || "\u2014") + '<br><small style="color:#999;">' + (p.email || "") + '</small></td>' +
-          '<td><strong>$ ' + p.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</strong><br><small style="color:#999;">' + envioStr + '</small></td>' +
-          '<td><span class="estado-label ' + estadoCls + '" style="cursor:pointer;">' + (estadosMap[p.estado] || p.estado) + '</span>' +
-          '<select class="estado-select" style="display:none;font-size:0.8rem;padding:2px 4px;" data-original="' + p.estado + '" onchange="actualizarEstado(' + p.id + ', this)">' + opts + '</select>' +
-          ' <a href="#" class="btn-editar-estado" style="font-size:0.75rem;color:var(--gold);text-decoration:none;" onclick="event.preventDefault();var pp=this.parentNode;var ll=pp.querySelector(\'.estado-label\');var ss=pp.querySelector(\'.estado-select\');ll.style.display=\'none\';this.style.display=\'none\';ss.style.display=\'inline\';ss.focus();">\u270f</a></td>' +
-          '<td><small>' + formatearFecha(p.fecha) + '</small></td>' +
-          '<td><a href="#" class="toggle-detalle" data-idx="' + idx + '" style="color:var(--gold);text-decoration:none;font-size:0.85rem;">Ver items</a></td>' +
-          '</tr>' +
-          '<tr id="detalle-' + idx + '" style="display:none;"><td colspan="6" style="padding:0.8rem 1rem;background:#fafafa;">' +
-          '<div style="max-width:400px;">' + itemsHtml + '</div>' +
-          '<small style="color:#999;">' + (p.direccion ? "Dir: " + p.direccion : "") + (p.telefono ? " | Tel: " + p.telefono : "") + '</small>' +
-          '</td></tr>';
-      }).join("");
+        var totalStr = '$ ' + p.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        var fechaStr = formatearFecha(p.fecha);
 
-      document.querySelectorAll(".toggle-detalle").forEach(function(el) {
-        el.addEventListener("click", function(e) {
-          e.preventDefault();
-          var row = document.getElementById("detalle-" + this.dataset.idx);
-          row.style.display = row.style.display === "none" ? "" : "none";
-          this.textContent = row.style.display === "none" ? "Ver items" : "Ocultar";
-        });
-      });
+        for (var j = 0; j < p.items.length; j++) {
+          var it = p.items[j];
+          var subtotal = it.precio * it.cantidad;
+          var subtotalStr = '$ ' + subtotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+          if (j === 0) {
+            var opts = Object.keys(estadosMap).map(function(k) {
+              var sel = k === p.estado ? " selected" : "";
+              return '<option value="' + k + '"' + sel + ">" + estadosMap[k] + "</option>";
+            }).join("");
+            var estadoCls = p.estado === "pendiente" ? "badge bg-warning text-dark badge-admin"
+              : p.estado === "enviado" ? "badge bg-primary badge-admin"
+              : p.estado === "entregado" ? "badge bg-success badge-admin"
+              : p.estado === "cancelado" ? "badge bg-danger badge-admin"
+              : "badge bg-secondary badge-admin";
+
+            rowsHtml += '<tr style="border-top:2px solid #e0dbd3;">' +
+              '<td rowspan="' + p.items.length + '"><strong>' + p.referencia + '</strong><br><small style="color:#999;">' + fechaStr + '</small></td>' +
+              '<td rowspan="' + p.items.length + '">' + (p.nombre || p.usuario_nombre || "\u2014") + '<br><small style="color:#999;">' + (p.email || "") + '</small></td>';
+          } else {
+            rowsHtml += '<tr>';
+          }
+
+          rowsHtml +=
+            '<td>' + it.nombre_producto + ' <small style="color:#999;">x' + it.cantidad + '</small></td>' +
+            '<td style="text-align:right;">$ ' + it.precio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</td>' +
+            '<td style="text-align:right;"><strong>' + subtotalStr + '</strong></td>';
+
+          if (j === 0) {
+            rowsHtml +=
+              '<td rowspan="' + p.items.length + '" style="font-size:0.85rem;">' + envioStr + '<br><strong>' + totalStr + '</strong></td>' +
+              '<td rowspan="' + p.items.length + '"><span class="estado-label ' + estadoCls + '" style="cursor:pointer;">' + (estadosMap[p.estado] || p.estado) + '</span>' +
+              '<select class="estado-select" style="display:none;font-size:0.8rem;padding:2px 4px;" data-original="' + p.estado + '" onchange="actualizarEstado(' + p.id + ', this)">' + opts + '</select>' +
+              ' <a href="#" class="btn-editar-estado" style="font-size:0.75rem;color:var(--gold);text-decoration:none;" onclick="event.preventDefault();var pp=this.parentNode;var ll=pp.querySelector(\'.estado-label\');var ss=pp.querySelector(\'.estado-select\');ll.style.display=\'none\';this.style.display=\'none\';ss.style.display=\'inline\';ss.focus();">\u270f</a></td>' +
+              '<td rowspan="' + p.items.length + '"><small style="color:#999;">' + (p.direccion ? "Dir: " + p.direccion + "<br>" : "") + (p.telefono ? "Tel: " + p.telefono : "") + '</small></td>' +
+              '</tr>';
+          } else {
+            rowsHtml += '</tr>';
+          }
+        }
+      }
+      tbody.innerHTML = rowsHtml;
     }
 
     function cargarPedidos() {

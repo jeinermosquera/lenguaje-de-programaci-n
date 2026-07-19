@@ -5,7 +5,11 @@ body { background: var(--cream); }
 .pedido-ref { font-family: var(--font-brand); font-size: 1.1rem; color: var(--navy); }
 .pedido-total { font-weight: 700; color: var(--gold-dark); font-size: 1.1rem; }
 .pedido-items { border-top: 1px solid var(--cream); padding-top: 0.8rem; }
-.pedido-item { display: flex; justify-content: space-between; padding: 0.3rem 0; font-size: 0.9rem; color: var(--navy); }
+.pedido-item { display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; padding: 0.3rem 0; font-size: 0.9rem; color: var(--navy); align-items: center; }
+.pedido-item-header { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid var(--cream); padding-bottom: 0.4rem; margin-bottom: 0.2rem; }
+.pedido-item-nombre { text-align: left; }
+.pedido-item-precio { text-align: right; color: var(--text-muted); font-size: 0.85rem; }
+.pedido-item-subtotal { text-align: right; font-weight: 600; min-width: 80px; }
 .pedido-fecha { font-size: 0.8rem; color: var(--text-muted); }
 .pedido-envio { font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--cream); padding-top: 0.6rem; margin-top: 0.3rem; text-align: right; }
 .estado-badge { font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 50px; font-weight: 500; }
