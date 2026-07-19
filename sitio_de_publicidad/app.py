@@ -106,25 +106,7 @@ def inicializar_base_datos():
         except:
             pass
 
-        cursor.execute("SELECT COUNT(*) FROM producto")
-        count = cursor.fetchone()[0]
 
-        if count == 0:
-            productos_iniciales = [
-                ("Cofe Mocka", "img-1.png", 20000, "Una fusión cálida y envolvente que combina las notas del café recién molido con el dulce abrazo del cacao. Ideal para crear ambientes acogedores en hogares y cafeterías.", '["Aroma intenso a café y chocolate","Ideal para espacios cerrados","Sensación de calidez y confort"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 1, 10),
-                ("Mora azul", "img-8.png", 20000, "Un aroma fresco y frutal que evoca los bosques montañosos de Colombia. Las notas dulces de la mora azul se combinan con un toque silvestre que revitaliza cualquier espacio.", '["Aroma frutal y fresco","Revitaliza el ambiente","Notas silvestres naturales"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 1, 10),
-                ("Celeste Cotton", "img-2.png", 20000, "Inspirado en la frescura del algodón recién lavado y el azul del cielo colombiano. Una fragancia limpia, suave y reconfortante que evoca la sensación de ropa secada al sol.", '["Aroma limpio y suave","Sensación de frescura duradera","Perfecto para habitaciones y roperos"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 1, 10),
-                ("Sandía pasión", "img-4.png", 20000, "La combinación perfecta entre la dulzura de la sandía y el toque exótico del maracuyá. Un aroma vibrante y tropical que transporta a las playas del Pacífico colombiano.", '["Aroma tropical vibrante","Notas dulces y exóticas","Energizante y refrescante"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 1, 10),
-                ("Sabor maracuyá", "img-1.png", 20000, "La esencia del maracuyá más dulce y tropical capturada en cada gota. Un aroma que despierta los sentidos y llena de energía cualquier espacio del hogar.", '["Aroma cítrico y dulce","Estimulante y refrescante","Notas tropicales auténticas"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 1, 10),
-                ("Paloma natural", "img-8.png", 20000, "Una fragancia floral y etérea que evoca la pureza y la tranquilidad. Las notas suaves de flores blancas se entrelazan para crear un ambiente de paz y serenidad.", '["Aroma floral suave","Sensación de paz y serenidad","Ideal para meditación y descanso"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 0, 10),
-                ("Naturaleza kiwi", "img-2.png", 20000, "Un aroma fresco y chispeante que captura la esencia del kiwi recién cortado. Perfecto para espacios que buscan una atmósfera vibrante y llena de vida natural.", '["Aroma fresco y frutal","Notas verdes y vibrantes","Energía natural para el hogar"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 1, 10),
-                ("Fresa carnaval", "img-4.png", 20000, "La alegría del carnaval colombiano en un aroma. Las notas dulces y jugosas de la fresa se mezclan con un toque festivo que llena de color y energía cualquier ambiente.", '["Aroma dulce y festivo","Notas jugosas de fresa","Ambiente alegre y vibrante"]', '["Presentación: 250 ml","Duración aproximada: 30 días","Difusor de varillas incluidas"]', 1, 10),
-            ]
-            cursor.executemany("""
-                INSERT INTO producto (nombre, imagen, precio, descripcion, caracteristicas, especificaciones, disponible, stock)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, productos_iniciales)
-            connection.commit()
 
     except Error as error:
         print(f"Error al inicializar BD: {error}")
