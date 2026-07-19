@@ -41,6 +41,7 @@ var Carrito = {
   },
   vaciar: function () {
     this.setItems([]);
+    localStorage.removeItem("apomat_carrito_backup" + (this._userId ? "_" + this._userId : ""));
   },
   getTotal: function () {
     var items = this.getItems();
@@ -123,6 +124,28 @@ function mostrarToastCarrito(nombre) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  Carrito.actualizarBadge();
-  Carrito.renderizarOffcanvas();
+  fetch('/usuario?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && !d.error) {
+        var userId = d.id || 0;
+        var storedId = localStorage.getItem("apomat_carrito_user");
+        if (storedId !== null && storedId !== String(userId)) {
+          localStorage.removeItem("apomat_carrito");
+        }
+        localStorage.setItem("apomat_carrito_user", String(userId));
+      } else {
+        var storedId = localStorage.getItem("apomat_carrito_user");
+        if (storedId !== null && storedId !== "0") {
+          localStorage.removeItem("apomat_carrito");
+          localStorage.setItem("apomat_carrito_user", "0");
+        }
+      }
+      Carrito.actualizarBadge();
+      Carrito.renderizarOffcanvas();
+    })
+    .catch(function () {
+      Carrito.actualizarBadge();
+      Carrito.renderizarOffcanvas();
+    });
 });

@@ -428,6 +428,7 @@ def usuario():
                 connection.close()
 
     return {
+        "id": session.get("usuario_id"),
         "nombre": session.get("nombre", ""),
         "email": email,
         "admin": session.get("admin", False)

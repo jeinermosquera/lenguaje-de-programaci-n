@@ -364,7 +364,6 @@
           Swal.fire({ icon: 'error', title: 'Error de pago', text: result.error.message, confirmButtonColor: '#c9960e' });
           restaurarFormulario();
         } else {
-          localStorage.setItem('apomat_carrito_backup', localStorage.getItem('apomat_carrito'));
           Carrito.vaciar();
           window.location.replace('/pedido-exitoso?referencia=' + data.referencia);
         }
