@@ -13,6 +13,8 @@
 .admin-table .prod-img { width:48px; height:48px; border-radius:10px; object-fit:cover; background:var(--cream); }
 .admin-table .actions { display:flex; gap:6px; }
 .btn-admin { background:var(--gold); border:none; border-radius:50px; color:#fff; padding:0.5rem 1.2rem; font-size:0.85rem; font-weight:500; transition:background 0.2s; }
+.estado-select { border:1px solid #ddd; border-radius:50px; padding:0.25rem 0.6rem; font-size:0.75rem; font-weight:500; background:#fff; cursor:pointer; outline:none; transition:border-color 0.2s; min-width:100px; }
+.estado-select:focus { border-color:var(--gold); }
 .btn-admin:hover { background:var(--gold-dark); color:#fff; }
 .btn-admin-sm { padding:0.35rem 0.9rem; font-size:0.8rem; }
 .btn-danger-sm { background:#dc3545; border:none; border-radius:50px; color:#fff; padding:0.35rem 0.9rem; font-size:0.8rem; transition:background 0.2s; }

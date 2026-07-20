@@ -269,7 +269,7 @@
               <td><strong>${p.nombre}</strong>${p.en_rebaja ? ' <span class="badge bg-danger badge-admin">Rebaja</span>' : ''}</td>
               <td>${p.en_rebaja ? '<span style="text-decoration:line-through;color:#999;">' + p.precio_formateado + '</span> <strong style="color:#dc3545;">' + p.precio_rebaja_formateado + '</strong>' : p.precio_formateado}</td>
               <td><span class="badge ${p.stock > 0 ? 'bg-success' : 'bg-secondary'} badge-admin">${p.stock}</span></td>
-              <td><a href="#" class="toggle-disponible" data-id="${p.id}" data-disponible="${p.disponible}">${p.disponible ? '<span class="badge bg-success badge-admin">Disponible</span>' : '<span class="badge bg-secondary badge-admin">Agotado</span>'}</a></td>
+              <td><select class="estado-select producto-estado" data-id="${p.id}" onchange="cambiarDisponibilidad(this)"><option value="1" ${p.disponible ? 'selected' : ''}>Disponible</option><option value="0" ${!p.disponible ? 'selected' : ''}>Agotado</option></select></td>
               <td>
                 <div class="actions">
                   <button class="btn-admin-sm btn-admin" onclick="abrirEditar(${p.id}, '${p.nombre}', ${p.precio}, ${p.precio_rebaja || 'null'}, ${p.stock != null ? p.stock : 'null'})"><i class="bi bi-pencil"></i></button>
@@ -280,27 +280,21 @@
               </td>
             </tr>
           `).join("");
-          document.querySelectorAll(".toggle-disponible").forEach(el => {
-            el.addEventListener("click", function(e) {
-              e.preventDefault();
-              toggleDisponible(this);
-            });
-          });
+
         })
         .catch(() => { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Error de conexión</td></tr>'; });
     }
 
-    function toggleDisponible(el) {
+    function cambiarDisponibilidad(el) {
       const id = el.dataset.id;
+      const value = el.value;
       const form = new FormData();
+      form.append("disponible", value);
       fetch("/admin/productos/toggle/" + id, { method: "POST", body: form })
         .then(r => r.json())
         .then(data => {
           if (data.ok) {
-            el.dataset.disponible = data.disponible;
-            el.innerHTML = data.disponible
-              ? '<span class="badge bg-success badge-admin">Disponible</span>'
-              : '<span class="badge bg-secondary badge-admin">Agotado</span>';
+            el.value = data.disponible ? "1" : "0";
           }
         });
     }

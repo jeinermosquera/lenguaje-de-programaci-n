@@ -891,17 +891,30 @@ def admin_toggle_producto(producto_id):
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
+    disponible = request.form.get("disponible")
+    if disponible is not None:
+        nuevo = 1 if disponible == "1" else 0
+    else:
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+            cursor.execute("SELECT disponible FROM producto WHERE id = %s", (producto_id,))
+            row = cursor.fetchone()
+            if not row:
+                return {"error": "No encontrado"}, 404
+            nuevo = 0 if row[0] else 1
+        except Error as error:
+            return {"error": str(error)}, 500
+        finally:
+            if "cursor" in locals(): cursor.close()
+            if "connection" in locals() and connection.is_connected(): connection.close()
+
     try:
         connection = get_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT disponible FROM producto WHERE id = %s", (producto_id,))
-        row = cursor.fetchone()
-        if row:
-            nuevo = 0 if row[0] else 1
-            cursor.execute("UPDATE producto SET disponible = %s WHERE id = %s", (nuevo, producto_id))
-            connection.commit()
-            return {"ok": True, "disponible": bool(nuevo)}
-        return {"error": "No encontrado"}, 404
+        cursor.execute("UPDATE producto SET disponible = %s WHERE id = %s", (nuevo, producto_id))
+        connection.commit()
+        return {"ok": True, "disponible": bool(nuevo)}
     except Error as error:
         return {"error": str(error)}, 500
     finally:
