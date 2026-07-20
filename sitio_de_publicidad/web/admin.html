@@ -371,20 +371,19 @@
       entregado: "Entregado", cancelado: "Cancelado"
     };
 
-    function actualizarEstado(pedidoId, select) {
+    function actualizarEstadoDropdown(pedidoId, nuevoEstado) {
       var form = new FormData();
-      form.append("estado", select.value);
+      form.append("estado", nuevoEstado);
       fetch("/admin/api/pedidos/estado/" + pedidoId, { method: "POST", body: form })
         .then(function(r) { return r.json(); })
         .then(function(d) {
           if (d.ok) {
             for (var i = 0; i < pedidosData.length; i++) {
-              if (pedidosData[i].id === pedidoId) { pedidosData[i].estado = select.value; break; }
+              if (pedidosData[i].id === pedidoId) { pedidosData[i].estado = nuevoEstado; break; }
             }
             renderizarPedidos();
           } else {
             Swal.fire({ icon: "error", title: "Error", text: d.error || "No se pudo actualizar", confirmButtonColor: "#c9960e" });
-            select.value = select.dataset.original;
           }
         })
         .catch(function() { Swal.fire({ icon: "error", title: "Error", text: "Error de conexi\u00f3n", confirmButtonColor: "#c9960e" }); });
@@ -422,16 +421,6 @@
           var subtotalStr = '$ ' + subtotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
           if (j === 0) {
-            var opts = Object.keys(estadosMap).map(function(k) {
-              var sel = k === p.estado ? " selected" : "";
-              return '<option value="' + k + '"' + sel + ">" + estadosMap[k] + "</option>";
-            }).join("");
-            var estadoCls = p.estado === "pendiente" ? "badge bg-warning text-dark badge-admin"
-              : p.estado === "enviado" ? "badge bg-primary badge-admin"
-              : p.estado === "entregado" ? "badge bg-success badge-admin"
-              : p.estado === "cancelado" ? "badge bg-danger badge-admin"
-              : "badge bg-secondary badge-admin";
-
             rowsHtml += '<tr style="border-top:2px solid #e0dbd3;">' +
               '<td rowspan="' + p.items.length + '"><strong>' + p.referencia + '</strong><br><small style="color:#999;">' + fechaStr + '</small></td>' +
               '<td rowspan="' + p.items.length + '">' + (p.nombre || p.usuario_nombre || "\u2014") + '<br><small style="color:#999;">' + (p.email || "") + '</small></td>';
@@ -445,11 +434,21 @@
             '<td style="text-align:right;"><strong>' + subtotalStr + '</strong></td>';
 
           if (j === 0) {
+            var clsEstado = p.estado === "pendiente" ? "bg-warning text-dark"
+              : p.estado === "enviado" ? "bg-primary"
+              : p.estado === "entregado" ? "bg-success"
+              : p.estado === "cancelado" ? "bg-danger"
+              : "bg-secondary";
+            var itemsEstado = Object.keys(estadosMap).map(function(k) {
+              return '<li><a class="dropdown-item ' + (k === p.estado ? 'active" style="background:var(--gold);color:#fff;"' : '"') +
+                ' href="#" onclick="event.preventDefault();actualizarEstadoDropdown(' + p.id + ', \'' + k + '\')">' + estadosMap[k] + '</a></li>';
+            }).join("");
+
             rowsHtml +=
               '<td rowspan="' + p.items.length + '" style="font-size:0.85rem;">' + envioStr + '<br><strong>' + totalStr + '</strong></td>' +
-              '<td rowspan="' + p.items.length + '"><span class="estado-label ' + estadoCls + '" style="cursor:pointer;">' + (estadosMap[p.estado] || p.estado) + '</span>' +
-              '<select class="estado-select" style="display:none;font-size:0.8rem;padding:2px 4px;" data-original="' + p.estado + '" onchange="actualizarEstado(' + p.id + ', this)">' + opts + '</select>' +
-              ' <a href="#" class="btn-editar-estado" style="font-size:0.75rem;color:var(--gold);text-decoration:none;" onclick="event.preventDefault();var pp=this.parentNode;var ll=pp.querySelector(\'.estado-label\');var ss=pp.querySelector(\'.estado-select\');ll.style.display=\'none\';this.style.display=\'none\';ss.style.display=\'inline\';ss.focus();">\u270f</a></td>' +
+              '<td rowspan="' + p.items.length + '"><div class="dropdown">' +
+              '<button class="btn btn-sm estado-dropdown-btn ' + clsEstado + '" data-bs-toggle="dropdown" style="border:none;border-radius:50px;padding:0.25rem 0.8rem;font-size:0.75rem;font-weight:500;color:#fff;cursor:pointer;">' + (estadosMap[p.estado] || p.estado) + '</button>' +
+              '<ul class="dropdown-menu dropdown-menu-end">' + itemsEstado + '</ul></div></td>' +
               '<td rowspan="' + p.items.length + '"><small style="color:#999;">' + (p.direccion ? "Dir: " + p.direccion + "<br>" : "") + (p.telefono ? "Tel: " + p.telefono : "") + '</small></td>' +
               '</tr>';
           } else {
@@ -462,17 +461,17 @@
 
     function cargarPedidos() {
       var tbody = document.getElementById("pedidos-tbody");
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Cargando...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Cargando...</td></tr>';
 
       fetch("/admin/api/pedidos?t=" + Date.now(), { cache: "no-store" })
         .then(function(r) { if (r.status === 401) { window.location.replace("/dashboard"); return null; } return r.json(); })
         .then(function(data) {
           if (!data) return;
-          if (data.error) { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error al cargar</td></tr>'; return; }
+          if (data.error) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Error al cargar</td></tr>'; return; }
           pedidosData = data;
           renderizarPedidos();
         })
-        .catch(function() { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Error de conexi\u00f3n</td></tr>'; });
+        .catch(function() { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Error de conexi\u00f3n</td></tr>'; });
     }
 
     function cerrarSesion() { sessionStorage.setItem("bfcache_disabled", "true"); navegar("/logout"); }
