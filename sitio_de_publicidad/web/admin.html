@@ -55,6 +55,7 @@
 
   <div class="admin-layout">
     <aside class="admin-sidebar">
+      <a href="#" data-section="dashboard"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a>
       <a href="#" class="active" data-section="productos"><i class="bi bi-box-seam"></i> <span>Productos</span></a>
       <a href="#" data-section="pedidos"><i class="bi bi-receipt"></i> <span>Pedidos</span></a>
       <a href="/dashboard"><i class="bi bi-arrow-left"></i> <span>Volver al sitio</span></a>
@@ -65,6 +66,28 @@
         <button class="btn btn-admin" id="addProductBtn" data-bs-toggle="modal" data-bs-target="#addModal">
           <i class="bi bi-plus-lg"></i> Agregar Producto
         </button>
+      </div>
+
+      <div id="dashboard-section" style="display:none;">
+        <div class="row g-3 mb-4" id="dashboard-cards"></div>
+        <div class="row g-3">
+          <div class="col-md-7">
+            <div class="admin-table-wrap">
+              <h5 style="font-family:var(--font-brand);color:var(--navy);margin-bottom:1rem;">Ventas mensuales</h5>
+              <div id="dashboard-chart" style="display:flex;align-items:end;gap:6px;height:160px;padding-top:10px;"></div>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="admin-table-wrap">
+              <h5 style="font-family:var(--font-brand);color:var(--navy);margin-bottom:1rem;">Productos más vendidos</h5>
+              <div id="dashboard-top-products"></div>
+            </div>
+          </div>
+        </div>
+        <div class="admin-table-wrap mt-3">
+          <h5 style="font-family:var(--font-brand);color:var(--navy);margin-bottom:1rem;">Pedidos recientes</h5>
+          <div id="dashboard-recent-orders"></div>
+        </div>
       </div>
 
       <div class="admin-table-wrap" id="productos-section">
@@ -345,11 +368,14 @@
     function cambiarSeccion(seccion) {
       document.querySelectorAll(".admin-sidebar a[data-section]").forEach(el => el.classList.remove("active"));
       document.querySelector(".admin-sidebar a[data-section='" + seccion + "']").classList.add("active");
+      document.getElementById("dashboard-section").style.display = seccion === "dashboard" ? "" : "none";
       document.getElementById("productos-section").style.display = seccion === "productos" ? "" : "none";
       document.getElementById("pedidos-section").style.display = seccion === "pedidos" ? "" : "none";
-      document.querySelector(".admin-header h2").textContent = seccion === "productos" ? "Gesti\u00f3n de Productos" : "Gesti\u00f3n de Pedidos";
+      var titulos = { dashboard: "Dashboard", productos: "Gesti\u00f3n de Productos", pedidos: "Gesti\u00f3n de Pedidos" };
+      document.querySelector(".admin-header h2").textContent = titulos[seccion] || "";
       document.getElementById("addProductBtn").style.display = seccion === "productos" ? "" : "none";
       if (seccion === "pedidos") { pedidosFiltro = "activos"; cargarPedidos(); }
+      if (seccion === "dashboard") { cargarDashboard(); }
     }
 
     function filtrarPedidos(filtro) {
@@ -472,6 +498,70 @@
           renderizarPedidos();
         })
         .catch(function() { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Error de conexi\u00f3n</td></tr>'; });
+    }
+
+    function formatearPrecio(n) { return "$ " + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+
+    function cargarDashboard() {
+      fetch("/admin/api/dashboard?t=" + Date.now(), { cache: "no-store" })
+        .then(function(r) { if (r.status === 401) { window.location.replace("/dashboard"); return null; } return r.json(); })
+        .then(function(d) {
+          if (!d || d.error) return;
+          var cards = [
+            { icon: "bi-cart-check", label: "Ventas totales", value: formatearPrecio(d.ventas_totales), color: "#28a745" },
+            { icon: "bi-receipt", label: "Pedidos", value: d.total_pedidos, color: "#0d6efd" },
+            { icon: "bi-box-seam", label: "Productos", value: d.total_productos, color: "#c9960e" },
+            { icon: "bi-people", label: "Usuarios", value: d.total_usuarios, color: "#6f42c1" }
+          ];
+          var estados = d.pedidos_por_estado || {};
+          var estadosOrden = ["pendiente", "enviado", "entregado", "cancelado"];
+          var estadosColores = { pendiente: "#ffc107", enviado: "#0d6efd", entregado: "#28a745", cancelado: "#dc3545" };
+          var estadosLabels = { pendiente: "Pendientes", enviado: "Enviados", entregado: "Entregados", cancelado: "Cancelados" };
+          for (var ei = 0; ei < estadosOrden.length; ei++) {
+            var ek = estadosOrden[ei];
+            cards.push({ icon: "bi-circle-fill", label: estadosLabels[ek], value: estados[ek] || 0, color: estadosColores[ek] || "#999" });
+          }
+          var html = "";
+          for (var ci = 0; ci < cards.length; ci++) {
+            html += '<div class="col"><div class="admin-table-wrap d-flex align-items-center gap-3 p-3" style="min-width:150px;"><i class="bi ' + cards[ci].icon + '" style="font-size:2rem;color:' + cards[ci].color + ';"></i><div><div style="font-size:1.5rem;font-weight:700;color:var(--navy);">' + cards[ci].value + '</div><div style="font-size:0.8rem;color:var(--text-muted);">' + cards[ci].label + '</div></div></div></div>';
+          }
+          document.getElementById("dashboard-cards").innerHTML = html;
+
+          var meses = d.ventas_mensuales || [];
+          var maxVenta = 0;
+          for (var mi = 0; mi < meses.length; mi++) { if (meses[mi].ventas > maxVenta) maxVenta = meses[mi].ventas; }
+          var chartHtml = "";
+          for (var mi = 0; mi < meses.length; mi++) {
+            var altura = maxVenta > 0 ? (meses[mi].ventas / maxVenta * 100) : 0;
+            var partes = meses[mi].mes.split("-");
+            var nombreMes = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][parseInt(partes[1]) - 1] + " " + partes[0].slice(-2);
+            chartHtml += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:end;"><div style="width:100%;background:linear-gradient(to top,var(--gold),var(--gold-light));border-radius:6px 6px 0 0;height:' + altura + '%;min-height:4px;transition:height 0.3s;position:relative;"><small style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:0.65rem;color:var(--navy);font-weight:600;white-space:nowrap;">' + formatearPrecio(meses[mi].ventas) + '</small></div><small style="margin-top:6px;font-size:0.65rem;color:var(--text-muted);">' + nombreMes + '</small></div>';
+          }
+          document.getElementById("dashboard-chart").innerHTML = chartHtml || '<p class="text-muted text-center w-100">Sin datos</p>';
+
+          var topProd = d.productos_mas_vendidos || [];
+          var topHtml = "";
+          for (var pi = 0; pi < topProd.length; pi++) {
+            topHtml += '<div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--cream);"><span><strong>' + (pi + 1) + '.</strong> ' + topProd[pi].nombre_producto + ' <small style="color:#999;">x' + topProd[pi].total_vendido + '</small></span><span style="font-weight:600;color:var(--navy);">' + formatearPrecio(topProd[pi].total_ingresos) + '</span></div>';
+          }
+          document.getElementById("dashboard-top-products").innerHTML = topHtml || '<p class="text-muted text-center py-3">Sin datos</p>';
+
+          var recientes = d.pedidos_recientes || [];
+          if (recientes.length > 0) {
+            var rHtml = '<table class="admin-table"><thead><tr><th>Referencia</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr></thead><tbody>';
+            for (var ri = 0; ri < recientes.length; ri++) {
+              var pr = recientes[ri];
+              var cls = pr.estado === "pendiente" ? "bg-warning text-dark" : pr.estado === "enviado" ? "bg-primary" : pr.estado === "entregado" ? "bg-success" : pr.estado === "cancelado" ? "bg-danger" : "bg-secondary";
+              var fecha = pr.fecha ? new Date(pr.fecha).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) : "-";
+              rHtml += '<tr><td><strong>' + pr.referencia + '</strong></td><td>' + (pr.cliente || "-") + '</td><td>' + formatearPrecio(pr.total) + '</td><td><span class="badge ' + cls + ' badge-admin">' + (pr.estado.charAt(0).toUpperCase() + pr.estado.slice(1)) + '</span></td><td><small style="color:#999;">' + fecha + '</small></td></tr>';
+            }
+            rHtml += "</tbody></table>";
+            document.getElementById("dashboard-recent-orders").innerHTML = rHtml;
+          } else {
+            document.getElementById("dashboard-recent-orders").innerHTML = '<p class="text-muted text-center py-3">Sin pedidos</p>';
+          }
+        })
+        .catch(function() {});
     }
 
     function cerrarSesion() { sessionStorage.setItem("bfcache_disabled", "true"); navegar("/logout"); }

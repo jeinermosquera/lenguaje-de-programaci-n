@@ -885,6 +885,73 @@ def admin_api_pedidos():
 
     return pedidos
 
+@app.route("/admin/api/dashboard")
+def admin_api_dashboard():
+    """Retorna estadísticas del dashboard: ventas, pedidos, productos, usuarios."""
+    if "logueado" not in session or not session.get("admin"):
+        return {"error": "No autorizado"}, 401
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute("SELECT COUNT(*) AS total FROM usuario")
+        total_usuarios = cursor.fetchone()["total"]
+
+        cursor.execute("SELECT COUNT(*) AS total FROM producto")
+        total_productos = cursor.fetchone()["total"]
+
+        cursor.execute("SELECT COUNT(*) AS total, COALESCE(SUM(total),0) AS monto FROM pedido WHERE estado != 'cancelado'")
+        row = cursor.fetchone()
+        total_pedidos = row["total"]
+        ventas_totales = row["monto"]
+
+        cursor.execute("SELECT estado, COUNT(*) AS cantidad FROM pedido GROUP BY estado")
+        pedidos_por_estado = {}
+        for r in cursor.fetchall():
+            pedidos_por_estado[r["estado"]] = r["cantidad"]
+
+        cursor.execute("""
+            SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, COUNT(*) AS pedidos, COALESCE(SUM(total),0) AS ventas
+            FROM pedido WHERE estado != 'cancelado' AND fecha >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            GROUP BY DATE_FORMAT(fecha, '%Y-%m') ORDER BY mes
+        """)
+        ventas_mensuales = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT dp.nombre_producto, SUM(dp.cantidad) AS total_vendido, COALESCE(SUM(dp.precio * dp.cantidad),0) AS total_ingresos
+            FROM detalle_pedido dp
+            JOIN pedido p ON dp.pedido_id = p.id
+            WHERE p.estado != 'cancelado'
+            GROUP BY dp.nombre_producto ORDER BY total_vendido DESC LIMIT 5
+        """)
+        productos_mas_vendidos = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT p.id, p.referencia, p.total, p.estado, p.fecha, u.nombre AS cliente
+            FROM pedido p LEFT JOIN usuario u ON p.usuario_id = u.id
+            ORDER BY p.fecha DESC LIMIT 5
+        """)
+        pedidos_recientes = cursor.fetchall()
+        for pr in pedidos_recientes:
+            if pr["fecha"]:
+                pr["fecha"] = pr["fecha"].isoformat()
+
+        return {
+            "total_usuarios": total_usuarios,
+            "total_productos": total_productos,
+            "total_pedidos": total_pedidos,
+            "ventas_totales": ventas_totales,
+            "pedidos_por_estado": pedidos_por_estado,
+            "ventas_mensuales": ventas_mensuales,
+            "productos_mas_vendidos": productos_mas_vendidos,
+            "pedidos_recientes": pedidos_recientes,
+        }
+    except Error as error:
+        return {"error": str(error)}, 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "connection" in locals() and connection.is_connected(): connection.close()
+
 @app.route("/admin/productos/toggle/<int:producto_id>", methods=["POST"])
 def admin_toggle_producto(producto_id):
     """Activa/desactiva la disponibilidad de un producto. Solo admin."""
