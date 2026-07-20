@@ -23,6 +23,10 @@
 .estado-dropdown-btn.dropdown-toggle::after { display:none; }
 .estado-dropdown-btn { transition:filter 0.2s; }
 .estado-dropdown-btn:hover { filter:brightness(1.1); }
+.dash-card { transition:transform 0.2s, box-shadow 0.2s; cursor:default; }
+.dash-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(23,35,61,0.1); }
+#dashboard-chart { position:relative; }
+#dashboard-chart > div:hover .chart-tooltip { opacity:1 !important; }
 .btn-admin:hover { background:var(--gold-dark); color:#fff; }
 .btn-admin-sm { padding:0.35rem 0.9rem; font-size:0.8rem; }
 .btn-danger-sm { background:#dc3545; border:none; border-radius:50px; color:#fff; padding:0.35rem 0.9rem; font-size:0.8rem; transition:background 0.2s; }

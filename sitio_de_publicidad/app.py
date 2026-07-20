@@ -887,64 +887,101 @@ def admin_api_pedidos():
 
 @app.route("/admin/api/dashboard")
 def admin_api_dashboard():
-    """Retorna estadísticas del dashboard: ventas, pedidos, productos, usuarios."""
+    """Retorna estadísticas del dashboard. Acepta ?mes=YYYY-MM para filtrar por mes."""
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
+
+    mes_filtro = request.args.get("mes", "").strip()
+    where_mes = ""
+    if mes_filtro:
+        where_mes = " AND DATE_FORMAT(fecha, '%Y-%m') = %s "
+
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
 
+        # Globales (sin filtro de mes)
         cursor.execute("SELECT COUNT(*) AS total FROM usuario")
         total_usuarios = cursor.fetchone()["total"]
-
         cursor.execute("SELECT COUNT(*) AS total FROM producto")
         total_productos = cursor.fetchone()["total"]
 
-        cursor.execute("SELECT COUNT(*) AS total, COALESCE(SUM(total),0) AS monto FROM pedido WHERE estado != 'cancelado'")
+        # Pedidos totales
+        sql_base = "FROM pedido WHERE estado != 'cancelado'"
+        params_base = []
+        if mes_filtro:
+            sql_base += " AND DATE_FORMAT(fecha, '%Y-%m') = %s"
+            params_base.append(mes_filtro)
+        cursor.execute(f"SELECT COUNT(*) AS total, COALESCE(SUM(total),0) AS monto, COALESCE(SUM(costo_envio),0) AS envios {sql_base}", params_base)
         row = cursor.fetchone()
         total_pedidos = row["total"]
         ventas_totales = row["monto"]
+        costo_envio_total = row["envios"]
 
-        cursor.execute("SELECT estado, COUNT(*) AS cantidad FROM pedido GROUP BY estado")
+        cursor.execute(f"SELECT estado, COUNT(*) AS cantidad {sql_base} GROUP BY estado", params_base)
         pedidos_por_estado = {}
         for r in cursor.fetchall():
             pedidos_por_estado[r["estado"]] = r["cantidad"]
 
+        cursor.execute(f"SELECT COALESCE(SUM(dp.cantidad),0) AS total, COALESCE(SUM(dp.precio * dp.cantidad),0) AS ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado'", [])
+        if mes_filtro:
+            cursor.execute(f"SELECT COALESCE(SUM(dp.cantidad),0) AS total, COALESCE(SUM(dp.precio * dp.cantidad),0) AS ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado' AND DATE_FORMAT(p.fecha, '%Y-%m') = %s", (mes_filtro,))
+        row = cursor.fetchone()
+        unidades_vendidas = row["total"]
+        ingresos_brutos = row["ingresos"]
+
+        # Ventas mensuales últimos 12 meses
         cursor.execute("""
-            SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, COUNT(*) AS pedidos, COALESCE(SUM(total),0) AS ventas
+            SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, COUNT(*) AS pedidos, COALESCE(SUM(total),0) AS ventas, COALESCE(SUM(costo_envio),0) AS envios
             FROM pedido WHERE estado != 'cancelado' AND fecha >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
             GROUP BY DATE_FORMAT(fecha, '%Y-%m') ORDER BY mes
         """)
         ventas_mensuales = cursor.fetchall()
 
-        cursor.execute("""
-            SELECT dp.nombre_producto, SUM(dp.cantidad) AS total_vendido, COALESCE(SUM(dp.precio * dp.cantidad),0) AS total_ingresos
-            FROM detalle_pedido dp
-            JOIN pedido p ON dp.pedido_id = p.id
-            WHERE p.estado != 'cancelado'
-            GROUP BY dp.nombre_producto ORDER BY total_vendido DESC LIMIT 5
-        """)
+        # Productos más vendidos (con o sin filtro de mes)
+        sql_top = "SELECT dp.nombre_producto, SUM(dp.cantidad) AS total_vendido, COALESCE(SUM(dp.precio * dp.cantidad),0) AS total_ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado'"
+        params_top = []
+        if mes_filtro:
+            sql_top += " AND DATE_FORMAT(p.fecha, '%Y-%m') = %s"
+            params_top.append(mes_filtro)
+        sql_top += " GROUP BY dp.nombre_producto ORDER BY total_vendido DESC LIMIT 5"
+        cursor.execute(sql_top, params_top)
         productos_mas_vendidos = cursor.fetchall()
 
-        cursor.execute("""
-            SELECT p.id, p.referencia, p.total, p.estado, p.fecha, u.nombre AS cliente
-            FROM pedido p LEFT JOIN usuario u ON p.usuario_id = u.id
-            ORDER BY p.fecha DESC LIMIT 5
-        """)
+        # Pedidos recientes
+        sql_recent = "SELECT p.id, p.referencia, p.total, p.estado, p.fecha, u.nombre AS cliente FROM pedido p LEFT JOIN usuario u ON p.usuario_id = u.id WHERE 1=1"
+        params_recent = []
+        if mes_filtro:
+            sql_recent += " AND DATE_FORMAT(p.fecha, '%Y-%m') = %s"
+            params_recent.append(mes_filtro)
+        sql_recent += " ORDER BY p.fecha DESC LIMIT 8"
+        cursor.execute(sql_recent, params_recent)
         pedidos_recientes = cursor.fetchall()
         for pr in pedidos_recientes:
             if pr["fecha"]:
                 pr["fecha"] = pr["fecha"].isoformat()
+
+        # Meses disponibles para el selector
+        cursor.execute("SELECT DISTINCT DATE_FORMAT(fecha, '%Y-%m') AS mes FROM pedido ORDER BY mes DESC")
+        meses_disponibles = [r["mes"] for r in cursor.fetchall() if r["mes"]]
+
+        promedio_pedido = round(ventas_totales / total_pedidos, 0) if total_pedidos > 0 else 0
 
         return {
             "total_usuarios": total_usuarios,
             "total_productos": total_productos,
             "total_pedidos": total_pedidos,
             "ventas_totales": ventas_totales,
+            "costo_envio_total": costo_envio_total,
+            "ingresos_brutos": ingresos_brutos,
+            "unidades_vendidas": unidades_vendidas,
+            "promedio_pedido": promedio_pedido,
             "pedidos_por_estado": pedidos_por_estado,
             "ventas_mensuales": ventas_mensuales,
             "productos_mas_vendidos": productos_mas_vendidos,
             "pedidos_recientes": pedidos_recientes,
+            "meses_disponibles": meses_disponibles,
+            "mes_actual": mes_filtro or "todas",
         }
     except Error as error:
         return {"error": str(error)}, 500
