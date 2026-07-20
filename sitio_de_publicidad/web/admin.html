@@ -271,11 +271,13 @@
               <td><span class="badge ${p.stock > 0 ? 'bg-success' : 'bg-secondary'} badge-admin">${p.stock}</span></td>
               <td><select class="estado-select producto-estado" data-id="${p.id}" onchange="cambiarDisponibilidad(this)"><option value="1" ${p.disponible ? 'selected' : ''}>Disponible</option><option value="0" ${!p.disponible ? 'selected' : ''}>Agotado</option></select></td>
               <td>
-                <div class="actions">
-                  <button class="btn-admin-sm btn-admin" onclick="abrirEditar(${p.id}, '${p.nombre}', ${p.precio}, ${p.precio_rebaja || 'null'}, ${p.stock != null ? p.stock : 'null'})"><i class="bi bi-pencil"></i></button>
-                  <form method="POST" action="/admin/productos/eliminar/${p.id}" onsubmit="return confirmarEliminar(event, '${p.nombre}')">
-                    <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
-                  </form>
+                <div class="dropdown">
+                  <button class="btn-admin-sm btn-admin dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-gear"></i></button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" onclick="abrirEditar(${p.id}, '${p.nombre}', ${p.precio}, ${p.precio_rebaja || 'null'}, ${p.stock != null ? p.stock : 'null'})"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar(event, '${p.nombre}', ${p.id})"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
+                  </ul>
                 </div>
               </td>
             </tr>
@@ -310,9 +312,8 @@
       modal.show();
     }
 
-    function confirmarEliminar(event, nombre) {
-      event.preventDefault();
-      const form = event.target;
+    function confirmarEliminar(event, nombre, id) {
+      if (event) event.preventDefault();
       Swal.fire({
         title: "¿Eliminar producto?",
         text: "Se eliminará \"" + nombre + "\" permanentemente.",
@@ -327,7 +328,14 @@
           htmlContainer: "swal-brand-text", confirmButton: "swal-brand-confirm"
         }
       }).then((result) => {
-        if (result.isConfirmed) form.submit();
+        if (result.isConfirmed) {
+          var form = document.createElement("form");
+          form.method = "POST";
+          form.action = "/admin/productos/eliminar/" + id;
+          form.style.display = "none";
+          document.body.appendChild(form);
+          form.submit();
+        }
       });
     }
 
