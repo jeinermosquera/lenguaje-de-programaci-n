@@ -76,8 +76,12 @@
 
                             <div class="mb-3 position-relative">
                                 <label for="register-password" class="form-label">Contraseña</label>
-                                <input type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" id="register-password" name="password" class="form-control">
+                                <input type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" id="register-password" name="password" class="form-control" oninput="medirFortalezaContrasena(this.value)">
                                 <i class="bi bi-eye password-toggle" id="toggle-register-password" onclick="togglePassword('register-password', this)"></i>
+                                <div class="password-strength-bar mt-2">
+                                    <div class="password-strength-fill" id="password-strength-fill"></div>
+                                </div>
+                                <small class="password-strength-text" id="password-strength-text"></small>
                             </div>
 
                             <div class="mb-3 position-relative">
@@ -186,6 +190,35 @@
             e.preventDefault();
             showRegister();
         });
+
+        function medirFortalezaContrasena(password) {
+            var fill = document.getElementById("password-strength-fill");
+            var text = document.getElementById("password-strength-text");
+            var fuerza = 0;
+            if (password.length >= 8) fuerza += 25;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) fuerza += 25;
+            if (/\d/.test(password)) fuerza += 25;
+            if (/[^a-zA-Z0-9]/.test(password)) fuerza += 25;
+            fill.style.width = fuerza + "%";
+            fill.style.borderRadius = "50px";
+            if (fuerza <= 25) {
+                fill.style.background = "#dc3545";
+                text.textContent = fuerza === 0 ? "" : "Muy débil";
+                text.style.color = "#dc3545";
+            } else if (fuerza <= 50) {
+                fill.style.background = "#fd7e14";
+                text.textContent = "Débil";
+                text.style.color = "#fd7e14";
+            } else if (fuerza <= 75) {
+                fill.style.background = "#ffc107";
+                text.textContent = "Media";
+                text.style.color = "#ffc107";
+            } else {
+                fill.style.background = "#28a745";
+                text.textContent = "Fuerte";
+                text.style.color = "#28a745";
+            }
+        }
 
         document.getElementById("register-form").addEventListener("submit", function(event) {
             const password = document.getElementById("register-password").value;
