@@ -945,7 +945,7 @@ def admin_api_dashboard():
 
     mes_filtro = request.args.get("mes", "").strip()
     where_mes = ""
-    if mes_filtro:
+    if mes_filtro and mes_filtro != "todas":
         where_mes = " AND DATE_FORMAT(fecha, '%Y-%m') = %s "
 
     try:
@@ -961,7 +961,7 @@ def admin_api_dashboard():
         # Pedidos totales
         sql_base = "FROM pedido WHERE estado != 'cancelado'"
         params_base = []
-        if mes_filtro:
+        if mes_filtro and mes_filtro != "todas":
             sql_base += " AND DATE_FORMAT(fecha, '%Y-%m') = %s"
             params_base.append(mes_filtro)
         cursor.execute(f"SELECT COUNT(*) AS total, COALESCE(SUM(total),0) AS monto, COALESCE(SUM(costo_envio),0) AS envios {sql_base}", params_base)
@@ -976,7 +976,7 @@ def admin_api_dashboard():
             pedidos_por_estado[r["estado"]] = r["cantidad"]
 
         cursor.execute(f"SELECT COALESCE(SUM(dp.cantidad),0) AS total, COALESCE(SUM(dp.precio * dp.cantidad),0) AS ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado'", [])
-        if mes_filtro:
+        if mes_filtro and mes_filtro != "todas":
             cursor.execute(f"SELECT COALESCE(SUM(dp.cantidad),0) AS total, COALESCE(SUM(dp.precio * dp.cantidad),0) AS ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado' AND DATE_FORMAT(p.fecha, '%Y-%m') = %s", (mes_filtro,))
         row = cursor.fetchone()
         unidades_vendidas = row["total"]
@@ -1003,7 +1003,7 @@ def admin_api_dashboard():
         # Pedidos recientes
         sql_recent = "SELECT p.id, p.referencia, p.total, p.estado, p.fecha, u.nombre AS cliente FROM pedido p LEFT JOIN usuario u ON p.usuario_id = u.id WHERE 1=1"
         params_recent = []
-        if mes_filtro:
+        if mes_filtro and mes_filtro != "todas":
             sql_recent += " AND DATE_FORMAT(p.fecha, '%Y-%m') = %s"
             params_recent.append(mes_filtro)
         sql_recent += " ORDER BY p.fecha DESC LIMIT 8"
