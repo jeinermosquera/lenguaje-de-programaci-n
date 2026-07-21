@@ -10,11 +10,10 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
     rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .card-section { display: none; }
         .card-section.active { display: block; }
-        .error-msg { color: #ef9a9a; font-size: 0.9rem; text-align: center; margin: 8px 0; }
-        .success-msg { color: #a5d6a7; font-size: 0.9rem; text-align: center; margin: 8px 0; }
         .switch-link { text-align: center; margin-top: 20px; color: white; }
         .switch-link a { color: #90caf9; font-weight: bold; cursor: pointer; }
         .strength-bar { height: 4px; border-radius: 4px; margin-top: 4px; transition: all 0.3s; }
@@ -93,7 +92,6 @@
         </div>
 
 
-        <div id="mensaje-error" class="error-msg"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
@@ -112,7 +110,6 @@
         function mostrarSeccion(id) {
             document.querySelectorAll(".card-section").forEach(function(s) { s.classList.remove("active"); });
             document.getElementById("section-" + id).classList.add("active");
-            document.getElementById("mensaje-error").textContent = "";
         }
 
         function medirFortaleza(val) {
@@ -125,7 +122,15 @@
             c.innerHTML = '<div class="strength-bar strength-' + nivel + '"></div><small style="color:#ccc;">Fortaleza: ' + labels[nivel] + "</small>";
         }
 
-        function cargarCSRF(callback) {
+        function notificar(icono, titulo, texto) {
+            if (typeof Swal !== "undefined") {
+                Swal.fire({ icon: icono, title: titulo, text: texto, confirmButtonColor: "#c9960e", toast: true, position: "top", timer: 4000, showConfirmButton: false });
+            }
+        }
+
+        var csrfListo = false;
+
+        function cargarCSRF() {
             fetch('/api/csrf-token').then(function(r) { return r.json(); }).then(function(d) {
                 if (d.csrf_token) {
                     window.csrfToken = d.csrf_token;
@@ -136,39 +141,48 @@
                             f.appendChild(inp);
                         }
                     });
-                    if (callback) callback();
+                    csrfListo = true;
                 }
             });
         }
 
-        function ajaxCSRF(url, opts) {
-            opts = opts || {};
-            opts.headers = opts.headers || {};
-            opts.headers['X-CSRF-Token'] = window.csrfToken || '';
-            opts.headers['X-Requested-With'] = 'XMLHttpRequest';
-            return fetch(url, opts);
-        }
-
         cargarCSRF();
+
+        document.querySelectorAll('form').forEach(function(f) {
+            f.addEventListener('submit', function(e) {
+                if (!csrfListo) {
+                    e.preventDefault();
+                    notificar('warning', 'Cargando...', 'Espera un momento e inténtalo de nuevo.');
+                    setTimeout(function() { f.submit(); }, 500);
+                    return;
+                }
+            });
+        });
 
         var params = new URLSearchParams(window.location.search);
 
-        var errors = {
-            "credenciales": "Correo o contraseña incorrectos",
-            "campos": "Completa todos los campos",
-            "email_invalido": "Correo inválido",
-            "nombre_invalido": "El nombre debe tener al menos 3 caracteres",
-            "register_password": "La contraseña debe tener al menos 8 caracteres",
-            "register_email": "El correo ya está registrado"
+        var erroresMap = {
+            "credenciales": ["error", "Error de inicio de sesi\u00f3n", "Correo o contrase\u00f1a incorrectos"],
+            "bloqueado": ["error", "Demasiados intentos", "Espera unos segundos e int\u00e9ntalo de nuevo"],
+            "csrf_invalido": ["error", "Sesi\u00f3n expirada", "Recarga la p\u00e1gina e int\u00e9ntalo de nuevo"],
+            "campos": ["warning", "Campos incompletos", "Completa todos los campos obligatorios"],
+            "email_invalido": ["warning", "Correo inv\u00e1lido", "Ingresa un correo electr\u00f3nico v\u00e1lido"],
+            "nombre_invalido": ["warning", "Nombre inv\u00e1lido", "El nombre debe tener al menos 3 caracteres"],
+            "password_corta": ["warning", "Contrase\u00f1a corta", "La contrase\u00f1a debe tener al menos 8 caracteres"],
+            "password_no_coinciden": ["warning", "Contrase\u00f1as no coinciden", "Las contrase\u00f1as ingresadas no son iguales"],
+            "correo_existente": ["warning", "Correo registrado", "Ya existe una cuenta con ese correo electr\u00f3nico"],
+            "register_password": ["warning", "Contrase\u00f1a corta", "M\u00ednimo 8 caracteres"],
+            "register_email": ["warning", "Correo registrado", "El correo ya est\u00e1 registrado"]
         };
+
         var errorParam = params.get("error");
-        if (errorParam && errors[errorParam]) {
-            document.getElementById("mensaje-error").textContent = errors[errorParam];
+        if (errorParam && erroresMap[errorParam]) {
+            var e = erroresMap[errorParam];
+            notificar(e[0], e[1], e[2]);
         }
 
-        if (params.get("register") === "success" || params.get("ok") === "registrado") {
-            document.getElementById("mensaje-error").style.color = "#a5d6a7";
-            document.getElementById("mensaje-error").textContent = "Cuenta creada correctamente. Inicia sesión.";
+        if (params.get("register") === "success") {
+            notificar("success", "Cuenta creada", "Tu cuenta se registr\u00f3 correctamente. Inicia sesi\u00f3n.");
         }
     </script>
 </body>
