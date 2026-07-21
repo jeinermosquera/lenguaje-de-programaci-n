@@ -40,11 +40,20 @@ app.secret_key = "clave_super_secreta"
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 def inicializar_base_datos():
-    """Crea las tablas producto, pedido, detalle_pedido y contacto si no existen.
+    """Crea las tablas usuario, producto, pedido, detalle_pedido y contacto si no existen.
     Agrega columnas precio_rebaja, stock y costo_envio si faltan."""
     try:
         connection = get_connection()
         cursor = connection.cursor()
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS usuario (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre VARCHAR(100) NOT NULL,
+                correo VARCHAR(100) UNIQUE NOT NULL,
+                contrasena VARCHAR(255) NOT NULL
+            )
+        """)
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS producto (
@@ -205,15 +214,15 @@ def static_img(filename):
 def register():
     """Registra un nuevo usuario, hashea la contraseña, inicia sesión y redirige."""
 
-    full_name = request.form.get("full_name", "").strip()
-    email = request.form.get("email", "").strip().lower()
-    password = request.form.get("password", "")
+    full_name = request.form.get("nombre", "").strip()
+    email = request.form.get("correo", "").strip().lower()
+    password = request.form.get("contrasena", "")
 
     if len(full_name) < 3:
-        return "Nombre inválido", 400
+        return redirect("/?error=nombre_invalido")
 
     if "@" not in email:
-        return "Correo inválido", 400
+        return redirect("/?error=email_invalido")
 
     if len(password) < 8:
         return redirect("/?error=password_corta")
@@ -569,17 +578,39 @@ def api_checkout():
     telefono = data.get("telefono", "").strip()
     direccion = data.get("direccion", "").strip()
     items_data = data.get("items", [])
-    total = data.get("total", 0)
 
     if not nombre or not email or not items_data:
         return {"error": "Campos obligatorios faltantes"}, 400
 
-    import time
-    referencia = f"APOMAT-{int(time.time())}-{session.get('usuario_id', 0)}"
-
-    total_centavos = int(total) * 100
+    referencia = f"APOMAT-{int(time.time())}-{session.get('usuario_id', 0)}-{random.randint(1000,9999)}"
 
     try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        total_calculado = 0
+        costo_envio = 0
+        items_validados = []
+
+        for item in items_data:
+            cursor.execute("SELECT id, precio, precio_rebaja, stock, nombre FROM producto WHERE id = %s AND disponible = 1", (item["id"],))
+            prod = cursor.fetchone()
+            if not prod:
+                return {"error": f"Producto ID {item['id']} no encontrado o no disponible"}, 400
+            precio_real = prod["precio_rebaja"] if prod["precio_rebaja"] and prod["precio_rebaja"] > 0 else prod["precio"]
+            cantidad = int(item.get("cantidad", 1))
+            if cantidad < 1:
+                cantidad = 1
+            if prod["stock"] < cantidad:
+                return {"error": f"Stock insuficiente para {prod['nombre']}"}, 400
+            subtotal = precio_real * cantidad
+            total_calculado += subtotal
+            items_validados.append({"id": prod["id"], "precio": precio_real, "cantidad": cantidad})
+
+        costo_envio = 0 if total_calculado >= 150000 else 5000
+        total_con_envio = total_calculado + costo_envio
+        total_centavos = total_con_envio * 100
+
         payment_intent = stripe.PaymentIntent.create(
             amount=total_centavos,
             currency="cop",
@@ -587,31 +618,31 @@ def api_checkout():
             automatic_payment_methods={"enabled": True},
         )
 
-        connection = get_connection()
-        cursor = connection.cursor()
-
-        costo_envio = data.get("costo_envio", 0)
-
+        cursor = connection.cursor(dictionary=False)
         cursor.execute("""
             INSERT INTO pedido (usuario_id, referencia, total, costo_envio, estado, nombre, email, telefono, direccion)
             VALUES (%s, %s, %s, %s, 'pendiente', %s, %s, %s, %s)
-        """, (session.get("usuario_id"), referencia, total, costo_envio, nombre, email, telefono, direccion))
+        """, (session.get("usuario_id"), referencia, total_con_envio, costo_envio, nombre, email, telefono, direccion))
         pedido_id = cursor.lastrowid
 
-        for item in items_data:
+        for item in items_validados:
             cursor.execute("""
                 INSERT INTO detalle_pedido (pedido_id, producto_id, nombre_producto, precio, cantidad)
-                VALUES (%s, %s, (SELECT nombre FROM producto WHERE id = %s), %s, %s)
-            """, (pedido_id, item["id"], item["id"], item["precio"], item["cantidad"]))
-            cursor.execute("UPDATE producto SET stock = GREATEST(0, stock - %s) WHERE id = %s",
-                           (item["cantidad"], item["id"]))
+                VALUES (%s, %s, (SELECT nombre FROM producto WHERE id = %s), (SELECT COALESCE(precio_rebaja, precio) FROM producto WHERE id = %s), %s)
+            """, (pedido_id, item["id"], item["id"], item["id"], item["cantidad"]))
+            cursor.execute("UPDATE producto SET stock = stock - %s WHERE id = %s AND stock >= %s",
+                           (item["cantidad"], item["id"], item["cantidad"]))
 
         connection.commit()
 
     except Error as error:
-        return {"error": str(error)}, 500
+        if "connection" in locals() and connection.is_connected():
+            connection.rollback()
+        return {"error": "Error al procesar el pedido"}, 500
     except stripe.error.StripeError as e:
-        return {"error": str(e)}, 500
+        if "connection" in locals() and connection.is_connected():
+            connection.rollback()
+        return {"error": "Error al procesar el pago"}, 500
     finally:
         if "cursor" in locals():
             cursor.close()
@@ -638,7 +669,7 @@ def stripe_webhook():
             try:
                 connection = get_connection()
                 cursor = connection.cursor()
-                cursor.execute("UPDATE pedido SET estado = 'pendiente' WHERE referencia = %s", (referencia,))
+                cursor.execute("UPDATE pedido SET estado = 'confirmado' WHERE referencia = %s", (referencia,))
                 connection.commit()
             except Error as error:
                 print(f"Error webhook Stripe: {error}")
@@ -836,7 +867,6 @@ def admin_agregar_producto():
         if file and file.filename:
             filename = secure_filename(file.filename)
             # nombre único
-            import time
             unique = f"prod_{int(time.time())}_{filename}"
             file.save(str(SITE_DIR / "img" / unique))
             imagen = unique
@@ -1090,10 +1120,13 @@ def admin_eliminar_producto(producto_id):
             ruta_imagen = SITE_DIR / "img" / imagen
             if ruta_imagen.exists():
                 ruta_imagen.unlink()
+        cursor.execute("UPDATE detalle_pedido SET producto_id = NULL WHERE producto_id = %s", (producto_id,))
         cursor.execute("DELETE FROM producto WHERE id = %s", (producto_id,))
         connection.commit()
     except Error as error:
         print(error)
+        connection.rollback()
+        return redirect("/admin?error=eliminar_fk")
     finally:
         if "cursor" in locals():
             cursor.close()
@@ -1126,7 +1159,7 @@ def enviar_codigo():
     session["codigo_email"] = email
     session["codigo_expira"] = time.time() + 600  # 10 minutos
 
-    return redirect(f"/?codigo_enviado=ok&email={email}")
+    return redirect(f"/?codigo_enviado=ok&codigo={codigo}&email={email}")
 
 @app.route("/verificar-codigo", methods=["POST"])
 def verificar_codigo():

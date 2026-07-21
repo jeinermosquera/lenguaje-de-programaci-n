@@ -1,127 +1,215 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <!-- link del favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
-    <!-- link de Materialize CSS -->
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <!-- link de los iconos que vamos a utlizar -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
     rel="stylesheet">
-    <!-- enlace con el css -->
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .card-section { display: none; }
+        .card-section.active { display: block; }
+        .error-msg { color: #ef9a9a; font-size: 0.9rem; text-align: center; margin: 8px 0; }
+        .success-msg { color: #a5d6a7; font-size: 0.9rem; text-align: center; margin: 8px 0; }
+        .codigo-display { text-align: center; font-size: 2rem; font-weight: bold; color: #fff; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin: 12px 0; letter-spacing: 8px; }
+        .switch-link { text-align: center; margin-top: 20px; color: white; }
+        .switch-link a { color: #90caf9; font-weight: bold; cursor: pointer; }
+        .strength-bar { height: 4px; border-radius: 4px; margin-top: 4px; transition: all 0.3s; }
+        .strength-weak { width: 33%; background: #ef5350; }
+        .strength-medium { width: 66%; background: #ffa726; }
+        .strength-strong { width: 100%; background: #66bb6a; }
+        .toggle-link { color: #90caf9; cursor: pointer; font-size: 14px; }
+        .toggle-link:hover { text-decoration: underline; }
+        .row-actions { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
 </head>
-
 <body>
-    <!-- CAPA OSCURA -->
     <div class="overlay"></div>
-    <!-- LOGIN -->
+
     <div class="login-card">
-        <!-- ICONO -->
         <div class="user-icon">
-            <i class="material-icons">
-                person
-            </i>
+            <i class="material-icons">person</i>
         </div>
 
-        <!-- TITULO -->
-        <h4 class="login-title">
-            Bienvenido
-        </h4>
-        <p class="login-subtitle">
-            Inicia sesión para continuar
-        </p>
-
-        <!-- formulario -->
-        <form>
-            <!-- email -->
-            <div class="input-field">
-                <i class="material-icons prefix">
-                    email
-                </i>
-                <input type="email" id="email">
-                <label for="email">
-                    Correo electrónico
-                </label>
-            </div>
-
-            <!-- contraseña -->
-        <div class="input-field">
-            <i class="material-icons prefix">
-                lock
-            </i>
-            <input type="password" id="password">
-            <label for="password">
-                Contraseña
-            </label>
-
-            <!-- botón para mostrar y ocultar contraseña -->
-            <i class="material-icons toggle-password"
-            onclick="mostrarPassword()">
-                visibility
-            </i>
-
+        <!-- Login -->
+        <div class="card-section active" id="section-login">
+            <h4 class="login-title">Bienvenido</h4>
+            <p class="login-subtitle">Inicia sesión para continuar</p>
+            <form action="/login" method="POST">
+                <div class="input-field">
+                    <i class="material-icons prefix">email</i>
+                    <input type="email" name="email" id="login-email" required>
+                    <label for="login-email">Correo electrónico</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">lock</i>
+                    <input type="password" name="password" id="login-password" required>
+                    <label for="login-password">Contraseña</label>
+                    <i class="material-icons toggle-password" onclick="mostrarPassword('login-password', this)">visibility</i>
+                </div>
+                <div class="opcion">
+                    <label>
+                        <input type="checkbox" name="recordar">
+                        <span>Recordarme</span>
+                    </label>
+                    <a class="toggle-link" onclick="mostrarSeccion('recuperar-email')">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button class="btn waves-effect waves-light btn-login">Iniciar Sesión</button>
+                <div class="divider transparent"></div>
+                <p class="register">¿No tienes cuenta? <a class="toggle-link" onclick="mostrarSeccion('register')">Regístrate</a></p>
+            </form>
         </div>
 
-            <!-- opciones -->
-            <div class="opcion">
-                <label>
-                    <input type="checkbox">
-                    <span>
-                        Recordarme
-                    </span>
-                </label>
-                <a href="#">
-                    ¿Olvidaste tu contraseña?
-                </a>
-            </div>
+        <!-- Register -->
+        <div class="card-section" id="section-register">
+            <h4 class="login-title">Crear Cuenta</h4>
+            <p class="login-subtitle">Regístrate para continuar</p>
+            <form action="/register" method="POST">
+                <div class="input-field">
+                    <i class="material-icons prefix">person</i>
+                    <input type="text" name="nombre" id="reg-nombre" required>
+                    <label for="reg-nombre">Nombre completo</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">email</i>
+                    <input type="email" name="correo" id="reg-email" required>
+                    <label for="reg-email">Correo electrónico</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">lock</i>
+                    <input type="password" name="contrasena" id="reg-password" oninput="medirFortaleza(this.value)" required minlength="8">
+                    <label for="reg-password">Contraseña (mín. 8 caracteres)</label>
+                    <i class="material-icons toggle-password" onclick="mostrarPassword('reg-password', this)">visibility</i>
+                </div>
+                <div id="strength-container" style="margin-bottom:12px;"></div>
+                <input type="hidden" name="admin" value="1">
+                <button class="btn waves-effect waves-light btn-login">Crear Cuenta</button>
+                <div class="divider transparent"></div>
+                <p class="register">¿Ya tienes cuenta? <a class="toggle-link" onclick="mostrarSeccion('login')">Inicia Sesión</a></p>
+            </form>
+        </div>
 
-            <!-- boton del login -->
-            <button
-            class="btn waves-effect waves-light btn-login">
-                Iniciar Sesión
-            </button>
+        <!-- Recovery Email -->
+        <div class="card-section" id="section-recuperar-email">
+            <h4 class="login-title">Recuperar Contraseña</h4>
+            <p class="login-subtitle">Ingresa tu correo para recibir un código</p>
+            <form action="/enviar-codigo" method="POST">
+                <div class="input-field">
+                    <i class="material-icons prefix">email</i>
+                    <input type="email" name="email" id="rec-email" required>
+                    <label for="rec-email">Correo electrónico</label>
+                </div>
+                <button class="btn waves-effect waves-light btn-login">Enviar Código</button>
+                <div class="divider transparent"></div>
+                <p class="register"><a class="toggle-link" onclick="mostrarSeccion('login')">Volver al inicio de sesión</a></p>
+            </form>
+        </div>
 
-            <!-- divader, es una linea separadora -->
-            <div class="divider transparent"></div>
+        <!-- Verify Code -->
+        <div class="card-section" id="section-verificar-codigo">
+            <h4 class="login-title">Verificar Código</h4>
+            <p class="login-subtitle">Ingresa el código y tu nueva contraseña</p>
+            <p class="success-msg">Se ha generado un código de verificación.</p>
+            <div class="codigo-display" id="codigo-mostrado"></div>
+            <p class="login-subtitle" style="font-size:0.8rem;">Copia el código de arriba (solo visible en esta pantalla, no hay correo configurado)</p>
+            <form action="/verificar-codigo" method="POST">
+                <input type="hidden" name="email" id="ver-email">
+                <div class="input-field">
+                    <i class="material-icons prefix">vpn_key</i>
+                    <input type="text" name="codigo" id="ver-codigo" required maxlength="6" pattern="[0-9]{6}">
+                    <label for="ver-codigo">Código de 6 dígitos</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">lock</i>
+                    <input type="password" name="password" id="ver-password" required minlength="8">
+                    <label for="ver-password">Nueva contraseña</label>
+                    <i class="material-icons toggle-password" onclick="mostrarPassword('ver-password', this)">visibility</i>
+                </div>
+                <button class="btn waves-effect waves-light btn-login">Cambiar Contraseña</button>
+                <div class="divider transparent"></div>
+                <p class="register"><a class="toggle-link" onclick="mostrarSeccion('login')">Volver al inicio de sesión</a></p>
+            </form>
+        </div>
 
-            <!-- boton de google -->
-            <button
-            class="btn white black-text google-btn">
-
-                <i class="material-icons left red-text">
-                    account_circle
-                </i>
-                Iniciar con Google
-            </button>
-
-            <!-- registro -->
-            <p class="register">
-                ¿No tienes cuenta?
-                <a href="#">
-                    Regístrate
-                </a>
-            </p>
-        </form>
+        <div id="mensaje-error" class="error-msg"></div>
     </div>
-        <!-- MATERIALIZE JS -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <!-- javascript -->
     <script>
-        function mostrarPassword() {
-            let input = document.getElementById("password");
-            let icono = document.querySelector(".toggle-password");
+        function mostrarPassword(inputId, el) {
+            var input = document.getElementById(inputId);
             if (input.type === "password") {
                 input.type = "text";
-                icono.textContent = "visibility_off";
+                el.textContent = "visibility_off";
             } else {
                 input.type = "password";
-                icono.textContent = "visibility";
+                el.textContent = "visibility";
             }
+        }
+
+        function mostrarSeccion(id) {
+            document.querySelectorAll(".card-section").forEach(function(s) { s.classList.remove("active"); });
+            document.getElementById("section-" + id).classList.add("active");
+            document.getElementById("mensaje-error").textContent = "";
+        }
+
+        function medirFortaleza(val) {
+            var c = document.getElementById("strength-container");
+            if (val.length === 0) { c.innerHTML = ""; return; }
+            var nivel = "weak";
+            if (val.length >= 8 && /[A-Z]/.test(val) && /[0-9]/.test(val)) { nivel = "strong"; }
+            else if (val.length >= 6) { nivel = "medium"; }
+            var labels = { weak: "Débil", medium: "Media", strong: "Fuerte" };
+            c.innerHTML = '<div class="strength-bar strength-' + nivel + '"></div><small style="color:#ccc;">Fortaleza: ' + labels[nivel] + "</small>";
+        }
+
+        var params = new URLSearchParams(window.location.search);
+
+        if (params.get("codigo_enviado") === "ok") {
+            var codigo = params.get("codigo") || "";
+            var email = params.get("email") || "";
+            document.getElementById("codigo-mostrado").textContent = codigo;
+            document.getElementById("ver-email").value = email;
+            mostrarSeccion("verificar-codigo");
+        }
+
+        var errors = {
+            "credenciales": "Correo o contraseña incorrectos",
+            "campos": "Completa todos los campos",
+            "email_invalido": "Correo inválido",
+            "nombre_invalido": "El nombre debe tener al menos 3 caracteres",
+            "recuperar_email": "Correo inválido",
+            "recuperar_error": "Error al verificar el correo",
+            "recuperar_no_existe": "No existe una cuenta con ese correo",
+            "codigo_vacio": "Ingresa el código de verificación",
+            "recuperar_corta": "La contraseña debe tener al menos 8 caracteres",
+            "codigo_invalido": "Código incorrecto o expirado",
+            "register_password": "La contraseña debe tener al menos 8 caracteres",
+            "register_email": "El correo ya está registrado"
+        };
+        var errorParam = params.get("error");
+        if (errorParam && errors[errorParam]) {
+            document.getElementById("mensaje-error").textContent = errors[errorParam];
+        }
+
+        if (params.get("register") === "success" || params.get("ok") === "registrado") {
+            document.getElementById("mensaje-error").style.color = "#a5d6a7";
+            document.getElementById("mensaje-error").textContent = "Cuenta creada correctamente. Inicia sesión.";
+        }
+        if (params.get("recuperacion") === "exito") {
+            document.getElementById("mensaje-error").style.color = "#a5d6a7";
+            document.getElementById("mensaje-error").textContent = "Contraseña actualizada correctamente. Inicia sesión.";
+            mostrarSeccion("login");
+        }
+
+        if (params.get("error") === "eliminar_fk") {
+            document.getElementById("codigo-mostrado").textContent = codigo;
+            document.getElementById("ver-email").value = email;
+            mostrarSeccion("verificar-codigo");
         }
     </script>
 </body>

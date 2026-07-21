@@ -135,6 +135,22 @@ function mostrarToastCarrito(nombre) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  var currentItems = Carrito.getItems();
+  if (currentItems.length === 0) {
+    var storedId = localStorage.getItem("apomat_carrito_user");
+    var userKey = storedId ? storedId : "0";
+    var backupKey = "apomat_carrito_backup_" + userKey;
+    var backup = localStorage.getItem(backupKey);
+    if (backup) {
+      try {
+        var parsed = JSON.parse(backup);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          localStorage.setItem("apomat_carrito", backup);
+          localStorage.removeItem(backupKey);
+        }
+      } catch(e) {}
+    }
+  }
   fetch('/usuario?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (d) {

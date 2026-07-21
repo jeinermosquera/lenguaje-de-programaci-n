@@ -346,6 +346,8 @@
       };
 
       try {
+        var backupUser = localStorage.getItem("apomat_carrito_user") || "0";
+        localStorage.setItem("apomat_carrito_backup_" + backupUser, JSON.stringify(items));
         var resp = await fetch('/api/checkout', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
         });
@@ -368,8 +370,8 @@
           window.location.replace('/pedido-exitoso?referencia=' + data.referencia);
         }
       } catch (err) {
-        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo procesar el pago.', confirmButtonColor: '#c9960e' });
         restaurarFormulario();
+        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo procesar el pago.', confirmButtonColor: '#c9960e' });
       }
     });
 
