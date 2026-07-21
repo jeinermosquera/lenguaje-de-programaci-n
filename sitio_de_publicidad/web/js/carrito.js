@@ -14,8 +14,19 @@ var Carrito = {
     if (cantidad === undefined) cantidad = 1;
     var items = this.getItems();
     var idx = items.findIndex(function (i) { return i.id === producto.id; });
+    var enCarrito = idx >= 0 ? items[idx].cantidad : 0;
+    var totalQty = enCarrito + cantidad;
+    if (producto.stock != null && totalQty > producto.stock) {
+      var disponibles = producto.stock - enCarrito;
+      if (disponibles <= 0) {
+        Swal.fire({ icon: "warning", title: "Sin stock", text: "Ya tienes todas las unidades disponibles en tu carrito.", confirmButtonColor: "#c9960e", timer: 2500, showConfirmButton: false });
+      } else {
+        Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo puedes agregar " + disponibles + " unidad(es) m\u00e1s.", confirmButtonColor: "#c9960e", timer: 2500, showConfirmButton: false });
+      }
+      return;
+    }
     if (idx >= 0) {
-      items[idx].cantidad += cantidad;
+      items[idx].cantidad = totalQty;
     } else {
       var precioFinal = producto.precio;
       if (producto.precio_rebaja != null && producto.precio_rebaja > 0) {

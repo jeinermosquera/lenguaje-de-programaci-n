@@ -322,7 +322,7 @@
           document.getElementById('qty-plus').addEventListener('click', function() { qty++; document.getElementById('qty-value').textContent = qty; });
           document.getElementById('qty-minus').addEventListener('click', function() { if (qty > 1) { qty--; document.getElementById('qty-value').textContent = qty; } });
           document.getElementById('btn-add-cart').addEventListener('click', function() {
-            Carrito.agregar({id:producto.id, nombre:producto.nombre, precio:producto.precio, precio_rebaja:producto.precio_rebaja, imagen:producto.imagen}, qty);
+            Carrito.agregar({id:producto.id, nombre:producto.nombre, precio:producto.precio, precio_rebaja:producto.precio_rebaja, imagen:producto.imagen, stock:producto.stock}, qty);
             mostrarToastCarrito(producto.nombre + ' x' + qty);
           });
         }
