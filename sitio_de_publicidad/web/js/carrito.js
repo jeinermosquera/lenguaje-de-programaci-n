@@ -41,7 +41,8 @@ var Carrito = {
         nombre: producto.nombre,
         precio: precioFinal,
         imagen: producto.imagen,
-        cantidad: cantidad
+        cantidad: cantidad,
+        stock: producto.stock
       });
     }
     this.setItems(items);
@@ -55,6 +56,14 @@ var Carrito = {
     var items = this.getItems();
     var item = items.find(function (i) { return i.id === id; });
     if (item) {
+      if (cantidad > item.cantidad && item.stock != null && cantidad > item.stock) {
+        if (typeof Swal !== "undefined") {
+          Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo hay " + item.stock + " unidad(es) disponibles.", confirmButtonColor: "#c9960e", confirmButtonText: "Entendido" });
+        } else {
+          alert("Stock insuficiente. Solo hay " + item.stock + " unidad(es) disponibles.");
+        }
+        return;
+      }
       item.cantidad = cantidad;
       if (item.cantidad <= 0) {
         this.eliminar(id);
@@ -121,7 +130,9 @@ var Carrito = {
         '<div class="cart-qty-controls">' +
         '<button class="cart-qty-btn" onclick="Carrito.actualizarCantidad(' + item.id + ', ' + (item.cantidad - 1) + ')">-</button>' +
         '<span class="cart-qty">' + item.cantidad + '</span>' +
-        '<button class="cart-qty-btn" onclick="Carrito.actualizarCantidad(' + item.id + ', ' + (item.cantidad + 1) + ')">+</button>' +
+        (item.stock != null && item.cantidad >= item.stock
+          ? '<button class="cart-qty-btn" disabled style="opacity:0.4;cursor:not-allowed;">+</button>'
+          : '<button class="cart-qty-btn" onclick="Carrito.actualizarCantidad(' + item.id + ', ' + (item.cantidad + 1) + ')">+</button>') +
         '</div></div>' +
         '<button class="cart-item-remove" onclick="Carrito.eliminar(' + item.id + ')" title="Eliminar"><i class="bi bi-trash"></i></button>' +
         '</li>';
