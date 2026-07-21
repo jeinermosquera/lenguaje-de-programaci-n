@@ -18,10 +18,14 @@ var Carrito = {
     var totalQty = enCarrito + cantidad;
     if (producto.stock != null && totalQty > producto.stock) {
       var disponibles = producto.stock - enCarrito;
-      if (disponibles <= 0) {
-        Swal.fire({ icon: "warning", title: "Sin stock", text: "Ya tienes todas las unidades disponibles en tu carrito.", confirmButtonColor: "#c9960e", timer: 2500, showConfirmButton: false });
+      if (typeof Swal !== "undefined") {
+        if (disponibles <= 0) {
+          Swal.fire({ icon: "warning", title: "Sin stock", text: "Ya tienes todas las unidades disponibles en tu carrito.", confirmButtonColor: "#c9960e", confirmButtonText: "Entendido" });
+        } else {
+          Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo puedes agregar " + disponibles + " unidad(es) m\u00e1s.", confirmButtonColor: "#c9960e", confirmButtonText: "Entendido" });
+        }
       } else {
-        Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo puedes agregar " + disponibles + " unidad(es) m\u00e1s.", confirmButtonColor: "#c9960e", timer: 2500, showConfirmButton: false });
+        alert("Stock insuficiente. Solo puedes agregar " + disponibles + " unidad(es) m\u00e1s.");
       }
       return;
     }
