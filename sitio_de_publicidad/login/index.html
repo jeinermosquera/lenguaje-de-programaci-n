@@ -265,6 +265,16 @@
             showRegister();
             mostrarAlerta("warning", "Contraseña muy corta", "La contraseña debe tener mínimo 8 caracteres.");
         }
+
+        if (params.get("error") === "nombre_invalido") {
+            showRegister();
+            mostrarAlerta("warning", "Nombre inválido", "El nombre debe tener al menos 3 caracteres.");
+        }
+
+        if (params.get("error") === "email_invalido") {
+            showRegister();
+            mostrarAlerta("warning", "Correo inválido", "Ingresa un correo electrónico válido.");
+        }
     </script>
 </body>
 </html>

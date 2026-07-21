@@ -51,7 +51,8 @@ var Carrito = {
   /** Vacía el carrito y elimina el backup */
   vaciar: function () {
     this.setItems([]);
-    localStorage.removeItem("apomat_carrito_backup" + (this._userId ? "_" + this._userId : ""));
+    var backupKey = "apomat_carrito_backup_" + (localStorage.getItem("apomat_carrito_user") || "0");
+    localStorage.removeItem(backupKey);
   },
   /** Calcula el total sumando precio × cantidad de cada item */
   getTotal: function () {

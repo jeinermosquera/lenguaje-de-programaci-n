@@ -145,21 +145,22 @@ def get_connection():
         database="jeiner_db"
     )
 
-def producto_db_a_dict(row):
-    """Convierte una fila de la BD (tupla) en dict con precios formateados y JSONs parseados."""
-    precio_rebaja = row[8] if len(row) > 8 else None
-    stock = row[9] if len(row) > 9 else 0
+def producto_db_a_dict(r):
+    """Convierte un dict de producto en dict con precios formateados y JSONs parseados."""
+    precio_rebaja = r.get("precio_rebaja")
+    stock = r.get("stock") or 0
+    precio = r["precio"]
     return {
-        "id": row[0],
-        "nombre": row[1],
-        "imagen": row[2],
-        "precio": row[3],
-        "descripcion": row[4] or "",
-        "caracteristicas": json.loads(row[5]) if row[5] else [],
-        "especificaciones": json.loads(row[6]) if row[6] else [],
-        "disponible": bool(row[7]),
+        "id": r["id"],
+        "nombre": r["nombre"],
+        "imagen": r["imagen"],
+        "precio": precio,
+        "descripcion": r.get("descripcion") or "",
+        "caracteristicas": json.loads(r["caracteristicas"]) if r.get("caracteristicas") else [],
+        "especificaciones": json.loads(r["especificaciones"]) if r.get("especificaciones") else [],
+        "disponible": bool(r["disponible"]),
         "precio_rebaja": precio_rebaja,
-        "precio_formateado": f"$ {row[3]:,.0f}".replace(",", "."),
+        "precio_formateado": f"$ {precio:,.0f}".replace(",", "."),
         "precio_rebaja_formateado": f"$ {precio_rebaja:,.0f}".replace(",", ".") if precio_rebaja else None,
         "en_rebaja": precio_rebaja is not None and precio_rebaja > 0,
         "stock": stock if stock is not None else 0
@@ -358,7 +359,7 @@ def api_producto(producto_id):
         return {"error": "No autorizado"}, 401
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM producto WHERE id = %s", (producto_id,))
         row = cursor.fetchone()
     except Error as error:
@@ -379,7 +380,7 @@ def api_productos():
         return {"error": "No autorizado"}, 401
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM producto ORDER BY id")
         rows = cursor.fetchall()
     except Error as error:
@@ -632,6 +633,8 @@ def api_checkout():
             """, (pedido_id, item["id"], item["id"], item["id"], item["cantidad"]))
             cursor.execute("UPDATE producto SET stock = stock - %s WHERE id = %s AND stock >= %s",
                            (item["cantidad"], item["id"], item["cantidad"]))
+            if cursor.rowcount == 0:
+                raise ValueError(f"Stock insuficiente para producto ID {item['id']}")
 
         connection.commit()
 
@@ -639,6 +642,10 @@ def api_checkout():
         if "connection" in locals() and connection.is_connected():
             connection.rollback()
         return {"error": "Error al procesar el pedido"}, 500
+    except ValueError as e:
+        if "connection" in locals() and connection.is_connected():
+            connection.rollback()
+        return {"error": str(e)}, 400
     except stripe.error.StripeError as e:
         if "connection" in locals() and connection.is_connected():
             connection.rollback()
@@ -819,7 +826,7 @@ def admin_api_productos():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT * FROM producto ORDER BY id")
         rows = cursor.fetchall()
     except Error as error:

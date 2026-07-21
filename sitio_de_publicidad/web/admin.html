@@ -499,7 +499,7 @@
           }
 
           rowsHtml +=
-            '<td>' + it.nombre_producto + ' <small style="color:#999;">x' + it.cantidad + '</small></td>' +
+            '<td>' + esc(it.nombre_producto) + ' <small style="color:#999;">x' + it.cantidad + '</small></td>' +
             '<td style="text-align:right;">$ ' + it.precio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '</td>' +
             '<td style="text-align:right;"><strong>' + subtotalStr + '</strong></td>';
 
@@ -645,7 +645,7 @@
               var pr = recientes[ri];
               var cls = pr.estado === "pendiente" ? "bg-warning text-dark" : pr.estado === "enviado" ? "bg-primary" : pr.estado === "entregado" ? "bg-success" : pr.estado === "cancelado" ? "bg-danger" : "bg-secondary";
               var fecha = pr.fecha ? new Date(pr.fecha).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" }) : "-";
-              rHtml += '<tr><td><strong style="font-size:0.8rem;">' + pr.referencia + '</strong></td><td>' + (pr.cliente || "-") + '</td><td style="font-weight:600;">' + formatearPrecio(pr.total) + '</td><td><span class="badge ' + cls + ' badge-admin" style="font-size:0.7rem;">' + (pr.estado.charAt(0).toUpperCase() + pr.estado.slice(1)) + '</span></td><td><small style="color:#999;">' + fecha + '</small></td></tr>';
+              rHtml += '<tr><td><strong style="font-size:0.8rem;">' + pr.referencia + '</strong></td><td>' + esc(pr.cliente || "-") + '</td><td style="font-weight:600;">' + formatearPrecio(pr.total) + '</td><td><span class="badge ' + cls + ' badge-admin" style="font-size:0.7rem;">' + (pr.estado.charAt(0).toUpperCase() + pr.estado.slice(1)) + '</span></td><td><small style="color:#999;">' + fecha + '</small></td></tr>';
             }
             rHtml += "</tbody></table>";
             document.getElementById("dashboard-recent-orders").innerHTML = rHtml;
