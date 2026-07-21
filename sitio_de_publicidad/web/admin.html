@@ -27,6 +27,7 @@
         </ul>
         <div class="d-flex align-items-center gap-3 ps-3 border-start apomat-auth">
           <span class="auth-greeting saludo-usuario">Admin</span>
+          <span class="notification-badge" id="admin-greeting-badge" style="display:none;margin-left:4px;">0</span>
           <a href="#" class="d-inline-flex align-items-center gap-1 text-decoration-none auth-logout" id="logoutBtn">
             <i class="bi bi-box-arrow-right"></i>Salir
           </a>
@@ -691,11 +692,14 @@
           if (!d || d.error) return;
           var pendientes = (d.pedidos_por_estado && d.pedidos_por_estado.pendiente) || 0;
           var badge = document.getElementById("pedidos-badge");
+          var greetBadge = document.getElementById("admin-greeting-badge");
           if (pendientes > 0) {
             badge.textContent = pendientes;
             badge.style.display = "inline-block";
+            if (greetBadge) { greetBadge.textContent = pendientes; greetBadge.style.display = "inline-block"; }
           } else {
             badge.style.display = "none";
+            if (greetBadge) greetBadge.style.display = "none";
           }
         })
         .catch(function() {});
