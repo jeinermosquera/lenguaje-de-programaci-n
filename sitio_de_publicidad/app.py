@@ -2,6 +2,8 @@
 from pathlib import Path
 import os
 import json
+import random
+import time
 from dotenv import load_dotenv
 from flask import Flask, redirect, request, send_from_directory, session, jsonify
 from werkzeug.utils import secure_filename
@@ -1099,8 +1101,6 @@ def admin_eliminar_producto(producto_id):
             connection.close()
 
     return redirect("/admin?ok=eliminado")
-
-import random
 
 @app.route("/enviar-codigo", methods=["POST"])
 def enviar_codigo():
