@@ -359,6 +359,8 @@
       navbar.classList.toggle('is-scrolled', window.scrollY > 10);
     });
 
+    function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
     // Cargar productos destacados desde la API
     function cargarDestacados() {
       const grid = document.getElementById('featured-grid');
@@ -385,10 +387,10 @@
               '<div class="product-card">' +
                 '<a href="/producto/' + p.id + '" class="product-card-link">' +
                   '<div class="product-image">' +
-                    '<img src="/site/img/' + p.imagen + '" alt="' + p.nombre + '" loading="lazy">' +
+                    '<img src="/site/img/' + esc(p.imagen) + '" alt="' + esc(p.nombre) + '" loading="lazy">' +
                     badgeHtml +
                   '</div>' +
-                  '<h5>' + p.nombre + '</h5>' +
+                  '<h5>' + esc(p.nombre) + '</h5>' +
                   '<div class="price">' + precioHtml + '</div>' +
                   '<div style="font-size:0.7rem;color:' + (p.stock > 0 ? '#28a745' : '#999') + ';margin-top:2px;">' + (p.stock > 0 ? (p.stock + ' en stock') : 'Sin stock') + '</div>' +
                 '</a>' +

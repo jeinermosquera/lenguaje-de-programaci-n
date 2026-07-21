@@ -301,6 +301,19 @@
     window.addEventListener('load', function() { document.body.classList.add('page-ready'); });
     function navegar(url) { document.body.classList.add('page-fade-out'); document.getElementById('pageLoader').classList.add('active'); setTimeout(function() { window.location.replace(url); }, 300); }
     function mostrarAlerta(icono, titulo, texto, btnTexto) {
+      fetch('/api/csrf-token').then(function(r) { return r.json(); }).then(function(d) {
+        if (d.csrf_token) {
+          window.csrfToken = d.csrf_token;
+          document.querySelectorAll('form').forEach(function(f) {
+            if (!f.querySelector('input[name="csrf_token"]')) {
+              var inp = document.createElement('input');
+              inp.type = 'hidden'; inp.name = 'csrf_token'; inp.value = d.csrf_token;
+              f.appendChild(inp);
+            }
+          });
+        }
+      });
+    }
       Swal.fire({
         icon: icono, title: titulo, text: texto,
         confirmButtonText: btnTexto || "Continuar",
@@ -359,6 +372,7 @@
       const value = el.value;
       const form = new FormData();
       form.append("disponible", value);
+      form.append("csrf_token", window.csrfToken || "");
       fetch("/admin/productos/toggle/" + id, { method: "POST", body: form })
         .then(r => r.json())
         .then(data => {
@@ -400,6 +414,9 @@
           form.method = "POST";
           form.action = "/admin/productos/eliminar/" + id;
           form.style.display = "none";
+          var inp = document.createElement("input");
+          inp.type = "hidden"; inp.name = "csrf_token"; inp.value = window.csrfToken || "";
+          form.appendChild(inp);
           document.body.appendChild(form);
           form.submit();
         }
@@ -444,6 +461,7 @@
     function actualizarEstadoDropdown(pedidoId, nuevoEstado) {
       var form = new FormData();
       form.append("estado", nuevoEstado);
+      form.append("csrf_token", window.csrfToken || "");
       fetch("/admin/api/pedidos/estado/" + pedidoId, { method: "POST", body: form })
         .then(function(r) { return r.json(); })
         .then(function(d) {

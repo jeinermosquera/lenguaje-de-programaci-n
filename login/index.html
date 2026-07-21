@@ -125,6 +125,32 @@
             c.innerHTML = '<div class="strength-bar strength-' + nivel + '"></div><small style="color:#ccc;">Fortaleza: ' + labels[nivel] + "</small>";
         }
 
+        function cargarCSRF(callback) {
+            fetch('/api/csrf-token').then(function(r) { return r.json(); }).then(function(d) {
+                if (d.csrf_token) {
+                    window.csrfToken = d.csrf_token;
+                    document.querySelectorAll('form').forEach(function(f) {
+                        if (!f.querySelector('input[name="csrf_token"]')) {
+                            var inp = document.createElement('input');
+                            inp.type = 'hidden'; inp.name = 'csrf_token'; inp.value = d.csrf_token;
+                            f.appendChild(inp);
+                        }
+                    });
+                    if (callback) callback();
+                }
+            });
+        }
+
+        function ajaxCSRF(url, opts) {
+            opts = opts || {};
+            opts.headers = opts.headers || {};
+            opts.headers['X-CSRF-Token'] = window.csrfToken || '';
+            opts.headers['X-Requested-With'] = 'XMLHttpRequest';
+            return fetch(url, opts);
+        }
+
+        cargarCSRF();
+
         var params = new URLSearchParams(window.location.search);
 
         var errors = {

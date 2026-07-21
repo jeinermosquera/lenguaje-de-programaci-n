@@ -1,13 +1,31 @@
+function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+var CarritoCSRFToken = "";
+
+function syncCarritoToServer() {
+  var userId = localStorage.getItem("apomat_carrito_user");
+  if (!userId || userId === "0") return;
+  var items = Carrito.getItems();
+  var payload = items.map(function(i) { return { id: i.id, cantidad: i.cantidad }; });
+  if (payload.length === 0) return;
+  fetch('/api/carrito', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CarritoCSRFToken, 'X-Requested-With': 'XMLHttpRequest' },
+    body: JSON.stringify({ items: payload, csrf_token: CarritoCSRFToken })
+  }).catch(function() {});
+}
+
 var Carrito = {
   /** Obtiene los items del carrito desde localStorage */
   getItems: function () {
     return JSON.parse(localStorage.getItem("apomat_carrito") || "[]");
   },
-  /** Guarda items en localStorage y actualiza badge + offcanvas */
+  /** Guarda items en localStorage y actualiza badge + offcanvas + servidor */
   setItems: function (items) {
     localStorage.setItem("apomat_carrito", JSON.stringify(items));
     this.actualizarBadge();
     this.renderizarOffcanvas();
+    syncCarritoToServer();
   },
   /** Agrega un producto al carrito o incrementa su cantidad */
   agregar: function (producto, cantidad) {
@@ -94,9 +112,9 @@ var Carrito = {
       var item = items[i];
       html +=
         '<li class="cart-item" data-id="' + item.id + '">' +
-        '<img src="/site/img/' + item.imagen + '" alt="' + item.nombre + '" class="cart-item-img">' +
+        '<img src="/site/img/' + esc(item.imagen) + '" alt="' + esc(item.nombre) + '" class="cart-item-img">' +
         '<div class="cart-item-info">' +
-        '<span class="cart-item-name">' + item.nombre + '</span>' +
+        '<span class="cart-item-name">' + esc(item.nombre) + '</span>' +
         '<span class="cart-item-price">' + this.formatearPrecio(item.precio) + '</span>' +
         '<div class="cart-qty-controls">' +
         '<button class="cart-qty-btn" onclick="Carrito.actualizarCantidad(' + item.id + ', ' + (item.cantidad - 1) + ')">-</button>' +
@@ -151,6 +169,11 @@ document.addEventListener("DOMContentLoaded", function () {
       } catch(e) {}
     }
   }
+
+  fetch('/api/csrf-token').then(function(r) { return r.json(); }).then(function(d) {
+    CarritoCSRFToken = d.csrf_token || "";
+  });
+
   fetch('/usuario?t=' + Date.now(), { cache: 'no-store' })
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -161,6 +184,21 @@ document.addEventListener("DOMContentLoaded", function () {
           localStorage.removeItem("apomat_carrito");
         }
         localStorage.setItem("apomat_carrito_user", String(userId));
+
+        // Sync: si el usuario tiene carrito local, súbelo al servidor
+        var localItems = Carrito.getItems();
+        if (localItems.length > 0) {
+          syncCarritoToServer();
+        } else {
+          // Si no hay carrito local, intenta cargar del servidor
+          fetch('/api/carrito', {
+            headers: { 'X-CSRF-Token': CarritoCSRFToken, 'X-Requested-With': 'XMLHttpRequest' }
+          }).then(function(r) { return r.json(); }).then(function(sd) {
+            if (sd.items && sd.items.length > 0) {
+              Carrito.setItems(sd.items);
+            }
+          }).catch(function() {});
+        }
       } else {
         var storedId = localStorage.getItem("apomat_carrito_user");
         if (storedId !== null && storedId !== "0") {

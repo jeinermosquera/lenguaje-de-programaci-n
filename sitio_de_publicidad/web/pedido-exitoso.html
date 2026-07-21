@@ -23,7 +23,8 @@
   <script>
     var ref = new URLSearchParams(window.location.search).get('referencia');
     if (ref) { document.getElementById('mensaje-exito').textContent = 'Referencia: ' + ref + '. Tu pedido ha sido procesado correctamente.'; }
-    localStorage.removeItem("apomat_carrito_backup");
+    var backupUser = localStorage.getItem("apomat_carrito_user") || "0";
+    localStorage.removeItem("apomat_carrito_backup_" + backupUser);
   </script>
 </body>
 </html>

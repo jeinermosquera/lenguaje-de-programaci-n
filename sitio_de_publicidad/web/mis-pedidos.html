@@ -183,6 +183,8 @@
       return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
+    function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
     function formatearPrecio(v) {
       return '$ ' + v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
@@ -206,7 +208,7 @@
             var est = mapEstado[p.estado] || { label: p.estado, cls: 'bg-secondary' };
             var itemsHtml = p.items.map(function(it) {
               var subtotal = it.precio * it.cantidad;
-              return '<div class="pedido-item"><span class="pedido-item-nombre">' + it.nombre_producto + ' <small style="color:#999;">x' + it.cantidad + '</small></span><span class="pedido-item-precio">$ ' + it.precio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '</span><span class="pedido-item-subtotal">' + formatearPrecio(subtotal) + '</span></div>';
+              return '<div class="pedido-item"><span class="pedido-item-nombre">' + esc(it.nombre_producto) + ' <small style="color:#999;">x' + it.cantidad + '</small></span><span class="pedido-item-precio">$ ' + it.precio.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + '</span><span class="pedido-item-subtotal">' + formatearPrecio(subtotal) + '</span></div>';
             }).join('');
             var envioHtml = p.costo_envio > 0 ? '<div class="pedido-envio">Envío: ' + formatearPrecio(p.costo_envio) + '</div>' : '<div class="pedido-envio" style="color:#28a745;">Envío: GRATIS</div>';
             return '<div class="pedido-card">' +
