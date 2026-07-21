@@ -1100,34 +1100,75 @@ def admin_eliminar_producto(producto_id):
 
     return redirect("/admin?ok=eliminado")
 
-@app.route("/recuperar-contrasena", methods=["POST"])
-def recuperar_contrasena():
-    """Permite al usuario cambiar su contraseña verificando el correo."""
-    email = request.form.get("email", "").strip().lower()
-    nueva = request.form.get("password", "")
+import random
 
+@app.route("/enviar-codigo", methods=["POST"])
+def enviar_codigo():
+    """Genera un código de verificación y lo almacena en sesión."""
+    email = request.form.get("email", "").strip().lower()
     if not email or "@" not in email:
         return redirect("/?error=recuperar_email")
-    if len(nueva) < 8:
-        return redirect("/?error=recuperar_corta")
-
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT id FROM usuario WHERE correo = %s", (email,))
         user = cursor.fetchone()
-        if not user:
-            return redirect("/?error=recuperar_no_existe")
+    except Error as error:
+        return redirect("/?error=recuperar_error")
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "connection" in locals() and connection.is_connected(): connection.close()
+    if not user:
+        return redirect("/?error=recuperar_no_existe")
+
+    codigo = str(random.randint(100000, 999999))
+    session["codigo_recuperacion"] = codigo
+    session["codigo_email"] = email
+    session["codigo_expira"] = time.time() + 600  # 10 minutos
+
+    return redirect(f"/?codigo_enviado=ok&email={email}")
+
+@app.route("/verificar-codigo", methods=["POST"])
+def verificar_codigo():
+    """Verifica el código y cambia la contraseña."""
+    email = request.form.get("email", "").strip().lower()
+    codigo = request.form.get("codigo", "").strip()
+    nueva = request.form.get("password", "")
+
+    if not codigo:
+        return redirect(f"/?error=codigo_vacio&email={email}")
+    if len(nueva) < 8:
+        return redirect(f"/?error=recuperar_corta&email={email}")
+
+    almacenado = session.get("codigo_recuperacion")
+    email_sesion = session.get("codigo_email")
+    expira = session.get("codigo_expira", 0)
+
+    if not almacenado or email != email_sesion:
+        return redirect(f"/?error=codigo_invalido&email={email}")
+    if time.time() > expira:
+        session.pop("codigo_recuperacion", None)
+        session.pop("codigo_email", None)
+        session.pop("codigo_expira", None)
+        return redirect(f"/?error=codigo_expirado&email={email}")
+    if codigo != almacenado:
+        return redirect(f"/?error=codigo_incorrecto&email={email}")
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
         nueva_hash = generate_password_hash(nueva)
-        cursor.execute("UPDATE usuario SET contrasena = %s WHERE id = %s", (nueva_hash, user["id"]))
+        cursor.execute("UPDATE usuario SET contrasena = %s WHERE correo = %s", (nueva_hash, email))
         connection.commit()
     except Error as error:
-        print(error)
         return redirect("/?error=recuperar_error")
     finally:
         if "cursor" in locals(): cursor.close()
         if "connection" in locals() and connection.is_connected(): connection.close()
 
+    session.pop("codigo_recuperacion", None)
+    session.pop("codigo_email", None)
+    session.pop("codigo_expira", None)
     return redirect("/?recuperacion=exito")
 
 @app.route("/logout")

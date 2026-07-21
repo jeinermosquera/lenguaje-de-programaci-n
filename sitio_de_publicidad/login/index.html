@@ -68,30 +68,56 @@
                 </div>
 
                 <div id="recuperar-view" class="view-container" style="display: none;">
-                    <form action="/recuperar-contrasena" method="POST" autocomplete="off" novalidate>
-                        <div class="form-body">
-                            <div class="text-center mb-3">
-                                <i class="bi bi-shield-lock" style="font-size:2.5rem;color:var(--gold);"></i>
-                                <h5 style="color:var(--navy);margin-top:8px;">Recuperar contraseña</h5>
-                                <p style="font-size:0.85rem;color:var(--text-muted);">Ingresa tu correo y una nueva contraseña</p>
+                    <!-- Paso 1: Ingresar correo -->
+                    <div id="recuperar-paso1">
+                        <form action="/enviar-codigo" method="POST" autocomplete="off" novalidate>
+                            <div class="form-body">
+                                <div class="text-center mb-3">
+                                    <i class="bi bi-shield-lock" style="font-size:2.5rem;color:var(--gold);"></i>
+                                    <h5 style="color:var(--navy);margin-top:8px;">Recuperar contraseña</h5>
+                                    <p style="font-size:0.85rem;color:var(--text-muted);">Ingresa tu correo para recibir un código de verificación</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="recuperar-email" class="form-label">Correo electrónico</label>
+                                    <input type="email" required placeholder="Tu correo registrado" id="recuperar-email" name="email" class="form-control">
+                                </div>
+                                <button class="btn apomat-btn w-100" type="submit">Enviar código</button>
+                                <div class="text-center mt-3">
+                                    <a href="#" onclick="event.preventDefault();showLogin();" style="color:var(--gold);text-decoration:none;font-size:0.85rem;">
+                                        <i class="bi bi-arrow-left"></i> Volver a iniciar sesión
+                                    </a>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="recuperar-email" class="form-label">Correo electrónico</label>
-                                <input type="email" required placeholder="Tu correo registrado" id="recuperar-email" name="email" class="form-control">
+                        </form>
+                    </div>
+                    <!-- Paso 2: Ingresar código y nueva contraseña -->
+                    <div id="recuperar-paso2" style="display:none;">
+                        <form action="/verificar-codigo" method="POST" autocomplete="off" novalidate>
+                            <div class="form-body">
+                                <div class="text-center mb-3">
+                                    <i class="bi bi-envelope-check" style="font-size:2.5rem;color:var(--gold);"></i>
+                                    <h5 style="color:var(--navy);margin-top:8px;">Código de verificación</h5>
+                                    <p style="font-size:0.85rem;color:var(--text-muted);">Revisa tu correo e ingresa el código que te enviamos</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="recuperar-codigo" class="form-label">Código de 6 dígitos</label>
+                                    <input type="text" required placeholder="000000" id="recuperar-codigo" name="codigo" class="form-control" maxlength="6" inputmode="numeric" pattern="[0-9]{6}">
+                                </div>
+                                <div class="mb-3 position-relative">
+                                    <label for="recuperar-nueva-pass" class="form-label">Nueva contraseña</label>
+                                    <input type="password" required placeholder="Mínimo 8 caracteres" id="recuperar-nueva-pass" name="password" class="form-control">
+                                    <i class="bi bi-eye password-toggle" onclick="togglePassword('recuperar-nueva-pass', this)"></i>
+                                </div>
+                                <input type="hidden" name="email" id="recuperar-email-hidden">
+                                <button class="btn apomat-btn w-100" type="submit">Cambiar contraseña</button>
+                                <div class="text-center mt-3">
+                                    <a href="#" onclick="event.preventDefault();mostrarRecuperar();" style="color:var(--gold);text-decoration:none;font-size:0.85rem;">
+                                        <i class="bi bi-arrow-left"></i> Volver
+                                    </a>
+                                </div>
                             </div>
-                            <div class="mb-3 position-relative">
-                                <label for="recuperar-password" class="form-label">Nueva contraseña</label>
-                                <input type="password" required placeholder="Mínimo 8 caracteres" id="recuperar-password" name="password" class="form-control">
-                                <i class="bi bi-eye password-toggle" onclick="togglePassword('recuperar-password', this)"></i>
-                            </div>
-                            <button class="btn apomat-btn w-100" type="submit">Cambiar contraseña</button>
-                            <div class="text-center mt-3">
-                                <a href="#" onclick="event.preventDefault();showLogin();" style="color:var(--gold);text-decoration:none;font-size:0.85rem;">
-                                    <i class="bi bi-arrow-left"></i> Volver a iniciar sesión
-                                </a>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
 
                 <div id="register-view" class="view-container" style="display: none;">
@@ -182,18 +208,53 @@
             mostrarAlerta("warning", "Demasiados intentos", "Espera " + segs + " segundos antes de intentar de nuevo.");
         }
 
+        function irAPaso2(email) {
+            ocultarTodos();
+            document.getElementById("recuperar-view").style.display = "block";
+            document.getElementById("recuperar-paso1").style.display = "none";
+            document.getElementById("recuperar-paso2").style.display = "block";
+            document.getElementById("recuperar-email-hidden").value = email;
+            loginTab.classList.remove("active");
+            registerTab.classList.remove("active");
+        }
+
+        if (params.get("codigo_enviado") === "ok") {
+            var emailCodigo = params.get("email") || "";
+            irAPaso2(emailCodigo);
+            mostrarAlerta("success", "C\u00f3digo enviado", "Revisa tu correo electr\u00f3nico. Ingresa el c\u00f3digo y tu nueva contrase\u00f1a.");
+        }
+
         if (params.get("recuperacion") === "exito") {
             mostrarAlerta("success", "Contrase\u00f1a cambiada", "Tu contrase\u00f1a se actualiz\u00f3 correctamente. Inicia sesi\u00f3n.");
         }
 
-        if (params.get("error") === "recuperar_email" || params.get("error") === "recuperar_corta") {
+        if (params.get("error") === "recuperar_email") {
             mostrarRecuperar();
-            mostrarAlerta("warning", "Error", "Correo inv\u00e1lido o contrase\u00f1a muy corta (m\u00edn. 8 caracteres).");
+            mostrarAlerta("warning", "Error", "Correo inv\u00e1lido.");
+        }
+
+        if (params.get("error") === "recuperar_corta") {
+            var emailErr = params.get("email") || "";
+            if (emailErr) irAPaso2(emailErr);
+            else mostrarRecuperar();
+            mostrarAlerta("warning", "Error", "La contrase\u00f1a debe tener m\u00ednimo 8 caracteres.");
         }
 
         if (params.get("error") === "recuperar_no_existe") {
             mostrarRecuperar();
             mostrarAlerta("error", "Correo no registrado", "No existe una cuenta con ese correo electr\u00f3nico.");
+        }
+
+        if (params.get("error") === "codigo_incorrecto" || params.get("error") === "codigo_invalido" || params.get("error") === "codigo_vacio") {
+            var emailCode = params.get("email") || "";
+            if (emailCode) irAPaso2(emailCode);
+            else mostrarRecuperar();
+            mostrarAlerta("error", "C\u00f3digo inv\u00e1lido", "El c\u00f3digo ingresado no es correcto.");
+        }
+
+        if (params.get("error") === "codigo_expirado") {
+            mostrarRecuperar();
+            mostrarAlerta("warning", "C\u00f3digo expirado", "El c\u00f3digo ha expirado. Solicita uno nuevo.");
         }
 
         if (params.get("error") === "recuperar_error") {
@@ -245,6 +306,8 @@
             ocultarTodos();
             document.getElementById("recuperar-view").style.display = "block";
             document.getElementById("recuperar-view").style.animation = "slideIn 0.5s ease";
+            document.getElementById("recuperar-paso1").style.display = "block";
+            document.getElementById("recuperar-paso2").style.display = "none";
             loginTab.classList.remove("active");
             registerTab.classList.remove("active");
         }
