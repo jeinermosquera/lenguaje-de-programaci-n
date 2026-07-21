@@ -50,7 +50,6 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
               <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
-              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#cambiarPasswordModal"><i class="bi bi-lock"></i> Cambiar contraseña</a></li>
               <li><a class="dropdown-item" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos <span class="pedidos-notif-badge" style="display:none;background:#dc3545;color:#fff;font-size:0.6rem;font-weight:700;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:50px;padding:0 4px;float:right;">0</span></a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item text-danger" href="#" id="deleteAccountBtn"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
@@ -249,36 +248,21 @@
               <label class="form-label">Correo electrónico</label>
               <input type="email" class="form-control" id="edit-email" required>
             </div>
-            <button type="submit" class="btn btn-gold w-100">Guardar cambios</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== MODAL CAMBIAR CONTRASEÑA ===== -->
-  <div class="modal fade" id="cambiarPasswordModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="border-radius:20px;border:none;padding:1rem;">
-        <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title" style="font-family:var(--font-brand);color:var(--navy);">Cambiar contraseña</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="cambiarPasswordForm">
+            <hr style="border-color:var(--cream);margin:1.2rem 0;">
+            <h6 style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">Cambiar contraseña <small style="font-weight:400;">(dejar en blanco para mantener la actual)</small></h6>
             <div class="mb-3">
               <label class="form-label">Contraseña actual</label>
-              <input type="password" class="form-control" id="pw-actual" required>
+              <input type="password" class="form-control" id="pw-actual" autocomplete="off">
             </div>
             <div class="mb-3">
               <label class="form-label">Nueva contraseña</label>
-              <input type="password" class="form-control" id="pw-nueva" required minlength="8" placeholder="Mínimo 8 caracteres">
+              <input type="password" class="form-control" id="pw-nueva" minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="off">
             </div>
             <div class="mb-3">
               <label class="form-label">Confirmar nueva contraseña</label>
-              <input type="password" class="form-control" id="pw-confirmar" required>
+              <input type="password" class="form-control" id="pw-confirmar" autocomplete="off">
             </div>
-            <button type="submit" class="btn btn-gold w-100">Cambiar contraseña</button>
+            <button type="submit" class="btn btn-gold w-100">Guardar cambios</button>
           </form>
         </div>
       </div>
@@ -504,52 +488,42 @@
         .then(function(u) {
           document.getElementById('edit-name').value = u.nombre || '';
           document.getElementById('edit-email').value = u.email || '';
+          document.getElementById('pw-actual').value = '';
+          document.getElementById('pw-nueva').value = '';
+          document.getElementById('pw-confirmar').value = '';
         });
     });
     document.getElementById('editarPerfilForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      var payload = {
+        nombre: document.getElementById('edit-name').value.trim(),
+        email: document.getElementById('edit-email').value.trim()
+      };
+      var actual = document.getElementById('pw-actual').value;
+      var nueva = document.getElementById('pw-nueva').value;
+      var confirmar = document.getElementById('pw-confirmar').value;
+      if (nueva || confirmar || actual) {
+        if (nueva.length < 8) {
+          Swal.fire({ icon: "warning", title: "Contraseña muy corta", text: "Mínimo 8 caracteres", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          return;
+        }
+        if (nueva !== confirmar) {
+          Swal.fire({ icon: "warning", title: "No coinciden", text: "Las contraseñas no son iguales", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          return;
+        }
+        payload.cambiar_contrasena = true;
+        payload.actual = actual;
+        payload.nueva = nueva;
+      }
       fetch("/api/usuario/editar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre: document.getElementById('edit-name').value.trim(),
-          email: document.getElementById('edit-email').value.trim()
-        })
+        body: JSON.stringify(payload)
       })
       .then(function(r) { return r.json(); })
       .then(function(res) {
         if (res.ok) {
           Swal.fire({ icon: "success", title: "Perfil actualizado", timer: 2000, showConfirmButton: false, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
-          document.querySelector('[data-bs-dismiss="modal"]').click();
-        } else {
-          Swal.fire({ icon: "error", title: "Error", text: res.error, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
-        }
-      });
-    });
-
-    // Cambiar contraseña
-    document.getElementById('cambiarPasswordForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var nueva = document.getElementById('pw-nueva').value;
-      var confirmar = document.getElementById('pw-confirmar').value;
-      if (nueva.length < 8) {
-        Swal.fire({ icon: "warning", title: "Contraseña muy corta", text: "Mínimo 8 caracteres", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
-        return;
-      }
-      if (nueva !== confirmar) {
-        Swal.fire({ icon: "warning", title: "No coinciden", text: "Las contraseñas no son iguales", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
-        return;
-      }
-      fetch("/api/usuario/cambiar-contrasena", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ actual: document.getElementById('pw-actual').value, nueva: nueva })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(res) {
-        if (res.ok) {
-          Swal.fire({ icon: "success", title: "Contraseña actualizada", timer: 2000, showConfirmButton: false, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
-          document.getElementById('cambiarPasswordForm').reset();
           document.querySelector('[data-bs-dismiss="modal"]').click();
         } else {
           Swal.fire({ icon: "error", title: "Error", text: res.error, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });

@@ -459,6 +459,21 @@ def api_editar_usuario():
             return {"error": "El correo ya está en uso"}, 400
 
         cursor.execute("UPDATE usuario SET nombre = %s, correo = %s WHERE id = %s", (nombre, email, usuario_id))
+
+        if data.get("cambiar_contrasena"):
+            actual = data.get("actual", "")
+            nueva = data.get("nueva", "")
+            if not actual:
+                return {"error": "Contraseña actual requerida"}, 400
+            if len(nueva) < 8:
+                return {"error": "La nueva contraseña debe tener mínimo 8 caracteres"}, 400
+            cursor.execute("SELECT contrasena FROM usuario WHERE id = %s", (usuario_id,))
+            row = cursor.fetchone()
+            if not row or not check_password_hash(row[0], actual):
+                return {"error": "Contraseña actual incorrecta"}, 400
+            nuevo_hash = generate_password_hash(nueva)
+            cursor.execute("UPDATE usuario SET contrasena = %s WHERE id = %s", (nuevo_hash, usuario_id))
+
         connection.commit()
 
         session["nombre"] = nombre
