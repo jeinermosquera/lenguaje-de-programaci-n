@@ -15,7 +15,6 @@
         .card-section.active { display: block; }
         .error-msg { color: #ef9a9a; font-size: 0.9rem; text-align: center; margin: 8px 0; }
         .success-msg { color: #a5d6a7; font-size: 0.9rem; text-align: center; margin: 8px 0; }
-        .codigo-display { text-align: center; font-size: 2rem; font-weight: bold; color: #fff; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin: 12px 0; letter-spacing: 8px; }
         .switch-link { text-align: center; margin-top: 20px; color: white; }
         .switch-link a { color: #90caf9; font-weight: bold; cursor: pointer; }
         .strength-bar { height: 4px; border-radius: 4px; margin-top: 4px; transition: all 0.3s; }
@@ -56,7 +55,7 @@
                         <input type="checkbox" name="recordar">
                         <span>Recordarme</span>
                     </label>
-                    <a class="toggle-link" onclick="mostrarSeccion('recuperar-email')">¿Olvidaste tu contraseña?</a>
+
                 </div>
                 <button class="btn waves-effect waves-light btn-login">Iniciar Sesión</button>
                 <div class="divider transparent"></div>
@@ -93,47 +92,6 @@
             </form>
         </div>
 
-        <!-- Recovery Email -->
-        <div class="card-section" id="section-recuperar-email">
-            <h4 class="login-title">Recuperar Contraseña</h4>
-            <p class="login-subtitle">Ingresa tu correo para recibir un código</p>
-            <form action="/enviar-codigo" method="POST">
-                <div class="input-field">
-                    <i class="material-icons prefix">email</i>
-                    <input type="email" name="email" id="rec-email" required>
-                    <label for="rec-email">Correo electrónico</label>
-                </div>
-                <button class="btn waves-effect waves-light btn-login">Enviar Código</button>
-                <div class="divider transparent"></div>
-                <p class="register"><a class="toggle-link" onclick="mostrarSeccion('login')">Volver al inicio de sesión</a></p>
-            </form>
-        </div>
-
-        <!-- Verify Code -->
-        <div class="card-section" id="section-verificar-codigo">
-            <h4 class="login-title">Verificar Código</h4>
-            <p class="login-subtitle">Ingresa el código y tu nueva contraseña</p>
-            <p class="success-msg">Se ha generado un código de verificación.</p>
-            <div class="codigo-display" id="codigo-mostrado"></div>
-            <p class="login-subtitle" style="font-size:0.8rem;">Copia el código de arriba (solo visible en esta pantalla, no hay correo configurado)</p>
-            <form action="/verificar-codigo" method="POST">
-                <input type="hidden" name="email" id="ver-email">
-                <div class="input-field">
-                    <i class="material-icons prefix">vpn_key</i>
-                    <input type="text" name="codigo" id="ver-codigo" required maxlength="6" pattern="[0-9]{6}">
-                    <label for="ver-codigo">Código de 6 dígitos</label>
-                </div>
-                <div class="input-field">
-                    <i class="material-icons prefix">lock</i>
-                    <input type="password" name="password" id="ver-password" required minlength="8">
-                    <label for="ver-password">Nueva contraseña</label>
-                    <i class="material-icons toggle-password" onclick="mostrarPassword('ver-password', this)">visibility</i>
-                </div>
-                <button class="btn waves-effect waves-light btn-login">Cambiar Contraseña</button>
-                <div class="divider transparent"></div>
-                <p class="register"><a class="toggle-link" onclick="mostrarSeccion('login')">Volver al inicio de sesión</a></p>
-            </form>
-        </div>
 
         <div id="mensaje-error" class="error-msg"></div>
     </div>
@@ -169,25 +127,11 @@
 
         var params = new URLSearchParams(window.location.search);
 
-        if (params.get("codigo_enviado") === "ok") {
-            var codigo = params.get("codigo") || "";
-            var email = params.get("email") || "";
-            document.getElementById("codigo-mostrado").textContent = codigo;
-            document.getElementById("ver-email").value = email;
-            mostrarSeccion("verificar-codigo");
-        }
-
         var errors = {
             "credenciales": "Correo o contraseña incorrectos",
             "campos": "Completa todos los campos",
             "email_invalido": "Correo inválido",
             "nombre_invalido": "El nombre debe tener al menos 3 caracteres",
-            "recuperar_email": "Correo inválido",
-            "recuperar_error": "Error al verificar el correo",
-            "recuperar_no_existe": "No existe una cuenta con ese correo",
-            "codigo_vacio": "Ingresa el código de verificación",
-            "recuperar_corta": "La contraseña debe tener al menos 8 caracteres",
-            "codigo_invalido": "Código incorrecto o expirado",
             "register_password": "La contraseña debe tener al menos 8 caracteres",
             "register_email": "El correo ya está registrado"
         };
@@ -199,17 +143,6 @@
         if (params.get("register") === "success" || params.get("ok") === "registrado") {
             document.getElementById("mensaje-error").style.color = "#a5d6a7";
             document.getElementById("mensaje-error").textContent = "Cuenta creada correctamente. Inicia sesión.";
-        }
-        if (params.get("recuperacion") === "exito") {
-            document.getElementById("mensaje-error").style.color = "#a5d6a7";
-            document.getElementById("mensaje-error").textContent = "Contraseña actualizada correctamente. Inicia sesión.";
-            mostrarSeccion("login");
-        }
-
-        if (params.get("error") === "eliminar_fk") {
-            document.getElementById("codigo-mostrado").textContent = codigo;
-            document.getElementById("ver-email").value = email;
-            mostrarSeccion("verificar-codigo");
         }
     </script>
 </body>
