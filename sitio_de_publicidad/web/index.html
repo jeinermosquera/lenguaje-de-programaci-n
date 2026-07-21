@@ -392,7 +392,7 @@
                   '<div class="price">' + precioHtml + '</div>' +
                   '<div style="font-size:0.7rem;color:' + (p.stock > 0 ? '#28a745' : '#999') + ';margin-top:2px;">' + (p.stock > 0 ? (p.stock + ' en stock') : 'Sin stock') + '</div>' +
                 '</a>' +
-                '<button class="btn btn-gold btn-sm w-100 mt-2" onclick="Carrito.agregar({id:' + p.id + ',nombre:\'' + p.nombre.replace(/'/g, "\\'") + '\',precio:' + p.precio + ',precio_rebaja:' + (p.precio_rebaja || 'null') + ',imagen:\'' + p.imagen + '\'});mostrarToastCarrito(\'' + p.nombre.replace(/'/g, "\\'") + '\');">' +
+                '<button class="btn btn-gold btn-sm w-100 mt-2" onclick="Carrito.agregar({id:' + p.id + ',nombre:\'' + p.nombre.replace(/'/g, "\\'") + '\',precio:' + p.precio + ',precio_rebaja:' + (p.precio_rebaja != null && p.precio_rebaja > 0 ? p.precio_rebaja : 'null') + ',imagen:\'' + p.imagen + '\'});mostrarToastCarrito(\'' + p.nombre.replace(/'/g, "\\'") + '\');">' +
                   '<i class="bi bi-cart-plus"></i> Agregar' +
                 '</button>' +
               '</div>' +

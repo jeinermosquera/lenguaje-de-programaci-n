@@ -17,10 +17,14 @@ var Carrito = {
     if (idx >= 0) {
       items[idx].cantidad += cantidad;
     } else {
+      var precioFinal = producto.precio;
+      if (producto.precio_rebaja != null && producto.precio_rebaja > 0) {
+        precioFinal = producto.precio_rebaja;
+      }
       items.push({
         id: producto.id,
         nombre: producto.nombre,
-        precio: producto.precio_rebaja || producto.precio,
+        precio: precioFinal,
         imagen: producto.imagen,
         cantidad: cantidad
       });
