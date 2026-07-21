@@ -124,7 +124,7 @@
 
         function notificar(icono, titulo, texto) {
             if (typeof Swal !== "undefined") {
-                Swal.fire({ icon: icono, title: titulo, text: texto, confirmButtonColor: "#c9960e", toast: true, position: "top", timer: 4000, showConfirmButton: false });
+                Swal.fire({ icon: icono, title: titulo, text: texto, confirmButtonColor: "#c9960e", confirmButtonText: "Continuar", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", htmlContainer: "swal-brand-text", confirmButton: "swal-brand-confirm", icon: "swal-brand-icon" } });
             }
         }
 
