@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import json
 from dotenv import load_dotenv
-from flask import Flask, redirect, request, send_from_directory, session
+from flask import Flask, redirect, request, send_from_directory, session, jsonify
 from werkzeug.utils import secure_filename
 
 load_dotenv()
@@ -259,51 +259,59 @@ def register():
 
     return redirect("/dashboard?register=success")
 
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_LOCKOUT_SECONDS = 30
+
 @app.route("/login", methods=["POST"])
 def login():
     """Autentica usuario contra BD, inicia sesión y redirige a dashboard o admin."""
 
+    now = time.time()
+    intentos = session.get("login_attempts", 0)
+    bloqueado_hasta = session.get("login_locked_until", 0)
+
+    if bloqueado_hasta > now:
+        segundos_restantes = int(bloqueado_hasta - now) + 1
+        return redirect(f"/?error=bloqueado&segundos={segundos_restantes}")
+
     email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
+    exito = False
 
     try:
-
         connection = get_connection()
-
         cursor = connection.cursor(dictionary=True)
 
-        query = """
-        SELECT id, nombre, contrasena
-        FROM usuario
-        WHERE correo = %s
-        """
-
-        cursor.execute(query, (email,))
-
+        cursor.execute("SELECT id, nombre, contrasena FROM usuario WHERE correo = %s", (email,))
         user = cursor.fetchone()
 
-        if not user:
-            return redirect("/?error=credenciales")
-
-        if not check_password_hash(user["contrasena"], password):
-            return redirect("/?error=credenciales")
+        if user and check_password_hash(user["contrasena"], password):
+            exito = True
+        else:
+            intentos += 1
+            session["login_attempts"] = intentos
+            if intentos >= MAX_LOGIN_ATTEMPTS:
+                session["login_locked_until"] = now + LOGIN_LOCKOUT_SECONDS
+                session["login_attempts"] = 0
+                return redirect(f"/?error=bloqueado&segundos={LOGIN_LOCKOUT_SECONDS}")
+            return redirect(f"/?error=credenciales&intentos={MAX_LOGIN_ATTEMPTS - intentos}")
 
     except Error as error:
         print(error)
         return f"Error MySQL: {error}", 500
-
     finally:
-        if "cursor" in locals():
-            cursor.close()
+        if "cursor" in locals(): cursor.close()
+        if "connection" in locals() and connection.is_connected(): connection.close()
 
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+    if not exito:
+        return redirect("/?error=credenciales")
 
-    # guardar sesión
     session["logueado"] = True
     session["usuario_id"] = user["id"]
     session["nombre"] = user["nombre"]
     session["admin"] = (email == ADMIN_EMAIL)
+    session["login_attempts"] = 0
+    session["login_locked_until"] = 0
 
     if session["admin"]:
         return redirect("/admin?login=success")
@@ -1091,6 +1099,36 @@ def admin_eliminar_producto(producto_id):
             connection.close()
 
     return redirect("/admin?ok=eliminado")
+
+@app.route("/recuperar-contrasena", methods=["POST"])
+def recuperar_contrasena():
+    """Permite al usuario cambiar su contraseña verificando el correo."""
+    email = request.form.get("email", "").strip().lower()
+    nueva = request.form.get("password", "")
+
+    if not email or "@" not in email:
+        return redirect("/?error=recuperar_email")
+    if len(nueva) < 8:
+        return redirect("/?error=recuperar_corta")
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT id FROM usuario WHERE correo = %s", (email,))
+        user = cursor.fetchone()
+        if not user:
+            return redirect("/?error=recuperar_no_existe")
+        nueva_hash = generate_password_hash(nueva)
+        cursor.execute("UPDATE usuario SET contrasena = %s WHERE id = %s", (nueva_hash, user["id"]))
+        connection.commit()
+    except Error as error:
+        print(error)
+        return redirect("/?error=recuperar_error")
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "connection" in locals() and connection.is_connected(): connection.close()
+
+    return redirect("/?recuperacion=exito")
 
 @app.route("/logout")
 def logout():

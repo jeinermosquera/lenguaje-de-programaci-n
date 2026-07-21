@@ -279,6 +279,7 @@ body.page-exit { opacity: 0; transition: opacity 0.25s ease; }
     border-radius: 50px;
     transition: width 0.2s ease, background 0.2s ease;
   }
+  #recuperar-view .form-body { padding:0.5rem 0; }
   .password-strength-text {
     font-size: 0.75rem;
     margin-top: 2px;
