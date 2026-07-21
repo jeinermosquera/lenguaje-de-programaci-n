@@ -274,18 +274,16 @@
           '<li><i class="bi bi-info-circle-fill"></i> ' + e + '</li>'
         ).join('');
 
-        function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
         document.getElementById('producto-contenedor').innerHTML = `
           <div class="col-lg-6">
             <div class="product-detail-image" style="position:relative;">
-              <img src="/site/img/${esc(producto.imagen)}" alt="${esc(producto.nombre)}" loading="lazy">
+              <img src="/site/img/${producto.imagen}" alt="${producto.nombre}" loading="lazy">
               ${producto.en_rebaja ? '<span class="badge bg-danger" style="position:absolute;top:16px;right:16px;border-radius:50px;font-size:0.9rem;padding:0.5rem 1rem;">En rebaja</span>' : ''}
             </div>
           </div>
           <div class="col-lg-6">
             <span class="catalog-eyebrow">Detalle del producto</span>
-            <h1 class="detail-title">${esc(producto.nombre)}</h1>
+            <h1 class="detail-title">${producto.nombre}</h1>
             <div class="detail-price">${precioHtml}</div>
             <div class="detail-availability">${disponibleHtml}${stockHtml}</div>
             <p class="detail-description">${producto.descripcion}</p>

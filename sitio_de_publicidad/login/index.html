@@ -125,17 +125,17 @@
                         <div class="form-body">
                             <div class="mb-3">
                                 <label for="register-name" class="form-label">Nombre completo</label>
-                                <input type="text" required placeholder="Tu nombre completo" id="register-name" name="nombre" class="form-control">
+                                <input type="text" required placeholder="Tu nombre completo" id="register-name" name="full_name" class="form-control">
                             </div>
 
                             <div class="mb-3">
                                 <label for="register-email" class="form-label">Correo electrónico</label>
-                                <input type="email" required placeholder="ejemplo@correo.com" id="register-email" name="correo" class="form-control" autocomplete="off">
+                                <input type="email" required placeholder="ejemplo@correo.com" id="register-email" name="email" class="form-control" autocomplete="off">
                             </div>
 
                             <div class="mb-3 position-relative">
                                 <label for="register-password" class="form-label">Contraseña</label>
-                                <input type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" id="register-password" name="contrasena" class="form-control" oninput="medirFortalezaContrasena(this.value)">
+                                <input type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" id="register-password" name="password" class="form-control" oninput="medirFortalezaContrasena(this.value)">
                                 <i class="bi bi-eye password-toggle" id="toggle-register-password" onclick="togglePassword('register-password', this)"></i>
                                 <div class="password-strength-bar mt-2">
                                     <div class="password-strength-fill" id="password-strength-fill"></div>
@@ -382,24 +382,9 @@
             mostrarAlerta("warning", "Correo ya registrado", "Ya existe una cuenta con ese correo electrónico.");
         }
 
-        if (params.get("error") === "nombre_invalido") {
-            showRegister();
-            mostrarAlerta("warning", "Nombre inválido", "El nombre debe tener al menos 3 caracteres.");
-        }
-
-        if (params.get("error") === "email_invalido") {
-            showRegister();
-            mostrarAlerta("warning", "Correo inválido", "Ingresa un correo electrónico válido.");
-        }
-
         if (params.get("error") === "password_corta") {
             showRegister();
             mostrarAlerta("warning", "Contraseña muy corta", "La contraseña debe tener mínimo 8 caracteres.");
-        }
-
-        if (params.get("error") === "password_no_coinciden") {
-            showRegister();
-            mostrarAlerta("warning", "Contraseñas no coinciden", "Verifica que ambas contraseñas sean iguales.");
         }
     </script>
 </body>

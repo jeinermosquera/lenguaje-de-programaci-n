@@ -4,11 +4,8 @@ import os
 import json
 import random
 import time
-import hashlib
-import hmac
-from functools import wraps
 from dotenv import load_dotenv
-from flask import Flask, redirect, request, send_from_directory, session, jsonify, make_response
+from flask import Flask, redirect, request, send_from_directory, session, jsonify
 from werkzeug.utils import secure_filename
 
 load_dotenv()
@@ -39,61 +36,15 @@ STATIC_DIR = BASE_DIR / "static"
 
 # crear la app de Flask
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "clave_super_secreta")
+app.secret_key = "clave_super_secreta"
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
-app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-if os.getenv("FLASK_ENV") == "production":
-    app.config["SESSION_COOKIE_SECURE"] = True
-    app.config["PREFERRED_URL_SCHEME"] = "https"
-
-def csrf_token():
-    """Genera o retorna el token CSRF de la sesión actual."""
-    if "csrf_token" not in session:
-        session["csrf_token"] = hashlib.sha256(os.urandom(32)).hexdigest()
-    return session["csrf_token"]
-
-def csrf_required(f):
-    """Decorador que valida token CSRF en POST/PUT/DELETE requests.
-    Busca el token en: header X-CSRF-Token, form field csrf_token, o JSON body csrf_token."""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
-            token = request.headers.get("X-CSRF-Token") or request.form.get("csrf_token") or (request.get_json(silent=True) or {}).get("csrf_token")
-            expected = session.get("csrf_token")
-            if not expected or not hmac.compare_digest(str(token or ""), str(expected)):
-                if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                    return {"error": "CSRF token inválido"}, 403
-                return redirect("/?error=csrf_invalido")
-        return f(*args, **kwargs)
-    return decorated
 
 def inicializar_base_datos():
-    """Crea todas las tablas necesarias si no existen."""
+    """Crea las tablas usuario, producto, pedido, detalle_pedido y contacto si no existen.
+    Agrega columnas precio_rebaja, stock y costo_envio si faltan."""
     try:
         connection = get_connection()
         cursor = connection.cursor()
-
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS login_attempt (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                ip_address VARCHAR(45) NOT NULL,
-                attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_ip (ip_address),
-                INDEX idx_time (attempted_at)
-            )
-        """)
-
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS carrito (
-                usuario_id INT NOT NULL,
-                producto_id INT NOT NULL,
-                cantidad INT NOT NULL DEFAULT 1,
-                PRIMARY KEY (usuario_id, producto_id),
-                FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
-                FOREIGN KEY (producto_id) REFERENCES producto(id) ON DELETE CASCADE
-            )
-        """)
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS usuario (
@@ -259,18 +210,7 @@ def static_img(filename):
     """Sirve imágenes estáticas desde static/img/ (ruta opcional)."""
     return send_from_directory(STATIC_DIR / "img", filename)
 
-@app.route("/api/csrf-token")
-def api_csrf_token():
-    """Retorna el token CSRF actual."""
-    return {"csrf_token": csrf_token()}
-
-@app.route("/api/stripe-key")
-def api_stripe_key():
-    """Retorna la llave publicable de Stripe (nunca la secreta)."""
-    return {"publishable_key": STRIPE_PUBLISHABLE_KEY}
-
 @app.route("/register", methods=["POST"])
-@csrf_required
 def register():
     """Registra un nuevo usuario, hashea la contraseña, inicia sesión y redirige."""
 
@@ -286,10 +226,6 @@ def register():
 
     if len(password) < 8:
         return redirect("/?error=password_corta")
-
-    confirm_password = request.form.get("confirm_password", "")
-    if password != confirm_password:
-        return redirect("/?error=password_no_coinciden")
 
     password_hash = generate_password_hash(password)
 
@@ -338,29 +274,10 @@ MAX_LOGIN_ATTEMPTS = 5
 LOGIN_LOCKOUT_SECONDS = 30
 
 @app.route("/login", methods=["POST"])
-@csrf_required
 def login():
-    """Autentica usuario contra BD con rate limiting por IP + sesión."""
+    """Autentica usuario contra BD, inicia sesión y redirige a dashboard o admin."""
 
-    ip = request.remote_addr or "127.0.0.1"
     now = time.time()
-    ventana = 300  # 5 minutos
-
-    # Rate limiting por IP (BD)
-    try:
-        conn_limit = get_connection()
-        cur_limit = conn_limit.cursor(dictionary=True)
-        cur_limit.execute("SELECT COUNT(*) AS total FROM login_attempt WHERE ip_address = %s AND attempted_at > DATE_SUB(NOW(), INTERVAL 5 MINUTE)", (ip,))
-        ip_intentos = cur_limit.fetchone()["total"]
-        if ip_intentos >= MAX_LOGIN_ATTEMPTS:
-            return redirect(f"/?error=bloqueado&segundos=300")
-    except Error:
-        pass
-    finally:
-        if "cur_limit" in locals(): cur_limit.close()
-        if "conn_limit" in locals() and conn_limit.is_connected(): conn_limit.close()
-
-    # Rate limiting por sesión
     intentos = session.get("login_attempts", 0)
     bloqueado_hasta = session.get("login_locked_until", 0)
 
@@ -397,31 +314,8 @@ def login():
         if "cursor" in locals(): cursor.close()
         if "connection" in locals() and connection.is_connected(): connection.close()
 
-    # Registrar intento fallido en BD (si no fue éxito)
     if not exito:
-        try:
-            conn_log = get_connection()
-            cur_log = conn_log.cursor()
-            cur_log.execute("INSERT INTO login_attempt (ip_address) VALUES (%s)", (ip,))
-            conn_log.commit()
-        except Error:
-            pass
-        finally:
-            if "cur_log" in locals(): cur_log.close()
-            if "conn_log" in locals() and conn_log.is_connected(): conn_log.close()
         return redirect("/?error=credenciales")
-
-    # Limpiar intentos previos en BD tras login exitoso
-    try:
-        conn_clear = get_connection()
-        cur_clear = conn_clear.cursor()
-        cur_clear.execute("DELETE FROM login_attempt WHERE ip_address = %s", (ip,))
-        conn_clear.commit()
-    except Error:
-        pass
-    finally:
-        if "cur_clear" in locals(): cur_clear.close()
-        if "conn_clear" in locals() and conn_clear.is_connected(): conn_clear.close()
 
     session["logueado"] = True
     session["usuario_id"] = user["id"]
@@ -532,7 +426,6 @@ def usuario():
 # ===== GESTIÓN DE CUENTA =====
 
 @app.route("/api/usuario/editar", methods=["POST"])
-@csrf_required
 def api_editar_usuario():
     """Actualiza nombre y correo del usuario logueado. Verifica que el correo no esté en uso."""
     if "logueado" not in session:
@@ -575,7 +468,6 @@ def api_editar_usuario():
             connection.close()
 
 @app.route("/api/usuario/cambiar-contrasena", methods=["POST"])
-@csrf_required
 def api_cambiar_contrasena():
     """Cambia la contraseña del usuario verificando la actual primero."""
     if "logueado" not in session:
@@ -618,7 +510,6 @@ def api_cambiar_contrasena():
             connection.close()
 
 @app.route("/api/usuario/eliminar", methods=["POST"])
-@csrf_required
 def api_eliminar_usuario():
     """Elimina la cuenta del usuario y todos sus pedidos asociados."""
     if "logueado" not in session:
@@ -673,7 +564,6 @@ def pedido_fallido():
     return send_from_directory(SITE_DIR, "pedido-fallido.html")
 
 @app.route("/api/checkout", methods=["POST"])
-@csrf_required
 def api_checkout():
     """Crea PaymentIntent en Stripe + pedido en BD con items y descuento de stock."""
     if "logueado" not in session:
@@ -702,21 +592,16 @@ def api_checkout():
         costo_envio = 0
         items_validados = []
 
-        connection.start_transaction()
-
-        items_validados = []
         for item in items_data:
-            cursor.execute("SELECT id, precio, precio_rebaja, stock, nombre FROM producto WHERE id = %s AND disponible = 1 FOR UPDATE", (item["id"],))
+            cursor.execute("SELECT id, precio, precio_rebaja, stock, nombre FROM producto WHERE id = %s AND disponible = 1", (item["id"],))
             prod = cursor.fetchone()
             if not prod:
-                connection.rollback()
                 return {"error": f"Producto ID {item['id']} no encontrado o no disponible"}, 400
             precio_real = prod["precio_rebaja"] if prod["precio_rebaja"] and prod["precio_rebaja"] > 0 else prod["precio"]
             cantidad = int(item.get("cantidad", 1))
             if cantidad < 1:
                 cantidad = 1
             if prod["stock"] < cantidad:
-                connection.rollback()
                 return {"error": f"Stock insuficiente para {prod['nombre']}"}, 400
             subtotal = precio_real * cantidad
             total_calculado += subtotal
@@ -733,6 +618,7 @@ def api_checkout():
             automatic_payment_methods={"enabled": True},
         )
 
+        cursor = connection.cursor(dictionary=False)
         cursor.execute("""
             INSERT INTO pedido (usuario_id, referencia, total, costo_envio, estado, nombre, email, telefono, direccion)
             VALUES (%s, %s, %s, %s, 'pendiente', %s, %s, %s, %s)
@@ -744,8 +630,8 @@ def api_checkout():
                 INSERT INTO detalle_pedido (pedido_id, producto_id, nombre_producto, precio, cantidad)
                 VALUES (%s, %s, (SELECT nombre FROM producto WHERE id = %s), (SELECT COALESCE(precio_rebaja, precio) FROM producto WHERE id = %s), %s)
             """, (pedido_id, item["id"], item["id"], item["id"], item["cantidad"]))
-            cursor.execute("UPDATE producto SET stock = stock - %s WHERE id = %s",
-                           (item["cantidad"], item["id"]))
+            cursor.execute("UPDATE producto SET stock = stock - %s WHERE id = %s AND stock >= %s",
+                           (item["cantidad"], item["id"], item["cantidad"]))
 
         connection.commit()
 
@@ -841,57 +727,7 @@ def api_mis_pedidos():
 
     return pedidos
 
-# ===== CARRITO SERVER-SIDE =====
-
-@app.route("/api/carrito", methods=["GET", "POST"])
-@csrf_required
-def api_carrito():
-    """GET: retorna items del carrito del usuario. POST: recibe {items: [{id, cantidad}]} y reemplaza."""
-    if "logueado" not in session:
-        return {"error": "No autorizado"}, 401
-    usuario_id = session["usuario_id"]
-
-    if request.method == "GET":
-        try:
-            connection = get_connection()
-            cursor = connection.cursor(dictionary=True)
-            cursor.execute("""
-                SELECT p.id, p.nombre, p.imagen, COALESCE(p.precio_rebaja, p.precio) AS precio, c.cantidad
-                FROM carrito c JOIN producto p ON c.producto_id = p.id
-                WHERE c.usuario_id = %s AND p.disponible = 1
-            """, (usuario_id,))
-            items = cursor.fetchall()
-        except Error:
-            return {"items": []}
-        finally:
-            if "cursor" in locals(): cursor.close()
-            if "connection" in locals() and connection.is_connected(): connection.close()
-        return {"items": items}
-
-    data = request.get_json()
-    if not data or "items" not in data:
-        return {"error": "Datos inválidos"}, 400
-
-    try:
-        connection = get_connection()
-        cursor = connection.cursor()
-        cursor.execute("DELETE FROM carrito WHERE usuario_id = %s", (usuario_id,))
-        for item in data["items"]:
-            pid = int(item.get("id", 0))
-            cant = max(1, int(item.get("cantidad", 1)))
-            cursor.execute("INSERT INTO carrito (usuario_id, producto_id, cantidad) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE cantidad = %s",
-                           (usuario_id, pid, cant, cant))
-        connection.commit()
-    except Error:
-        return {"error": "Error al sincronizar carrito"}, 500
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "connection" in locals() and connection.is_connected(): connection.close()
-
-    return {"ok": True}
-
 @app.route("/admin/api/pedidos/estado/<int:pedido_id>", methods=["POST"])
-@csrf_required
 def admin_actualizar_estado(pedido_id):
     """Cambia el estado de un pedido (admin only). Estados válidos: pendiente, enviado, entregado, cancelado."""
     if "logueado" not in session or not session.get("admin"):
@@ -918,7 +754,6 @@ def admin_actualizar_estado(pedido_id):
     return {"ok": True}
 
 @app.route("/enviar-contacto", methods=["POST"])
-@csrf_required
 def enviar_contacto():
     """Guarda mensaje del formulario de contacto en BD y redirige."""
     if "logueado" not in session:
@@ -998,7 +833,6 @@ def admin_api_productos():
     return [producto_db_a_dict(r) for r in rows]
 
 @app.route("/admin/productos/agregar", methods=["POST"])
-@csrf_required
 def admin_agregar_producto():
     """Crea un nuevo producto con imagen subida. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
@@ -1196,7 +1030,6 @@ def admin_api_dashboard():
         if "connection" in locals() and connection.is_connected(): connection.close()
 
 @app.route("/admin/productos/toggle/<int:producto_id>", methods=["POST"])
-@csrf_required
 def admin_toggle_producto(producto_id):
     """Activa/desactiva la disponibilidad de un producto. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
@@ -1206,10 +1039,9 @@ def admin_toggle_producto(producto_id):
     if disponible is not None:
         nuevo = 1 if disponible == "1" else 0
     else:
-        conn = None
         try:
-            conn = get_connection()
-            cursor = conn.cursor()
+            connection = get_connection()
+            cursor = connection.cursor()
             cursor.execute("SELECT disponible FROM producto WHERE id = %s", (producto_id,))
             row = cursor.fetchone()
             if not row:
@@ -1219,25 +1051,23 @@ def admin_toggle_producto(producto_id):
             return {"error": str(error)}, 500
         finally:
             if "cursor" in locals(): cursor.close()
-            if conn and conn.is_connected(): conn.close()
+            if "connection" in locals() and connection.is_connected(): connection.close()
 
-    conn = None
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
+        connection = get_connection()
+        cursor = connection.cursor()
         cursor.execute("UPDATE producto SET disponible = %s WHERE id = %s", (nuevo, producto_id))
-        conn.commit()
+        connection.commit()
         return {"ok": True, "disponible": bool(nuevo)}
     except Error as error:
         return {"error": str(error)}, 500
     finally:
         if "cursor" in locals():
             cursor.close()
-        if conn and conn.is_connected():
-            conn.close()
+        if "connection" in locals() and connection.is_connected():
+            connection.close()
 
 @app.route("/admin/productos/editar/<int:producto_id>", methods=["POST"])
-@csrf_required
 def admin_editar_producto(producto_id):
     """Edita precio, precio_rebaja y stock de un producto. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
@@ -1275,16 +1105,14 @@ def admin_editar_producto(producto_id):
     return redirect("/admin?ok=editado")
 
 @app.route("/admin/productos/eliminar/<int:producto_id>", methods=["POST"])
-@csrf_required
 def admin_eliminar_producto(producto_id):
     """Elimina un producto y su archivo de imagen del servidor. Solo admin."""
     if "logueado" not in session or not session.get("admin"):
         return redirect("/dashboard")
 
-    conn = None
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
+        connection = get_connection()
+        cursor = connection.cursor()
         cursor.execute("SELECT imagen FROM producto WHERE id = %s", (producto_id,))
         row = cursor.fetchone()
         if row:
@@ -1294,17 +1122,16 @@ def admin_eliminar_producto(producto_id):
                 ruta_imagen.unlink()
         cursor.execute("UPDATE detalle_pedido SET producto_id = NULL WHERE producto_id = %s", (producto_id,))
         cursor.execute("DELETE FROM producto WHERE id = %s", (producto_id,))
-        conn.commit()
+        connection.commit()
     except Error as error:
         print(error)
-        if conn:
-            conn.rollback()
+        connection.rollback()
         return redirect("/admin?error=eliminar_fk")
     finally:
         if "cursor" in locals():
             cursor.close()
-        if conn and conn.is_connected():
-            conn.close()
+        if "connection" in locals() and connection.is_connected():
+            connection.close()
 
     return redirect("/admin?ok=eliminado")
 

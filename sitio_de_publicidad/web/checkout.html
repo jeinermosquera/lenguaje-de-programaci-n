@@ -191,8 +191,6 @@
       setTimeout(function() { window.location.replace(url); }, 300);
     }
 
-    function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
     var COSTO_ENVIO = 5000;
     var ENVIO_GRATIS_MIN = 150000;
 
@@ -220,9 +218,9 @@
         var item = items[i];
         subtotal += item.precio * item.cantidad;
         html += '<li class="summary-item">' +
-          '<img src="/site/img/' + esc(item.imagen) + '" alt="' + esc(item.nombre) + '" loading="lazy" />' +
+          '<img src="/site/img/' + item.imagen + '" alt="' + item.nombre + '" loading="lazy" />' +
           '<div class="summary-item-info">' +
-          '<span class="summary-item-name">' + esc(item.nombre) + '</span>' +
+          '<span class="summary-item-name">' + item.nombre + '</span>' +
           '<span class="summary-item-qty">Cant: ' + item.cantidad + '</span></div>' +
           '<span class="summary-item-price">' + formatearPrecio(item.precio * item.cantidad) + '</span></li>';
       }
@@ -295,43 +293,29 @@
       document.getElementById('checkoutSteps').classList.remove('has-completed');
     }
 
-    var csrfToken = "";
-    fetch('/api/csrf-token').then(function(r) { return r.json(); }).then(function(d) { csrfToken = d.csrf_token || ""; });
+    // Stripe
+    var stripe = Stripe('pk_test_51TtqTFRpOVPy2kqfNJXgGC8eAZi9LTqWBzZd1lThTvFhTuIIGvJMvpeXU46Qhj70oi9uiiqDeUTimMuDvleJLVrt00G9MK1NiS');
+    var elements = stripe.elements();
 
-    var stripePublishableKey = 'pk_test_51TtqTFRpOVPy2kqfNJXgGC8eAZi9LTqWBzZd1lThTvFhTuIIGvJMvpeXU46Qhj70oi9uiiqDeUTimMuDvleJLVrt00G9MK1NiS';
-    fetch('/api/stripe-key').then(function(r) { return r.json(); }).then(function(d) {
-      if (d.publishable_key && d.publishable_key.indexOf('placeholder') === -1) {
-        stripePublishableKey = d.publishable_key;
-      }
-      iniciarStripe();
-    }).catch(function() { iniciarStripe(); });
+    var style = {
+      base: { fontSize: '15px', fontFamily: 'Poppins, sans-serif', color: '#1c2e4a', fontSmoothing: 'antialiased', '::placeholder': { color: '#bbb' } },
+      invalid: { color: '#dc3545' }
+    };
 
-    var stripe, elements, cardNumber, cardExpiry, cardCvc;
+    var cardNumber = elements.create('cardNumber', { style: style, placeholder: '4242 4242 4242 4242' });
+    var cardExpiry = elements.create('cardExpiry', { style: style });
+    var cardCvc = elements.create('cardCvc', { style: style, placeholder: '123' });
 
-    function iniciarStripe() {
-      stripe = Stripe(stripePublishableKey);
-      elements = stripe.elements();
+    cardNumber.mount('#card-number');
+    cardExpiry.mount('#card-expiry');
+    cardCvc.mount('#card-cvc');
 
-      var style = {
-        base: { fontSize: '15px', fontFamily: 'Poppins, sans-serif', color: '#1c2e4a', fontSmoothing: 'antialiased', '::placeholder': { color: '#bbb' } },
-        invalid: { color: '#dc3545' }
-      };
-
-      cardNumber = elements.create('cardNumber', { style: style, placeholder: '4242 4242 4242 4242' });
-      cardExpiry = elements.create('cardExpiry', { style: style });
-      cardCvc = elements.create('cardCvc', { style: style, placeholder: '123' });
-
-      cardNumber.mount('#card-number');
-      cardExpiry.mount('#card-expiry');
-      cardCvc.mount('#card-cvc');
-
-      function stripeErrorHandler(ev) {
-        document.getElementById('card-errors').textContent = ev.error ? ev.error.message : '';
-      }
-      cardNumber.addEventListener('change', stripeErrorHandler);
-      cardExpiry.addEventListener('change', stripeErrorHandler);
-      cardCvc.addEventListener('change', stripeErrorHandler);
+    function stripeErrorHandler(ev) {
+      document.getElementById('card-errors').textContent = ev.error ? ev.error.message : '';
     }
+    cardNumber.addEventListener('change', stripeErrorHandler);
+    cardExpiry.addEventListener('change', stripeErrorHandler);
+    cardCvc.addEventListener('change', stripeErrorHandler);
 
     document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -358,15 +342,14 @@
         direccion: document.getElementById('direccion').value.trim(),
         items: items.map(function(it) { return { id: it.id, cantidad: it.cantidad, precio: it.precio, nombre: it.nombre }; }),
         total: total,
-        costo_envio: envio,
-        csrf_token: csrfToken
+        costo_envio: envio
       };
 
       try {
         var backupUser = localStorage.getItem("apomat_carrito_user") || "0";
         localStorage.setItem("apomat_carrito_backup_" + backupUser, JSON.stringify(items));
         var resp = await fetch('/api/checkout', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, 'X-Requested-With': 'XMLHttpRequest' }, body: JSON.stringify(payload)
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
         });
         var data = await resp.json();
 
