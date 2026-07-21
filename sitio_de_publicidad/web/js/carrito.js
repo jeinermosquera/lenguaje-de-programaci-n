@@ -180,4 +180,40 @@ document.addEventListener("DOMContentLoaded", function () {
       Carrito.actualizarBadge();
       Carrito.renderizarOffcanvas();
     });
+
+  // Notificacion de cambio de estado de pedidos
+  function actualizarNotifPedidos() {
+    if (window.location.pathname === "/mis-pedidos") {
+      localStorage.removeItem("apomat_pedidos_estado");
+      document.querySelectorAll(".pedidos-notif-badge").forEach(function(b) { b.style.display = "none"; });
+      return;
+    }
+    fetch('/api/mis-pedidos?t=' + Date.now(), { cache: 'no-store' })
+      .then(function(r) { if (r.status === 401) return null; return r.json(); })
+      .then(function(data) {
+        if (!data || !Array.isArray(data) || data.length === 0) return;
+        var prev = JSON.parse(localStorage.getItem("apomat_pedidos_estado") || "{}");
+        var current = {};
+        var cambios = 0;
+        for (var i = 0; i < data.length; i++) {
+          var p = data[i];
+          current[p.referencia] = p.estado;
+          if (prev[p.referencia] && prev[p.referencia] !== p.estado) {
+            cambios++;
+          }
+        }
+        localStorage.setItem("apomat_pedidos_estado", JSON.stringify(current));
+        document.querySelectorAll(".pedidos-notif-badge").forEach(function(b) {
+          if (cambios > 0) {
+            b.textContent = cambios;
+            b.style.display = "inline-block";
+          } else {
+            b.style.display = "none";
+          }
+        });
+      })
+      .catch(function() {});
+  }
+  actualizarNotifPedidos();
+  setInterval(actualizarNotifPedidos, 30000);
 });

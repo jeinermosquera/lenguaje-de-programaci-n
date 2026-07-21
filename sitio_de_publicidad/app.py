@@ -118,6 +118,11 @@ def inicializar_base_datos():
         except:
             pass
 
+        try:
+            cursor.execute("ALTER TABLE pedido ADD COLUMN updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+        except:
+            pass
+
 
 
     except Error as error:
