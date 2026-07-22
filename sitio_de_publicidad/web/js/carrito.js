@@ -141,7 +141,7 @@ var Carrito = {
     html +=
       '<div class="cart-footer">' +
       '<div class="cart-total"><span>Total</span><span>' + this.formatearPrecio(this.getTotal()) + '</span></div>' +
-      '<a href="/checkout" class="btn btn-gold w-100">Ir a pagar</a>' +
+      '<a href="/pago" class="btn btn-gold w-100">Ir a pagar</a>' +
       '</div>';
     container.innerHTML = html;
   }

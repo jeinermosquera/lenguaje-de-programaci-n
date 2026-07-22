@@ -560,13 +560,13 @@ def api_eliminar_usuario():
 
 # Stripe ya está importado arriba
 
-@app.route("/checkout")
-def checkout():
-    """Sirve web/checkout.html (página de pago con Stripe). Requiere sesión."""
+@app.route("/pago")
+def pago():
+    """Sirve web/pago.html (página de pago con Stripe). Requiere sesión."""
     if "logueado" not in session:
         return redirect("/")
 
-    return send_from_directory(SITE_DIR, "checkout.html")
+    return send_from_directory(SITE_DIR, "pago.html")
 
 @app.route("/pedido-exitoso")
 def pedido_exitoso():
@@ -584,8 +584,8 @@ def pedido_fallido():
 
     return send_from_directory(SITE_DIR, "pedido-fallido.html")
 
-@app.route("/api/checkout", methods=["POST"])
-def api_checkout():
+@app.route("/api/pago", methods=["POST"])
+def api_pago():
     """Crea PaymentIntent en Stripe + pedido en BD con items y descuento de stock."""
     if "logueado" not in session:
         return {"error": "No autorizado"}, 401

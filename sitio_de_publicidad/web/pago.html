@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <link rel="icon" type="image/png" href="/site/favicon/favico-32x32.png">
-  <link rel="stylesheet" href="/site/css/checkout.css" />
+  <link rel="stylesheet" href="/site/css/pago.css" />
 </head>
 <body>
 
@@ -335,7 +335,7 @@
       try {
         var backupUser = localStorage.getItem("apomat_carrito_user") || "0";
         localStorage.setItem("apomat_carrito_backup_" + backupUser, JSON.stringify(items));
-        var resp = await fetch('/api/checkout', {
+        var resp = await fetch('/api/pago', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
         });
         var data = await resp.json();

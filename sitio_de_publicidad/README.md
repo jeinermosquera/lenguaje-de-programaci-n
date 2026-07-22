@@ -14,13 +14,13 @@ Plataforma web de comercio electrónico para la venta de difusores de aroma arte
 - **Base de datos:** MySQL (`jeiner_db` en `127.0.0.1`, usuario `root`)
 
 ### Frontend
-- **HTML5 + CSS3** — 8 páginas: login, dashboard, productos, detalle, checkout, mis pedidos, éxito, fallo
+- **HTML5 + CSS3** — 8 páginas: login, dashboard, productos, detalle, pago, mis pedidos, éxito, fallo
 - **Bootstrap 5.3.3** (CDN) — sistema de grillas, navbar, offcanvas, modales, dropdowns
 - **Bootstrap Icons 1.11.3** (CDN)
 - **Google Fonts** — Cormorant Garamond (títulos) + Poppins (cuerpo)
 - **SweetAlert2** (CDN) — notificaciones toast, confirmaciones, alertas
 - **Stripe.js v3** — Elements (campo de tarjeta embebido) + confirmCardPayment
-- **CSS propio** — modular en `web/css/` (style.css, productos.css, checkout.css, admin.css, mis-pedidos.css, pedido-exitoso.css, pedido-fallido.css)
+- **CSS propio** — modular en `web/css/` (style.css, productos.css, pago.css, admin.css, mis-pedidos.css, pedido-exitoso.css, pedido-fallido.css)
 - **JavaScript propio** — `web/js/carrito.js` (objeto `Carrito` con localStorage)
 
 ### Entorno
@@ -45,7 +45,7 @@ sitio_de_publicidad/
 │   ├── index.html           # Dashboard / inicio
 │   ├── productos.html       # Catálogo de productos
 │   ├── producto.html        # Detalle individual
-│   ├── checkout.html        # Pago con Stripe Elements
+│   ├── pago.html              # Pago con Stripe Elements
 │   ├── mis-pedidos.html     # Historial del usuario
 │   ├── pedido-exitoso.html  # Confirmación de pago
 │   ├── pedido-fallido.html  # Pago rechazado
@@ -53,7 +53,7 @@ sitio_de_publicidad/
 │   ├── css/                 # Estilos modulares
 │   │   ├── style.css        # Global (navbar, hero, cards, footer, carrito, etc.)
 │   │   ├── productos.css    # Catálogo
-│   │   ├── checkout.css     # Checkout
+│   │   ├── pago.css           # Pago
 │   │   ├── admin.css        # Panel admin
 │   │   ├── mis-pedidos.css  # Historial
 │   │   ├── pedido-exitoso.css
@@ -141,13 +141,13 @@ sitio_de_publicidad/
 | `/dashboard` | GET | Inicio del sitio |
 | `/productos` | GET | Catálogo |
 | `/producto/<id>` | GET | Detalle producto |
-| `/checkout` | GET | Página de pago |
+| `/pago` | GET | Página de pago |
 | `/pedido-exitoso` | GET | Confirmación |
 | `/pedido-fallido` | GET | Pago fallido |
 | `/mis-pedidos` | GET | Historial del usuario |
 | `/api/productos` | GET | Listar productos (JSON) |
 | `/api/producto/<id>` | GET | Detalle producto (JSON) |
-| `/api/checkout` | POST | Crear PaymentIntent + pedido |
+| `/api/pago` | POST | Crear PaymentIntent + pedido |
 | `/api/mis-pedidos` | GET | Pedidos del usuario (JSON) |
 | `/enviar-contacto` | POST | Enviar formulario de contacto |
 | `/site/css/<path>` | GET | CSS del sitio |
@@ -184,8 +184,8 @@ sitio_de_publicidad/
 ## Flujo de pago
 
 1. Usuario agrega productos al carrito (almacenado en `localStorage`)
-2. En `/checkout` llena datos de envío y tarjeta
-3. `POST /api/checkout` crea un `PaymentIntent` en Stripe (monto × 100 para COP) y registra el pedido en BD con estado `pendiente`, descontando stock
+2. En `/pago` llena datos de envío y tarjeta
+3. `POST /api/pago` crea un `PaymentIntent` en Stripe (monto × 100 para COP) y registra el pedido en BD con estado `pendiente`, descontando stock
 4. El frontend llama a `stripe.confirmCardPayment()` con el `client_secret` recibido
 5. Si el pago es exitoso → redirige a `/pedido-exitoso`; si falla → redirige a `/pedido-fallido` (con restauración del carrito desde backup)
 6. Stripe envía webhook `payment_intent.succeeded` → `/api/stripe/webhook` actualiza estado a `pagado`
