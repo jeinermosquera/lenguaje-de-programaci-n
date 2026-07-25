@@ -33,11 +33,17 @@
           <i class="bi bi-cart3 fs-5"></i>
           <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill" style="display:none;">0</span>
         </a>
-        <div class="d-flex align-items-center ps-3 border-start apomat-auth">
+        <!-- Enlaces de login/registro cuando NO está logueado -->
+        <div class="align-items-center gap-3 auth-links-not-logged" style="display: none;">
+          <a class="btn btn-gold btn-sm" href="/login">Iniciar sesión</a>
+          <a class="btn btn-gold btn-sm" href="/login?register=1">Registrarse</a>
+        </div>
+        <!-- Dropdown de usuario cuando SÍ está logueado -->
+        <div class="align-items-center ps-3 border-start apomat-auth user-menu" style="display: none;">
           <div class="dropdown">
             <button class="btn dropdown-toggle user-dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="user-avatar"><i class="bi bi-person-circle"></i></span>
-              <span class="saludo-usuario">Hola</span>
+              <span class="saludo-usuario"></span>
               <span class="pedidos-notif-badge greeting-badge" style="display:none;background:#dc3545;color:#fff;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;line-height:15px;text-align:center;border-radius:50px;padding:0 3px;margin-left:4px;vertical-align:super;">0</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
@@ -71,11 +77,27 @@
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas"><i class="bi bi-cart3"></i> Carrito</a></li>
       </ul>
       <ul class="navbar-nav flex-column mb-0" id="adminNavMobile"></ul>
-      <div class="offcanvas-auth d-flex align-items-center justify-content-start">
-        <a href="#" class="text-decoration-none auth-logout" id="logoutBtnMobile">
-          <i class="bi bi-box-arrow-right"></i> Salir
-        </a>
+
+      <!-- Enlaces de login/registro en móvil cuando NO está logueado -->
+      <div class="offcanvas-auth-not-logged flex-column gap-2" style="display: none;">
+        <a class="btn btn-gold w-100" href="/login?register=1">Registrarse</a>
+        <a class="btn btn-gold w-100" href="/login">Iniciar sesión</a>
       </div>
+      <!-- Menú de usuario en móvil cuando SÍ está logueado -->
+      <div class="offcanvas-user-menu" style="display: none;">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <span class="user-avatar fs-4"><i class="bi bi-person-circle"></i></span>
+          <span class="saludo-usuario fw-medium"></span>
+        </div>
+        <ul class="navbar-nav flex-column mb-0">
+          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
+          <li class="nav-item"><a class="nav-link" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos</a></li>
+          <li class="nav-item"><hr class="dropdown-divider"></li>
+          <li class="nav-item"><a class="nav-link text-danger" href="#" id="deleteAccountBtnMobile"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+        </ul>
+      </div>
+
       <div class="contact-block">
         <p><i class="bi bi-geo-alt"></i> Carrera 16 # 12-165, barrio La Yesquita, Quibdó, Chocó.</p>
         <p><i class="bi bi-telephone"></i> 312 732 0463</p>
@@ -220,10 +242,11 @@
           "Pragma": "no-cache",
           "Cache-Control": "no-cache, no-store, must-revalidate"
         }
-      })
-      .then(response => {
+       })
+       .then(response => {
         if (response.status === 401) {
-          window.location.replace("/");
+          console.error("No autorizado - Redirigiendo al login");
+          window.location.replace("/login");
           return null;
         }
         if (response.status === 404) {
@@ -240,66 +263,68 @@
       .then(producto => {
         if (!producto) return;
 
-        const disponibleHtml = producto.disponible
-          ? '<span class="badge bg-success">Disponible</span>'
-          : '<span class="badge bg-secondary">Agotado</span>';
-        const stockHtml = producto.stock > 0
-          ? '<span style="font-size:0.85rem;color:#28a745;margin-left:8px;"><i class="bi bi-box"></i> ' + producto.stock + ' en stock</span>'
-          : '<span style="font-size:0.85rem;color:#999;margin-left:8px;">Sin stock</span>';
+        const disponible = producto.disponible && producto.stock > 0;
 
         const precioHtml = producto.en_rebaja
-          ? '<span style="text-decoration:line-through;color:#999;font-size:1.2rem;margin-right:10px;">' + producto.precio_formateado + '</span><span style="color:#dc3545;font-size:1.8rem;">' + producto.precio_rebaja_formateado + '</span>'
-          : producto.precio_formateado;
+          ? '<span class="pdp-price--old">' + producto.precio_formateado + '</span><span class="pdp-price--sale">' + producto.precio_rebaja_formateado + '</span>'
+          : '<span class="pdp-price">' + producto.precio_formateado + '</span>';
 
-        const caracteristicasHtml = producto.caracteristicas.map(c =>
-          '<li><i class="bi bi-check-circle-fill"></i> ' + c + '</li>'
-        ).join('');
-
-        const especificacionesHtml = producto.especificaciones.map(e =>
-          '<li><i class="bi bi-info-circle-fill"></i> ' + e + '</li>'
-        ).join('');
+        const caracteristicasHtml = producto.caracteristicas.length
+          ? '<div class="pdp-features-grid">' + producto.caracteristicas.map(c =>
+              '<div class="pdp-feature-item">' + c + '</div>'
+            ).join('') + '</div>'
+          : '';
+        const especificacionesHtml = producto.especificaciones.length
+          ? '<div class="pdp-spec-table">' + producto.especificaciones.map(e =>
+              '<div class="pdp-spec-item">' + e + '</div>'
+            ).join('') + '</div>'
+          : '';
 
         document.getElementById('producto-contenedor').innerHTML = `
-          <div class="col-lg-6">
-            <div class="product-detail-image" style="position:relative;">
-              <img src="/site/img/${producto.imagen}" alt="${producto.nombre}" loading="lazy">
-              ${producto.en_rebaja ? '<span class="badge bg-danger" style="position:absolute;top:16px;right:16px;border-radius:50px;font-size:0.9rem;padding:0.5rem 1rem;">En rebaja</span>' : ''}
+          <div class="col-lg-5">
+            <div class="pdp-image-wrap">
+              <div class="pdp-image">
+                <img src="/site/img/${producto.imagen}" alt="${producto.nombre}" loading="lazy">
+                ${producto.en_rebaja ? '<span class="pdp-badge">En rebaja</span>' : ''}
+              </div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <span class="catalog-eyebrow">Detalle del producto</span>
-            <h1 class="detail-title">${producto.nombre}</h1>
-            <div class="detail-price">${precioHtml}</div>
-            <div class="detail-availability">${disponibleHtml}${stockHtml}</div>
-            <p class="detail-description">${producto.descripcion}</p>
-
-            <div class="detail-block">
-              <h4>Características</h4>
-              <ul class="detail-list">${caracteristicasHtml}</ul>
+          <div class="col-lg-7">
+            <div class="pdp-header">
+              <span class="pdp-eyebrow">Detalle del producto</span>
+              <h1 class="pdp-title">${producto.nombre}</h1>
+              <div class="pdp-price-row">
+                ${precioHtml}
+                <span class="pdp-stock ${disponible ? 'pdp-stock--ok' : 'pdp-stock--agotado'}">
+                  ${disponible ? '<i class="bi bi-check-circle-fill"></i> ' + producto.stock + ' en stock' : '<i class="bi bi-x-circle-fill"></i> Agotado'}
+                </span>
+              </div>
             </div>
 
-            <div class="detail-block">
-              <h4>Especificaciones técnicas</h4>
-              <ul class="detail-list">${especificacionesHtml}</ul>
-            </div>
+            <p class="pdp-desc">${producto.descripcion}</p>
 
-            <div class="detail-cart-actions mt-3" id="detail-cart-actions">
-              ${producto.disponible && producto.stock > 0 ? `
-                <div class="d-flex align-items-center gap-2 mb-2">
-                  <div class="cart-qty-controls">
-                    <button class="cart-qty-btn" id="qty-minus" type="button">-</button>
-                    <span class="cart-qty" id="qty-value">1</span>
-                    <button class="cart-qty-btn" id="qty-plus" type="button">+</button>
-                  </div>
+            ${caracteristicasHtml || especificacionesHtml ? '<hr class="pdp-divider">' : ''}
+
+            ${caracteristicasHtml ? '<div class="pdp-section"><h3 class="pdp-section-title">Características</h3>' + caracteristicasHtml + '</div>' : ''}
+
+            ${especificacionesHtml ? '<div class="pdp-section"><h3 class="pdp-section-title">Especificaciones</h3>' + especificacionesHtml + '</div>' : ''}
+
+            ${caracteristicasHtml || especificacionesHtml ? '<hr class="pdp-divider">' : ''}
+
+            <div class="pdp-cart" id="detail-cart-actions">
+              ${disponible ? `
+                <div class="pdp-qty">
+                  <button class="pdp-qty-btn" id="qty-minus" type="button">−</button>
+                  <span class="pdp-qty-value" id="qty-value">1</span>
+                  <button class="pdp-qty-btn" id="qty-plus" type="button">+</button>
                 </div>
-                <button class="btn btn-gold w-100" id="btn-add-cart">
+                <button class="pdp-cart-btn" id="btn-add-cart">
                   <i class="bi bi-cart-plus"></i> Agregar al carrito
                 </button>
-              ` : ''}
+              ` : '<p class="pdp-unavailable">Producto no disponible en este momento.</p>'}
             </div>
-            <a href="/productos" class="btn btn-gold mt-3">
-              <i class="bi bi-arrow-left"></i> Volver al catálogo
-            </a>
+
+            <a href="/productos" class="pdp-back"><i class="bi bi-arrow-left"></i> Ver todos los productos</a>
           </div>
         `;
         if (producto.disponible) {
@@ -321,8 +346,7 @@
           </div>`;
       });
 
-    const timestamp = Date.now();
-    fetch("/usuario?t=" + timestamp + "&r=mostrar_nombre", {
+    fetch("/usuario?t=" + Date.now() + "&r=mostrar_nombre", {
         cache: "no-store",
         method: "GET",
         headers: {
@@ -331,14 +355,15 @@
         }
       })
       .then(response => {
-        if (response.status === 401) {
-          window.location.replace("/");
-          return null;
-        }
+        if (response.status === 401) return null;
         return response.json();
       })
       .then(data => {
+        const authLinks = document.querySelector(".auth-links-not-logged");
+        const userMenu = document.querySelector(".user-menu");
         if (data && data.nombre) {
+          if (authLinks) authLinks.style.display = "none";
+          if (userMenu) userMenu.style.display = "flex";
           const primerNombre = data.nombre.split(" ")[0];
           document.querySelectorAll(".saludo-usuario")
             .forEach(elemento => {
@@ -360,11 +385,17 @@
               ulMobile.appendChild(liM);
             }
           }
+        } else {
+          if (authLinks) authLinks.style.display = "flex";
+          if (userMenu) userMenu.style.display = "none";
         }
+        const mobileAuth = document.querySelector(".offcanvas-auth-not-logged");
+        const mobileUser = document.querySelector(".offcanvas-user-menu");
+        if (mobileAuth) mobileAuth.style.display = data && data.nombre ? "none" : "flex";
+        if (mobileUser) mobileUser.style.display = data && data.nombre ? "block" : "none";
       })
       .catch(error => {
         console.error("Error al obtener datos del usuario:", error);
-        window.location.replace("/");
       });
 
     function cerrarSesion() {

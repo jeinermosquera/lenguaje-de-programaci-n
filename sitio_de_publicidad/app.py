@@ -173,8 +173,8 @@ def producto_db_a_dict(r):
 
 @app.route("/")
 def home():
-    """Sirve login/index.html (página pública de login/registro)."""
-    return send_from_directory(LOGIN_DIR, "index.html")
+    """Sirve web/index.html (página principal pública del sitio)."""
+    return send_from_directory(SITE_DIR, "index.html")
 
 @app.route("/css/<path:filename>")
 def css_files(filename):
@@ -225,13 +225,13 @@ def register():
     password = request.form.get("contrasena", "")
 
     if len(full_name) < 3:
-        return redirect("/?error=nombre_invalido")
+        return redirect("/login?error=nombre_invalido")
 
     if "@" not in email:
-        return redirect("/?error=email_invalido")
+        return redirect("/login?error=email_invalido")
 
     if len(password) < 8:
-        return redirect("/?error=password_corta")
+        return redirect("/login?error=password_corta")
 
     password_hash = generate_password_hash(password)
 
@@ -254,7 +254,7 @@ def register():
         print(error)
 
         if getattr(error, "errno", None) == 1062:
-            return redirect("/?error=correo_existente")
+            return redirect("/login?error=correo_existente")
 
         return f"Error MySQL: {error}", 500
 
@@ -279,6 +279,11 @@ def register():
 MAX_LOGIN_ATTEMPTS = 5
 LOGIN_LOCKOUT_SECONDS = 30
 
+@app.route("/login")
+def login_page():
+    """Sirve login/index.html (página de login/registro)."""
+    return send_from_directory(LOGIN_DIR, "index.html")
+
 @app.route("/login", methods=["POST"])
 def login():
     """Autentica usuario contra BD, inicia sesión y redirige a dashboard o admin."""
@@ -289,7 +294,7 @@ def login():
 
     if bloqueado_hasta > now:
         segundos_restantes = int(bloqueado_hasta - now) + 1
-        return redirect(f"/?error=bloqueado&segundos={segundos_restantes}")
+        return redirect(f"/login?error=bloqueado&segundos={segundos_restantes}")
 
     email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
@@ -338,30 +343,24 @@ def login():
 
 @app.route("/dashboard")
 def dashboard():
-    """Sirve web/index.html (dashboard con productos destacados). Requiere sesión."""
+    """Sirve web/index.html (página principal). Requiere sesión."""
     if "logueado" not in session:
-        return redirect("/")
+        return redirect("/login")
     return send_from_directory(SITE_DIR, "index.html")
 
 @app.route("/productos")
 def productos():
-    """Sirve web/productos.html (catálogo completo). Requiere sesión."""
-    if "logueado" not in session:
-        return redirect("/")
+    """Sirve web/productos.html (catálogo completo). Público."""
     return send_from_directory(SITE_DIR, "productos.html")
 
 @app.route("/producto/<int:producto_id>")
 def producto_detalle(producto_id):
-    """Sirve web/producto.html (detalle de producto). Requiere sesión."""
-    if "logueado" not in session:
-        return redirect("/")
+    """Sirve web/producto.html (detalle de producto). Público."""
     return send_from_directory(SITE_DIR, "producto.html")
 
 @app.route("/api/producto/<int:producto_id>")
 def api_producto(producto_id):
-    """Retorna JSON de un producto individual desde la BD."""
-    if "logueado" not in session:
-        return {"error": "No autorizado"}, 401
+    """Retorna JSON de un producto individual desde la BD (público)."""
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
@@ -380,9 +379,7 @@ def api_producto(producto_id):
 
 @app.route("/api/productos")
 def api_productos():
-    """Retorna JSON con todos los productos ordenados por id."""
-    if "logueado" not in session:
-        return {"error": "No autorizado"}, 401
+    """Retorna JSON con todos los productos ordenados por id (público)."""
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
@@ -564,7 +561,7 @@ def api_eliminar_usuario():
 def pago():
     """Sirve web/pago.html (página de pago con Stripe). Requiere sesión."""
     if "logueado" not in session:
-        return redirect("/")
+        return redirect("/login")
 
     return send_from_directory(SITE_DIR, "pago.html")
 
@@ -572,7 +569,7 @@ def pago():
 def pedido_exitoso():
     """Sirve web/pedido-exitoso.html (confirmación de pago). Requiere sesión."""
     if "logueado" not in session:
-        return redirect("/")
+        return redirect("/login")
 
     return send_from_directory(SITE_DIR, "pedido-exitoso.html")
 
@@ -580,7 +577,7 @@ def pedido_exitoso():
 def pedido_fallido():
     """Sirve web/pedido-fallido.html (pago rechazado). Requiere sesión."""
     if "logueado" not in session:
-        return redirect("/")
+        return redirect("/login")
 
     return send_from_directory(SITE_DIR, "pedido-fallido.html")
 
@@ -713,7 +710,7 @@ def stripe_webhook():
 def mis_pedidos():
     """Sirve web/mis-pedidos.html (historial de pedidos del usuario). Requiere sesión."""
     if "logueado" not in session:
-        return redirect("/")
+        return redirect("/login")
 
     return send_from_directory(SITE_DIR, "mis-pedidos.html")
 
@@ -782,10 +779,7 @@ def admin_actualizar_estado(pedido_id):
 
 @app.route("/enviar-contacto", methods=["POST"])
 def enviar_contacto():
-    """Guarda mensaje del formulario de contacto en BD y redirige."""
-    if "logueado" not in session:
-        return redirect("/")
-
+    """Guarda mensaje del formulario de contacto en BD y redirige (público)."""
     nombre = request.form.get("nombre", "").strip()
     email = request.form.get("email", "").strip().lower()
     mensaje = request.form.get("mensaje", "").strip()

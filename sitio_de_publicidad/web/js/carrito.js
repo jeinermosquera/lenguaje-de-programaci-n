@@ -141,9 +141,46 @@ var Carrito = {
     html +=
       '<div class="cart-footer">' +
       '<div class="cart-total"><span>Total</span><span>' + this.formatearPrecio(this.getTotal()) + '</span></div>' +
-      '<a href="/pago" class="btn btn-gold w-100">Ir a pagar</a>' +
+      '<button onclick="Carrito.irAPagar()" class="btn btn-gold w-100">Ir a pagar</button>' +
       '</div>';
     container.innerHTML = html;
+  },
+
+  /** Ir a pagar: si no hay sesión, muestra alerta con opciones */
+  irAPagar: function () {
+    fetch("/usuario?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.nombre) {
+          window.location.href = "/pago";
+        } else {
+          Swal.fire({
+            icon: "info",
+            title: "Inicia sesión o regístrate",
+            text: "Para realizar el pago debes iniciar sesión o crear una cuenta.",
+            showCancelButton: true,
+            confirmButtonText: "Continuar",
+            cancelButtonText: "Cancelar",
+            cancelButtonColor: "#6c757d",
+            confirmButtonColor: "#c9960e",
+            reverseButtons: true,
+            customClass: {
+              popup: "swal-brand-popup",
+              title: "swal-brand-title",
+              htmlContainer: "swal-brand-text",
+              confirmButton: "swal-brand-confirm",
+              cancelButton: "swal-cancel-btn"
+            }
+          }).then(function (result) {
+            if (result.isConfirmed) {
+              window.location.href = "/login";
+            }
+          });
+        }
+      })
+      .catch(function () {
+        window.location.href = "/pago";
+      });
   }
 };
 

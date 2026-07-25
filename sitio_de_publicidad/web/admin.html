@@ -59,7 +59,15 @@
       <a href="#" class="active" data-section="productos"><i class="bi bi-box-seam"></i> <span>Productos</span></a>
       <a href="#" data-section="pedidos"><i class="bi bi-receipt"></i> <span>Pedidos</span> <span class="notification-badge" id="pedidos-badge" style="display:none;">0</span></a>
       <a href="#" data-section="dashboard"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a>
-      <a href="/dashboard"><i class="bi bi-arrow-left"></i> <span>Volver al sitio</span></a>
+      <a href="#" class="sidebar-toggle" data-bs-toggle="collapse" data-bs-target="#categoriasCollapse" aria-expanded="true">
+        <i class="bi bi-grid"></i> <span>Categorías</span> <i class="bi bi-chevron-down sidebar-chevron"></i>
+      </a>
+      <div class="collapse show" id="categoriasCollapse">
+        <a href="#" class="categoria-link active" data-categoria="" onclick="filtrarCategoria(event, this, '')"><i class="bi bi-collection"></i> <span>Todas</span></a>
+        <a href="#" class="categoria-link" data-categoria="Aromatizantes" onclick="filtrarCategoria(event, this, 'Aromatizantes')"><i class="bi bi-flower1"></i> <span>Aromatizantes</span></a>
+        <a href="#" class="categoria-link" data-categoria="Lociones" onclick="filtrarCategoria(event, this, 'Lociones')"><i class="bi bi-droplet"></i> <span>Lociones</span></a>
+        <a href="#" class="categoria-link" data-categoria="Ambientadores" onclick="filtrarCategoria(event, this, 'Ambientadores')"><i class="bi bi-wind"></i> <span>Ambientadores</span></a>
+      </div>
     </aside>
     <main class="admin-content">
       <div class="admin-header">
@@ -136,6 +144,7 @@
               <th style="width:50px;">#</th>
               <th>Imagen</th>
               <th>Nombre</th>
+              <th>Categoría</th>
               <th>Precio</th>
               <th>Stock</th>
               <th>Disponible</th>
@@ -143,7 +152,7 @@
             </tr>
           </thead>
           <tbody id="productos-tbody">
-            <tr><td colspan="7" class="text-center text-muted py-4">Cargando productos...</td></tr>
+            <tr><td colspan="8" class="text-center text-muted py-4">Cargando productos...</td></tr>
           </tbody>
         </table>
       </div>
@@ -180,54 +189,82 @@
   <!-- Modal Agregar Producto -->
   <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content" style="border-radius: 20px; border: none; padding: 0.5rem;">
+<div class="modal-content" style="border-radius: 20px; border: none; padding: 0.5rem;">
         <div class="modal-header border-0">
-          <h5 class="modal-title" style="font-family:var(--font-brand);font-size:1.4rem;color:var(--navy);">Agregar Producto</h5>
+          <h5 class="modal-title">Agregar Producto</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body pt-0">
           <form action="/admin/productos/agregar" method="POST" enctype="multipart/form-data">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nombre del producto</label>
-                <input type="text" class="form-control" name="nombre" required placeholder="Ej: Vainilla del bosque">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Precio ($)</label>
-                <input type="number" class="form-control" name="precio" required placeholder="20000">
-              </div>
-              <div class="col-md-3 d-flex align-items-end">
-                <div class="form-check mb-2">
-                  <input class="form-check-input" type="checkbox" name="disponible" id="disponibleCheck" checked>
-                  <label class="form-check-label" for="disponibleCheck" style="font-size:0.9rem;">Disponible</label>
+            <div class="form-section">
+              <div class="form-section-title">Información básica</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nombre del producto <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="nombre" required placeholder="Ej: Vainilla del bosque">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Precio <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" name="precio" required placeholder="20000">
+                  </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                  <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="disponible" id="disponibleCheck" checked>
+                    <label class="form-check-label" for="disponibleCheck">Disponible</label>
+                  </div>
                 </div>
               </div>
-              <div class="col-12">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del producto..."></textarea>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Características (una por línea)</label>
-                <textarea class="form-control" name="caracteristicas" rows="4" placeholder="Aroma fresco&#10;Duración prolongada&#10;Ideal para hogar"></textarea>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Especificaciones (una por línea)</label>
-                <textarea class="form-control" name="especificaciones" rows="4" placeholder="Presentación: 250 ml&#10;Duración: 30 días"></textarea>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Stock</label>
-                <input type="number" class="form-control" name="stock" value="10" placeholder="10">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Precio en rebaja (opcional)</label>
-                <input type="number" class="form-control" name="precio_rebaja" placeholder="15000">
-              </div>
-              <div class="col-12">
-                <label class="form-label">Imagen del producto</label>
-                <input type="file" class="form-control" name="imagen" accept="image/png,image/jpeg,image/webp">
+            </div>
+            <div class="form-section">
+              <div class="form-section-title">Precio y stock</div>
+              <div class="row g-3">
+                <div class="col-6 col-md-3 d-flex flex-column">
+                  <label class="form-label">Stock <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" name="stock" value="10" placeholder="10">
+                </div>
+                <div class="col-6 col-md-3 d-flex flex-column">
+                  <label class="form-label">Precio en rebaja (opcional)</label>
+                  <input type="number" class="form-control" name="precio_rebaja" placeholder="15000">
+                </div>
               </div>
             </div>
-            <button type="submit" class="btn btn-admin w-100 mt-4">Guardar Producto</button>
+            <div class="form-section">
+              <div class="form-section-title">Descripción</div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Descripción del producto</label>
+                  <textarea class="form-control" name="descripcion" rows="3" placeholder="Describe las cualidades del producto..."></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Características</label>
+                  <textarea class="form-control" name="caracteristicas" rows="4" placeholder="Aroma fresco&#10;Duración prolongada&#10;Ideal para hogar"></textarea>
+                  <small class="form-text">Una por línea</small>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Especificaciones</label>
+                  <textarea class="form-control" name="especificaciones" rows="4" placeholder="Presentación: &#10;Duración: "></textarea>
+                  <small class="form-text">Una por línea</small>
+                </div>
+              </div>
+            </div>
+            <div class="form-section">
+              <div class="form-section-title">Imagen</div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <div class="upload-area">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <p>Arrastra la imagen aquí o haz clic para seleccionar</p>
+                    <input type="file" class="form-control" name="imagen" accept="image/png,image/jpeg,image/webp">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-admin w-100 mt-4">
+              <i class="bi bi-check-lg"></i> Guardar Producto
+            </button>
           </form>
         </div>
       </div>
@@ -317,16 +354,28 @@
     function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
     function escJS(s) { if (s == null) return ''; return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,''); }
 
+    var categoriaActual = "";
+
+    function filtrarCategoria(e, el, cat) {
+      e.preventDefault();
+      document.querySelectorAll(".categoria-link").forEach(function(a) { a.classList.remove("active"); });
+      el.classList.add("active");
+      categoriaActual = cat;
+      cargarProductos();
+    }
+
     function cargarProductos() {
       const tbody = document.getElementById("productos-tbody");
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Cargando...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Cargando...</td></tr>';
 
-      fetch("/admin/api/productos?t=" + Date.now(), { cache: "no-store" })
+      var url = "/admin/api/productos?t=" + Date.now();
+      if (categoriaActual) url += "&categoria=" + encodeURIComponent(categoriaActual);
+      fetch(url, { cache: "no-store" })
         .then(r => { if (r.status === 401) { window.location.replace("/dashboard"); return null; } return r.json(); })
         .then(data => {
           if (!data) return;
-          if (data.error) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Error al cargar</td></tr>'; return; }
-          if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No hay productos. Agrega uno.</td></tr>'; return; }
+          if (data.error) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Error al cargar</td></tr>'; return; }
+          if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No hay productos. Agrega uno.</td></tr>'; return; }
           tbody.innerHTML = data.map((p, i) => {
             var rebajaVal = p.precio_rebaja != null && p.precio_rebaja > 0 ? p.precio_rebaja : null;
             var stockVal = p.stock != null ? p.stock : 0;
@@ -335,6 +384,7 @@
               <td style="text-align:center;font-weight:600;color:#666;">${i + 1}</td>
               <td><img src="/site/img/${esc(p.imagen)}" class="prod-img" alt="${esc(p.nombre)}"></td>
               <td><strong>${esc(p.nombre)}</strong>${p.en_rebaja ? ' <span class="badge bg-danger badge-admin">Rebaja</span>' : ''}</td>
+              <td><span class="badge bg-secondary badge-admin">${esc(p.categoria)}</span></td>
               <td>${p.en_rebaja ? '<span style="text-decoration:line-through;color:#999;">' + p.precio_formateado + '</span> <strong style="color:#dc3545;">' + p.precio_rebaja_formateado + '</strong>' : p.precio_formateado}</td>
               <td><span class="badge ${p.stock > 0 ? 'bg-success' : 'bg-secondary'} badge-admin">${stockVal}</span></td>
               <td><select class="estado-select producto-estado" data-id="${p.id}" onchange="cambiarDisponibilidad(this)"><option value="1" ${p.disponible ? 'selected' : ''}>Disponible</option><option value="0" ${!p.disponible ? 'selected' : ''}>Agotado</option></select></td>
@@ -352,7 +402,7 @@
           `}).join("");
 
         })
-        .catch(() => { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Error de conexión</td></tr>'; });
+        .catch(() => { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Error de conexi\u00f3n</td></tr>'; });
     }
 
     function cambiarDisponibilidad(el) {
@@ -419,6 +469,13 @@
       var titulos = { dashboard: "Dashboard", productos: "Gesti\u00f3n de Productos", pedidos: "Gesti\u00f3n de Pedidos" };
       document.querySelector(".admin-header h2").textContent = titulos[seccion] || "";
       document.getElementById("addProductBtn").style.display = seccion === "productos" ? "" : "none";
+      if (seccion === "productos") {
+        categoriaActual = "";
+        document.querySelectorAll(".categoria-link").forEach(function(a) { a.classList.remove("active"); });
+        var todas = document.querySelector('.categoria-link[data-categoria=""]');
+        if (todas) todas.classList.add("active");
+        cargarProductos();
+      }
       if (seccion === "pedidos") { pedidosFiltro = "activos"; cargarPedidos(); }
       if (seccion === "dashboard") { cargarDashboard(); }
     }

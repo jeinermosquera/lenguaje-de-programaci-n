@@ -138,6 +138,11 @@
 
         const params = new URLSearchParams(window.location.search);
 
+        if (params.get("register") === "1") {
+          const registerTab = document.getElementById("register-tab");
+          if (registerTab) registerTab.click();
+        }
+
         if (params.get("error") === "credenciales") {
             var intentosRestantes = params.get("intentos");
             var msg = "Correo o contrase\u00f1a incorrectos.";

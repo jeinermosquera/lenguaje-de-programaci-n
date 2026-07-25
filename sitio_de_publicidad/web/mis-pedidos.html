@@ -24,11 +24,12 @@
           <li class="nav-item"><a class="nav-link" href="/dashboard">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="/productos">Productos</a></li>
         </ul>
-        <div class="d-flex align-items-center ps-3 border-start apomat-auth">
+        <!-- Dropdown de usuario -->
+        <div class="d-flex align-items-center ps-3 border-start apomat-auth user-menu">
           <div class="dropdown">
             <button class="btn dropdown-toggle user-dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="user-avatar"><i class="bi bi-person-circle"></i></span>
-              <span class="saludo-usuario">Hola</span>
+              <span class="saludo-usuario"></span>
               <span class="pedidos-notif-badge greeting-badge" style="display:none;background:#dc3545;color:#fff;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;line-height:15px;text-align:center;border-radius:50px;padding:0 3px;margin-left:4px;vertical-align:super;">0</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
@@ -57,8 +58,19 @@
         <li class="nav-item"><a class="nav-link" href="/dashboard" data-bs-dismiss="offcanvas">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="/productos" data-bs-dismiss="offcanvas">Productos</a></li>
       </ul>
-      <div class="offcanvas-auth">
-        <a href="#" class="text-decoration-none auth-logout" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Salir</a>
+      <!-- Menú de usuario en móvil -->
+      <div class="offcanvas-user-menu">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <span class="user-avatar fs-4"><i class="bi bi-person-circle"></i></span>
+          <span class="saludo-usuario fw-medium"></span>
+        </div>
+        <ul class="navbar-nav flex-column mb-0">
+          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
+          <li class="nav-item"><a class="nav-link" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos</a></li>
+          <li class="nav-item"><hr class="dropdown-divider"></li>
+          <li class="nav-item"><a class="nav-link text-danger" href="#" id="deleteAccountBtnMobile"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+        </ul>
       </div>
     </div>
   </div>

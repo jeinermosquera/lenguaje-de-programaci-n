@@ -41,11 +41,17 @@
           <i class="bi bi-cart3 fs-5"></i>
           <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill" style="display:none;">0</span>
         </a>
-        <div class="d-flex align-items-center ps-3 border-start apomat-auth">
+        <!-- Enlaces de login/registro cuando NO está logueado -->
+        <div class="align-items-center gap-3 auth-links-not-logged" style="display: flex;">
+          <a class="btn btn-gold btn-sm" href="/login">Iniciar sesión</a>
+          <a class="btn btn-gold btn-sm" href="/login?register=1">Registrarse</a>
+        </div>
+        <!-- Dropdown de usuario cuando SÍ está logueado -->
+        <div class="align-items-center ps-3 border-start apomat-auth user-menu" style="display: none;">
           <div class="dropdown">
             <button class="btn dropdown-toggle user-dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="user-avatar"><i class="bi bi-person-circle"></i></span>
-              <span class="saludo-usuario">Hola</span>
+              <span class="saludo-usuario"></span>
               <span class="pedidos-notif-badge greeting-badge" style="display:none;background:#dc3545;color:#fff;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;line-height:15px;text-align:center;border-radius:50px;padding:0 3px;margin-left:4px;vertical-align:super;">0</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
@@ -83,12 +89,25 @@
       </ul>
       <ul class="navbar-nav flex-column mb-0" id="adminNavMobile"></ul>
 
-      <!-- En móvil: solo mostramos el botón Salir, sin saludo -->
-    <div class="offcanvas-auth d-flex align-items-center justify-content-start">
-        <a href="#" class="text-decoration-none auth-logout" id="logoutBtnMobile">
-            <i class="bi bi-box-arrow-right"></i> Salir
-        </a>
-    </div>
+      <!-- Enlaces de login/registro en móvil cuando NO está logueado -->
+      <div class="offcanvas-auth-not-logged flex-column gap-2" style="display: flex;">
+        <a class="btn btn-gold w-100" href="/login?register=1">Registrarse</a>
+        <a class="btn btn-gold w-100" href="/login">Iniciar sesión</a>
+      </div>
+      <!-- Menú de usuario en móvil cuando SÍ está logueado -->
+      <div class="offcanvas-user-menu" style="display: none;">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <span class="user-avatar fs-4"><i class="bi bi-person-circle"></i></span>
+          <span class="saludo-usuario fw-medium">Hola</span>
+        </div>
+        <ul class="navbar-nav flex-column mb-0">
+          <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
+          <li class="nav-item"><a class="nav-link" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos</a></li>
+          <li class="nav-item"><hr class="dropdown-divider"></li>
+          <li class="nav-item"><a class="nav-link text-danger" href="#" id="deleteAccountBtnMobile"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+        </ul>
+      </div>
 
       <div class="contact-block">
         <p><i class="bi bi-geo-alt"></i> Carrera 16 # 12-165, barrio La Yesquita, Quibdó, Chocó.</p>
@@ -107,11 +126,9 @@
 
   <!-- ===== SECCIÓN INICIO (HERO con IMAGEN DE FONDO y altura completa) ===== -->
   <section id="inicio" class="hero-section">
-    <div class="hero-overlay"></div>
     <div class="container animate-fade-in">
       <h1>No solo perfumamos espacios,<br />creamos ambientes.</h1>
       <p class="subhead">Aromatizantes para el hogar, oficina y cualquier ambiente.</p>
-      <a href="/productos" class="btn btn-gold">VER PRODUCTOS</a>
     </div>
   </section>
 
@@ -349,9 +366,12 @@
       const grid = document.getElementById('featured-grid');
 
       fetch("/api/productos?t=" + Date.now(), { cache: "no-store" })
-        .then(r => { if (r.status === 401) { window.location.replace("/"); return null; } return r.json(); })
+        .then(r => r.json())
         .then(data => {
-          if (!data) return;
+          if (!data || data.error || data.length === 0) {
+            grid.innerHTML = '<div class="col-12 text-center py-4"><p class="text-muted">Próximamente productos destacados...</p></div>';
+            return;
+          }
           const disponibles = data.filter(p => p.disponible).slice(0, 4);
           if (disponibles.length === 0) {
             grid.innerHTML = '<div class="col-12 text-center py-4"><p class="text-muted">Próximamente...</p></div>';
@@ -431,14 +451,18 @@
       })
       .then(response => {
         if (response.status === 401) {
-          console.error("No autorizado al obtener nombre - Redirigiendo");
-          window.location.replace("/");
+          // Usuario no logueado - mantener "Hola" por defecto
           return null;
         }
         return response.json();
       })
       .then(data => {
+        const authLinks = document.querySelector(".auth-links-not-logged");
+        const userMenu = document.querySelector(".user-menu");
         if (data && data.nombre) {
+          // Usuario logueado: mostrar menú de usuario, ocultar enlaces de login
+          if (authLinks) authLinks.style.display = "none";
+          if (userMenu) userMenu.style.display = "flex";
           const primerNombre = data.nombre.split(" ")[0];
           document.querySelectorAll(".saludo-usuario")
             .forEach(elemento => {
@@ -461,11 +485,20 @@
               ulMobile.appendChild(liM);
             }
           }
+        } else {
+          // Usuario NO logueado: mostrar enlaces de login, ocultar menú de usuario
+          if (authLinks) authLinks.style.display = "flex";
+          if (userMenu) userMenu.style.display = "none";
         }
+        // Manejar menús móviles
+        const mobileAuth = document.querySelector(".offcanvas-auth-not-logged");
+        const mobileUser = document.querySelector(".offcanvas-user-menu");
+        if (mobileAuth) mobileAuth.style.display = data && data.nombre ? "none" : "flex";
+        if (mobileUser) mobileUser.style.display = data && data.nombre ? "block" : "none";
       })
       .catch(error => {
         console.error("Error al obtener datos del usuario:", error);
-        window.location.replace("/");
+        // No redirigir - usuario simplemente no logueado
       });
 
     // Cerrar sesión
