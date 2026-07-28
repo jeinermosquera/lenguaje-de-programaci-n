@@ -568,14 +568,16 @@ body {
   z-index: 9999;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .25s ease;
+  transition: opacity .35s ease;
 }
 .page-loader.active { opacity: 1; pointer-events: auto; }
-body.page-ready .page-loader { display: none; }
+body.page-ready .page-loader { opacity: 0; }
+body.page-ready .page-loader.active { opacity: 1; }
 
 body.page-fade-out {
   opacity: 0;
-  transition: opacity .25s ease;
+  transform: translateY(8px);
+  transition: opacity .35s ease, transform .35s ease;
 }
 
 /* ===== DROPDOWN MENU ===== */

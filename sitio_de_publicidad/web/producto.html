@@ -226,8 +226,19 @@
     function navegar(url) {
       document.body.classList.add('page-fade-out');
       document.getElementById('pageLoader').classList.add('active');
-      setTimeout(function() { window.location.replace(url); }, 300);
+      setTimeout(function() { window.location.href = url; }, 350);
     }
+    // Transición suave en todos los enlaces internos
+    document.addEventListener('click', function(e) {
+      var link = e.target.closest('a');
+      if (!link) return;
+      var h = link.getAttribute('href');
+      if (!h || h === '#' || h.startsWith('javascript:') || link.target === '_blank' || link.hasAttribute('data-bs-toggle') || link.hasAttribute('data-bs-dismiss')) return;
+      if (h.startsWith('/#') && (window.location.pathname === '/' || window.location.pathname === '/dashboard' || window.location.pathname === '')) return;
+      if (link.host && link.host !== window.location.host) return;
+      e.preventDefault();
+      navegar(link.href);
+    });
     const navbar = document.getElementById('apomatNavbar');
     window.addEventListener('scroll', () => {
       navbar.classList.toggle('is-scrolled', window.scrollY > 10);
