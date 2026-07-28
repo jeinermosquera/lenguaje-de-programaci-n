@@ -39,6 +39,7 @@ body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text-primary);
+  transition: opacity 60ms ease;
 }
 
 /* ===== NAVBAR ===== */
@@ -557,27 +558,17 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== PAGE LOADER / TRANSITION ===== */
 .page-loader {
   position: fixed;
   inset: 0;
+  z-index: 9999;
   background: var(--card-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .35s ease;
 }
-.page-loader.active { opacity: 1; pointer-events: auto; }
-body.page-ready .page-loader { opacity: 0; }
-body.page-ready .page-loader.active { opacity: 1; }
-
-body.page-fade-out {
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity .35s ease, transform .35s ease;
+body.page-ready .page-loader {
+  display: none;
 }
 
 /* ===== DROPDOWN MENU ===== */

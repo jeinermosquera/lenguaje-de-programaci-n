@@ -311,14 +311,14 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/site/js/carrito.js"></script>
   <script>
+    document.body.style.opacity = '1';
     window.addEventListener('load', function() {
       document.body.classList.add('page-ready');
     });
 
     function navegar(url) {
-      document.body.classList.add('page-fade-out');
-      document.getElementById('pageLoader').classList.add('active');
-      setTimeout(function() { window.location.href = url; }, 350);
+      document.body.style.opacity = '0';
+      setTimeout(function() { window.location.href = url; }, 60);
     }
     // Transición suave en todos los enlaces internos
     document.addEventListener('click', function(e) {
