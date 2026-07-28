@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2C4756">
+    <link rel="icon" type="image/x-icon" href="/inicio/favicon/favicon.ico">
+    <title>{{ publicacion.titulo }} - Comunidad Info</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/user/css/user.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark user-navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/user/">
+                <i class="bi bi-megaphone-fill me-2"></i>Comunidad Info
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="/user/" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                    <i class="bi bi-arrow-left me-1"></i>Volver
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="user-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+
+                    <div class="article-card">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge rounded-pill px-3 py-1" style="background:rgba(57,88,109,0.1);color:var(--accent);">Noticia</span>
+                            <small style="color:var(--text-secondary);">
+                                <i class="bi bi-clock me-1"></i>{{ publicacion.fecha_publicacion.strftime('%d %b %Y') if publicacion.fecha_publicacion else '' }}
+                            </small>
+                        </div>
+
+                        <h1 class="article-title">{{ publicacion.titulo }}</h1>
+
+                        <div class="d-flex align-items-center gap-2 mb-4">
+                            <div class="author-placeholder rounded-circle d-flex align-items-center justify-content-center fw-semibold"
+                                 style="width:36px;height:36px;background:var(--border);color:var(--text-secondary);font-size:0.8rem;flex-shrink:0;">
+                                {{ publicacion.nombre[0] if publicacion.nombre else '?' }}{{ publicacion.apellido[0] if publicacion.apellido else '' }}
+                            </div>
+                            <div>
+                                <div class="fw-semibold small" style="color:var(--primary);">{{ publicacion.nombre }} {{ publicacion.apellido }}</div>
+                            </div>
+                        </div>
+
+                        {% if publicacion.imagen %}
+                        <img src="{{ publicacion.imagen }}" alt="{{ publicacion.titulo }}" class="article-image mb-4">
+                        {% endif %}
+
+                        <div class="article-content">
+                            {{ publicacion.contenido }}
+                        </div>
+                    </div>
+
+                    <div class="comments-section mt-4">
+                        <h5 class="fw-bold mb-3" style="color:var(--primary);">
+                            <i class="bi bi-chat-dots me-2" style="color:var(--accent);"></i>Comentarios
+                        </h5>
+                        <div id="comentariosList">
+                            <div class="text-center py-3">
+                                <div class="spinner-border spinner-border-sm" style="color:var(--accent);" role="status"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var PUB_ID = {{ publicacion.id }};
+    </script>
+    <script src="/user/js/user.js"></script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Comunidad Info - Tu portal de noticias y eventos comunitarios. Mantente informado con las últimas noticias de tu comunidad.">
+    <meta property="og:title" content="Comunidad Info">
+    <meta property="og:description" content="Noticias, eventos e información relevante para tu comunidad">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#2C4756">
+    <link rel="icon" type="image/x-icon" href="/inicio/favicon/favicon.ico">
+    <title>Comunidad Info - Portal de Noticias</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="/inicio/css/landing.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top landing-navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="bi bi-megaphone-fill me-2"></i>Comunidad Info
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLanding" aria-label="Menu">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarLanding">
+                <ul class="navbar-nav mx-auto gap-1">
+                    <li class="nav-item"><a class="nav-link active" href="#inicio">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#publicaciones">Noticias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#eventos">Eventos</a></li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="/login" class="btn btn-outline-light btn-sm rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
+                    </a>
+                    <a href="/login#register" class="btn btn-primary btn-sm rounded-pill px-4 fw-semibold">
+                        <i class="bi bi-person-plus me-1"></i>Unirse
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header id="inicio" class="hero-section">
+        <div class="container hero-content">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-xl-8 text-center" data-aos="fade-up" data-aos-duration="800">
+                    <span class="badge rounded-pill px-3 py-2 mb-4" style="background:rgba(57,88,109,0.08);color:var(--accent);border:1px solid rgba(57,88,109,0.15);">
+                        <i class="bi bi-megaphone-fill me-1"></i>Portal informativo
+                    </span>
+                    <h1 class="hero-title mb-3">Mantente informado<br><span class="text-accent">en tiempo real</span></h1>
+                    <p class="hero-subtitle mx-auto mb-4">
+                        Noticias, eventos y toda la informaci&oacute;n relevante de tu comunidad en un solo lugar. 
+                        &Uacute;nete a miles de vecinos que ya se mantienen al d&iacute;a.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 justify-content-center mb-4">
+                        <a href="#publicaciones" class="btn btn-primary btn-lg rounded-pill px-5 fw-semibold">
+                            Explorar noticias <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                        <a href="/login" class="btn btn-secondary-custom btn-lg rounded-pill px-5 fw-semibold">
+                            <i class="bi bi-person-plus me-2"></i>Registrarse
+                        </a>
+                    </div>
+                    <div class="hero-stats d-flex gap-5 justify-content-center">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalNoticias">0</span>
+                            <span class="stat-label">Noticias</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalEventos">0</span>
+                            <span class="stat-label">Eventos</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Informaci&oacute;n</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="publicaciones" class="section-padding">
+        <div class="container">
+            <div class="row mb-5" data-aos="fade-up">
+                <div class="col-12">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="section-bar"></div>
+                        <h2 class="section-title mb-0">Últimas noticias</h2>
+                    </div>
+                    <p class="text-muted mb-0">Mantente al d&iacute;a con lo que sucede en tu comunidad</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12">
+                    <div id="featuredPost" class="mb-4"></div>
+                    <div class="row g-4" id="publicacionesList">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="eventos" class="section-padding" style="background:#eef1f3;">
+        <div class="container">
+            <div class="row mb-5" data-aos="fade-up">
+                <div class="col-12">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="section-bar"></div>
+                        <h2 class="section-title mb-0">Pr&oacute;ximos eventos</h2>
+                    </div>
+                    <p class="text-muted mb-0">No te pierdas las actividades de tu comunidad</p>
+                </div>
+            </div>
+            <div class="row g-4" id="eventosList">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"><span class="visually-hidden">Cargando...</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <footer class="pt-5 pb-4 text-white" style="background:var(--primary);border-top:3px solid rgba(255,255,255,0.08);">
+        <div class="container">
+            <div class="row g-4 justify-content-between">
+                <div class="col-lg-5">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-megaphone-fill me-2" style="color:var(--secondary);"></i>Comunidad Info</h5>
+                    <p class="text-white-50 small mb-3">Tu portal de informaci&oacute;n comunitaria. Noticias, eventos y todo lo relevante para tu comunidad.</p>
+                    <div class="d-flex gap-3 fs-5">
+                        <a href="#" class="text-white-50" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white-50" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="text-white-50" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white-50" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2 offset-lg-1">
+                    <h6 class="fw-bold mb-3">Navegaci&oacute;n</h6>
+                    <ul class="list-unstyled small footer-links">
+                        <li class="mb-2"><a href="#inicio" class="text-white-50 text-decoration-none">Inicio</a></li>
+                        <li class="mb-2"><a href="#publicaciones" class="text-white-50 text-decoration-none">Noticias</a></li>
+                        <li class="mb-2"><a href="#eventos" class="text-white-50 text-decoration-none">Eventos</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="fw-bold mb-3">Acceso</h6>
+                    <ul class="list-unstyled small footer-links">
+                        <li class="mb-2"><a href="/login" class="text-white-50 text-decoration-none">Iniciar sesi&oacute;n</a></li>
+                        <li class="mb-2"><a href="/login#register" class="text-white-50 text-decoration-none">Registrarse</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-white border-opacity-10 mt-5 mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center text-white-50 small">
+                <span>&copy; 2024 Comunidad Info. Todos los derechos reservados.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/inicio/js/landing.js"></script>
+</body>
+</html>

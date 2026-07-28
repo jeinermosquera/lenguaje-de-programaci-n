@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2C4756">
+    <link rel="icon" type="image/x-icon" href="/inicio/favicon/favicon.ico">
+    <title>{% if noticia %}Editar{% else %}Nueva{% endif %} noticia - Admin</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark admin-navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/admin/"><i class="bi bi-shield-lock-fill me-2"></i>Admin</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="adminNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="/admin/"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/admin/noticias"><i class="bi bi-newspaper me-1"></i>Noticias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/eventos"><i class="bi bi-calendar-event me-1"></i>Eventos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/usuarios"><i class="bi bi-people me-1"></i>Usuarios</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-white-50 small d-none d-sm-inline">{{ nombre }}</span>
+                    <a href="/user/" class="btn btn-outline-light btn-sm rounded-pill px-3"><i class="bi bi-house-door"></i></a>
+                    <a href="/login" class="btn btn-outline-light btn-sm rounded-pill px-3" id="btnLogout"><i class="bi bi-box-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="admin-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <a href="/admin/noticias" class="btn btn-sm rounded-pill px-3 mb-4" style="background:rgba(57,88,109,0.1);color:var(--accent);border:none;">
+                        <i class="bi bi-arrow-left me-1"></i>Volver
+                    </a>
+                    <div class="admin-card">
+                        <h4 class="fw-bold mb-4">{% if noticia %}Editar noticia{% else %}Nueva noticia{% endif %}</h4>
+                        <form id="noticiaForm">
+                            <input type="hidden" id="noticiaId" value="{{ noticia.id if noticia else '' }}">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Titulo</label>
+                                <input type="text" class="form-control" id="titulo" value="{{ noticia.titulo if noticia else '' }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Contenido</label>
+                                <textarea class="form-control" id="contenido" rows="8" required>{{ noticia.contenido if noticia else '' }}</textarea>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Categoria</label>
+                                    <select class="form-select" id="categoria">
+                                        <option value="General" {% if noticia and noticia.categoria == 'General' %}selected{% endif %}>General</option>
+                                        <option value="Deportes" {% if noticia and noticia.categoria == 'Deportes' %}selected{% endif %}>Deportes</option>
+                                        <option value="Cultura" {% if noticia and noticia.categoria == 'Cultura' %}selected{% endif %}>Cultura</option>
+                                        <option value="Educacion" {% if noticia and noticia.categoria == 'Educacion' %}selected{% endif %}>Educacion</option>
+                                        <option value="Salud" {% if noticia and noticia.categoria == 'Salud' %}selected{% endif %}>Salud</option>
+                                        <option value="Tecnologia" {% if noticia and noticia.categoria == 'Tecnologia' %}selected{% endif %}>Tecnologia</option>
+                                        <option value="Politica" {% if noticia and noticia.categoria == 'Politica' %}selected{% endif %}>Politica</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Imagen (opcional)</label>
+                                    <input type="file" class="form-control" id="imagenInput" accept="image/*" style="font-size:0.82rem;">
+                                    <input type="hidden" id="imagen" value="{{ noticia.imagen if noticia and noticia.imagen else '' }}">
+                                    <div id="imagenPreview" class="mt-2 {% if not noticia or not noticia.imagen %}d-none{% endif %}">
+                                        <img src="{{ noticia.imagen if noticia and noticia.imagen else '' }}" class="rounded" style="max-height:100px;max-width:100%;object-fit:cover;">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-accent rounded-pill px-4">
+                                <i class="bi bi-check-lg me-1"></i>{% if noticia %}Guardar cambios{% else %}Publicar{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/admin/js/admin.js"></script>
+</body>
+</html>
