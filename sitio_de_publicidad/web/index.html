@@ -25,17 +25,17 @@
     <div class="container d-flex align-items-center">
 
       <!-- Logo -->
-      <a class="navbar-brand" href="/dashboard#inicio">
+      <a class="navbar-brand" href="/#inicio">
         <img class="brand-mark" src="/site/img/logo-apomat.png" alt="Apomat" />
       </a>
 
       <!-- Grupo derecho: links + sesión (visible desde lg hacia arriba) -->
       <div class="d-none d-lg-flex align-items-center gap-4 ms-auto">
         <ul class="navbar-nav apomat-links flex-row align-items-center gap-4 mb-0">
-          <li class="nav-item"><a class="nav-link active" href="/dashboard#inicio">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/#inicio">Inicio</a></li>
           <li class="nav-item"><a class="nav-link" href="/productos">Productos</a></li>
-          <li class="nav-item"><a class="nav-link" href="/dashboard#sobre-nosotros">Sobre nosotros</a></li>
-          <li class="nav-item"><a class="nav-link" href="/dashboard#contacto">Contacto</a></li>
+          <li class="nav-item"><a class="nav-link" href="/#sobre-nosotros">Sobre nosotros</a></li>
+          <li class="nav-item"><a class="nav-link" href="/#contacto">Contacto</a></li>
         </ul>
         <a href="#" class="cart-icon-link position-relative" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" title="Carrito">
           <i class="bi bi-cart3 fs-5"></i>
@@ -81,10 +81,10 @@
     </div>
     <div class="offcanvas-body">
       <ul class="navbar-nav flex-column mb-0">
-        <li class="nav-item"><a class="nav-link active" href="/dashboard#inicio" data-bs-dismiss="offcanvas">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/#inicio" data-bs-dismiss="offcanvas">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="/productos" data-bs-dismiss="offcanvas">Productos</a></li>
-        <li class="nav-item"><a class="nav-link" href="/dashboard#sobre-nosotros" data-bs-dismiss="offcanvas">Sobre nosotros</a></li>
-        <li class="nav-item"><a class="nav-link" href="/dashboard#contacto" data-bs-dismiss="offcanvas">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="/#sobre-nosotros" data-bs-dismiss="offcanvas">Sobre nosotros</a></li>
+        <li class="nav-item"><a class="nav-link" href="/#contacto" data-bs-dismiss="offcanvas">Contacto</a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas"><i class="bi bi-cart3"></i> Carrito</a></li>
       </ul>
       <ul class="navbar-nav flex-column mb-0" id="adminNavMobile"></ul>
@@ -310,11 +310,11 @@
         <div class="col-md-4">
           <h5 class="footer-title">Enlaces</h5>
           <ul class="footer-links">
-            <li><a href="/dashboard#inicio">Inicio</a></li>
+            <li><a href="/#inicio">Inicio</a></li>
             <li><a href="/productos">Productos</a></li>
             <li><a href="/mis-pedidos">Mis Pedidos</a></li>
-            <li><a href="/dashboard#sobre-nosotros">Sobre nosotros</a></li>
-            <li><a href="/dashboard#contacto">Contacto</a></li>
+            <li><a href="/#sobre-nosotros">Sobre nosotros</a></li>
+            <li><a href="/#contacto">Contacto</a></li>
           </ul>
         </div>
         <div class="col-md-4">
@@ -422,12 +422,12 @@
     document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 
     // Evitar recarga completa cuando ya estamos en el sitio (/dashboard):
-    // si el link apunta a "/dashboard#seccion" y ya estamos ahí, hacemos scroll
+    // si el link apunta a "/#seccion" y ya estamos ahí, hacemos scroll
     // suave en vez de dejar que el navegador recargue toda la página.
-    document.querySelectorAll('a[href^="/dashboard#"]').forEach((link) => {
+    document.querySelectorAll('a[href^="/#"]').forEach((link) => {
       link.addEventListener('click', function (e) {
-        const enDashboard = window.location.pathname === '/dashboard';
-        if (!enDashboard) return; // desde otra página (ej. /productos), navegación normal
+        const enInicio = window.location.pathname === '/' || window.location.pathname === '/dashboard';
+        if (!enInicio) return; // desde otra página (ej. /productos), navegación normal
 
         const targetId = this.getAttribute('href').split('#')[1];
         const targetEl = document.getElementById(targetId);

@@ -343,10 +343,8 @@ def login():
 
 @app.route("/dashboard")
 def dashboard():
-    """Sirve web/index.html (página principal). Requiere sesión."""
-    if "logueado" not in session:
-        return redirect("/login")
-    return send_from_directory(SITE_DIR, "index.html")
+    """Redirige a la página principal pública."""
+    return redirect("/")
 
 @app.route("/productos")
 def productos():
@@ -784,7 +782,7 @@ def enviar_contacto():
     email = request.form.get("email", "").strip().lower()
     mensaje = request.form.get("mensaje", "").strip()
 
-    redirect_url = request.referrer or "/dashboard"
+    redirect_url = request.referrer or "/"
 
     if not nombre or not email or not mensaje:
         return redirect(redirect_url.split("?")[0] + "?contacto=error")
