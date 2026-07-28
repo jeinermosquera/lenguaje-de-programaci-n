@@ -160,6 +160,7 @@ def producto_db_a_dict(r):
         "nombre": r["nombre"],
         "imagen": r["imagen"],
         "precio": precio,
+        "categoria": r.get("categoria") or "",
         "descripcion": r.get("descripcion") or "",
         "caracteristicas": json.loads(r["caracteristicas"]) if r.get("caracteristicas") else [],
         "especificaciones": json.loads(r["especificaciones"]) if r.get("especificaciones") else [],
@@ -563,14 +564,6 @@ def pago():
 
     return send_from_directory(SITE_DIR, "pago.html")
 
-@app.route("/pedido-exitoso")
-def pedido_exitoso():
-    """Sirve web/pedido-exitoso.html (confirmación de pago). Requiere sesión."""
-    if "logueado" not in session:
-        return redirect("/login")
-
-    return send_from_directory(SITE_DIR, "pedido-exitoso.html")
-
 @app.route("/pedido-fallido")
 def pedido_fallido():
     """Sirve web/pedido-fallido.html (pago rechazado). Requiere sesión."""
@@ -695,11 +688,6 @@ def stripe_webhook():
                 connection.commit()
             except Error as error:
                 print(f"Error webhook Stripe: {error}")
-            finally:
-                if "cursor" in locals():
-                    cursor.close()
-                if "connection" in locals() and connection.is_connected():
-                    connection.close()
 
     return {"ok": True}
 
@@ -836,10 +824,14 @@ def admin_api_productos():
     if "logueado" not in session or not session.get("admin"):
         return {"error": "No autorizado"}, 401
 
+    categoria = request.args.get("categoria", "").strip()
     try:
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM producto ORDER BY id")
+        if categoria:
+            cursor.execute("SELECT * FROM producto WHERE categoria = %s ORDER BY id", (categoria,))
+        else:
+            cursor.execute("SELECT * FROM producto ORDER BY id")
         rows = cursor.fetchall()
     except Error as error:
         return {"error": str(error)}, 500
@@ -859,6 +851,7 @@ def admin_agregar_producto():
 
     nombre = request.form.get("nombre", "").strip()
     precio = request.form.get("precio", "0").strip()
+    categoria = request.form.get("categoria", "").strip()
     descripcion = request.form.get("descripcion", "").strip()
     precio_rebaja = request.form.get("precio_rebaja", "").strip()
     disponible = 1 if request.form.get("disponible") == "on" else 0
@@ -878,7 +871,14 @@ def admin_agregar_producto():
     especificaciones_raw = request.form.get("especificaciones", "").strip()
 
     caracteristicas = json.dumps([c.strip() for c in caracteristicas_raw.split("\n") if c.strip()])
-    especificaciones = json.dumps([e.strip() for e in especificaciones_raw.split("\n") if e.strip()])
+    try:
+        especificaciones_parsed = json.loads(especificaciones_raw)
+        if isinstance(especificaciones_parsed, list):
+            especificaciones = especificaciones_raw
+        else:
+            especificaciones = json.dumps([e.strip() for e in especificaciones_raw.split("\n") if e.strip()])
+    except (json.JSONDecodeError, TypeError):
+        especificaciones = json.dumps([e.strip() for e in especificaciones_raw.split("\n") if e.strip()])
 
     imagen = "img-1.png"
     if "imagen" in request.files:
@@ -894,9 +894,9 @@ def admin_agregar_producto():
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute("""
-            INSERT INTO producto (nombre, imagen, precio, descripcion, caracteristicas, especificaciones, disponible, precio_rebaja, stock)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (nombre, imagen, precio, descripcion, caracteristicas, especificaciones, disponible, precio_rebaja, stock))
+            INSERT INTO producto (nombre, imagen, precio, categoria, descripcion, caracteristicas, especificaciones, disponible, precio_rebaja, stock)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (nombre, imagen, precio, categoria, descripcion, caracteristicas, especificaciones, disponible, precio_rebaja, stock))
         connection.commit()
     except Error as error:
         return {"error": str(error)}, 500
@@ -1093,6 +1093,7 @@ def admin_editar_producto(producto_id):
         return {"error": "No autorizado"}, 401
 
     precio = request.form.get("precio", "").strip()
+    categoria = request.form.get("categoria", "").strip()
     precio_rebaja = request.form.get("precio_rebaja", "").strip()
     stock = request.form.get("stock", "").strip()
 
@@ -1107,11 +1108,11 @@ def admin_editar_producto(producto_id):
         connection = get_connection()
         cursor = connection.cursor()
         if stock is not None:
-            cursor.execute("UPDATE producto SET precio = %s, precio_rebaja = %s, stock = %s WHERE id = %s",
-                           (precio, precio_rebaja, stock, producto_id))
+            cursor.execute("UPDATE producto SET precio = %s, precio_rebaja = %s, stock = %s, categoria = %s WHERE id = %s",
+                           (precio, precio_rebaja, stock, categoria, producto_id))
         else:
-            cursor.execute("UPDATE producto SET precio = %s, precio_rebaja = %s WHERE id = %s",
-                           (precio, precio_rebaja, producto_id))
+            cursor.execute("UPDATE producto SET precio = %s, precio_rebaja = %s, categoria = %s WHERE id = %s",
+                           (precio, precio_rebaja, categoria, producto_id))
         connection.commit()
     except Error as error:
         return {"error": str(error)}, 500

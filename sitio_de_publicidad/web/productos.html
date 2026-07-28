@@ -121,7 +121,7 @@
   <!-- ===================== ENCABEZADO DE PÁGINA ===================== -->
   <header class="catalog-header">
     <div class="container">
-      <span class="catalog-eyebrow">Catálogo</span>
+      <span class="section-eyebrow"></span>
       <h1>Productos</h1>
     </div>
   </header>
@@ -142,6 +142,7 @@
   <!-- ===== SECCIÓN SOBRE NOSOTROS ===== -->
   <section id="sobre-nosotros" class="about-section">
     <div class="container text-center">
+      <span class="section-eyebrow"></span>
       <h2 class="section-title text-center">Sobre nosotros</h2>
       <p>
         Somos una marca colombiana apasionada por capturar la esencia de los paisajes que nos rodean y convertirla en experiencias olfativas que transforman hogares. Cada una de nuestras fragancias está creada con ingredientes naturales seleccionados a mano, porque creemos que lo que huele bien también debe hacer bien.
@@ -157,6 +158,7 @@
   <section id="contacto" class="contact-section">
     <div class="container">
       <div class="text-center mb-5">
+        <span class="section-eyebrow"></span>
         <h2 class="section-title text-center">Contacto</h2>
       </div>
       <div class="row justify-content-center g-5">
@@ -341,7 +343,7 @@
       const grid = document.getElementById('productos-grid');
 
       fetch("/api/productos?t=" + Date.now(), { cache: "no-store" })
-        .then(r => { if (r.status === 401) { window.location.replace("/login"); return null; } return r.json(); })
+        .then(r => { if (r.status === 401) { return null; } return r.json(); })
         .then(data => {
           if (!data || data.length === 0) {
             grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No hay productos disponibles.</p></div>';
@@ -356,11 +358,11 @@
               : p.en_rebaja
               ? '<span class="badge bg-danger" style="position:absolute;top:10px;right:10px;border-radius:50px;">Rebaja</span>'
               : '';
-            return '<div class="col-6 col-md-4 col-lg-3">' +
+            return '<div class="col-6 col-md-4 col-lg-15">' +
               '<div class="product-card">' +
                 '<a href="/producto/' + p.id + '" class="product-card-link">' +
                   '<div class="product-image">' +
-                    '<img src="/site/img/' + p.imagen + '" alt="' + p.nombre + '" loading="lazy">' +
+                    '<img src="/site/img/' + p.imagen + '" alt="' + p.nombre + '" loading="lazy" onerror="this.src=\'/site/img/logo-apomat.png\';this.style.objectFit=\'contain\';this.style.padding=\'8px\';this.style.background=\'var(--bg-alt)\'">' +
                     badgeHtml +
                   '</div>' +
                   '<h5>' + p.nombre + '</h5>' +

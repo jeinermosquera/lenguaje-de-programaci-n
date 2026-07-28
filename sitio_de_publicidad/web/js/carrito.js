@@ -121,18 +121,17 @@ var Carrito = {
     var html = '<ul class="cart-items-list">';
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
+      var disablePlus = item.stock != null && item.cantidad >= item.stock;
       html +=
         '<li class="cart-item" data-id="' + item.id + '">' +
-        '<img src="/site/img/' + item.imagen + '" alt="' + item.nombre + '" class="cart-item-img">' +
+        '<img src="/site/img/' + item.imagen + '" alt="' + item.nombre + '" class="cart-item-img" onerror="this.src=\'/site/img/logo-apomat.png\';this.style.objectFit=\'contain\';this.style.padding=\'8px\';this.style.background=\'var(--bg-alt)\'">' +
         '<div class="cart-item-info">' +
         '<span class="cart-item-name">' + item.nombre + '</span>' +
         '<span class="cart-item-price">' + this.formatearPrecio(item.precio) + '</span>' +
-        '<div class="cart-qty-controls">' +
+        '<div class="cart-qty-wrap">' +
         '<button class="cart-qty-btn" onclick="Carrito.actualizarCantidad(' + item.id + ', ' + (item.cantidad - 1) + ')">-</button>' +
-        '<span class="cart-qty">' + item.cantidad + '</span>' +
-        (item.stock != null && item.cantidad >= item.stock
-          ? '<button class="cart-qty-btn" disabled style="opacity:0.4;cursor:not-allowed;">+</button>'
-          : '<button class="cart-qty-btn" onclick="Carrito.actualizarCantidad(' + item.id + ', ' + (item.cantidad + 1) + ')">+</button>') +
+        '<input type="number" class="cart-qty-input" value="' + item.cantidad + '" min="1" max="' + (item.stock != null ? item.stock : 999) + '" onchange="Carrito.actualizarCantidad(' + item.id + ', parseInt(this.value) || 0)">' +
+        '<button class="cart-qty-btn"' + (disablePlus ? ' disabled style="opacity:0.4;cursor:not-allowed;"' : ' onclick="Carrito.actualizarCantidad(' + item.id + ', ' + (item.cantidad + 1) + ')"') + '>+</button>' +
         '</div></div>' +
         '<button class="cart-item-remove" onclick="Carrito.eliminar(' + item.id + ')" title="Eliminar"><i class="bi bi-trash"></i></button>' +
         '</li>';

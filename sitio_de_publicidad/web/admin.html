@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Apomat — Admin</title>
+  <title>Selva Sensorial · Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -71,7 +71,10 @@
     </aside>
     <main class="admin-content">
       <div class="admin-header">
-        <h2>Gestión de Productos</h2>
+        <div>
+          <span class="admin-section-eyebrow"></span>
+          <h2>Gestión de Productos</h2>
+        </div>
         <button class="btn btn-admin" id="addProductBtn" data-bs-toggle="modal" data-bs-target="#addModal">
           <i class="bi bi-plus-lg"></i> Agregar Producto
         </button>
@@ -82,6 +85,7 @@
           <div style="display:flex;align-items:center;gap:12px;">
             <i class="bi bi-speedometer2" style="font-size:1.8rem;color:var(--gold);"></i>
             <div>
+              <span class="admin-section-eyebrow"></span>
               <h2 style="font-family:var(--font-brand);color:var(--navy);margin:0;font-size:1.4rem;">Panel de finanzas</h2>
               <small style="color:var(--text-muted);">Resumen económico del sitio</small>
             </div>
@@ -159,7 +163,10 @@
 
       <div class="admin-table-wrap" id="pedidos-section" style="display:none;">
         <div class="admin-header">
-          <h2>Gestión de Pedidos</h2>
+          <div>
+            <span class="admin-section-eyebrow"></span>
+            <h2>Gestión de Pedidos</h2>
+          </div>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-admin btn-admin-sm" id="btn-filtro-activos" onclick="filtrarPedidos('activos')" style="background:var(--gold-dark);">Pendientes</button>
             <button class="btn btn-admin btn-admin-sm" id="btn-filtro-todos" onclick="filtrarPedidos('todos')">Todos</button>
@@ -188,81 +195,81 @@
 
   <!-- Modal Agregar Producto -->
   <div class="modal fade" id="addModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-<div class="modal-content" style="border-radius: 20px; border: none; padding: 0.5rem;">
-        <div class="modal-header border-0">
-          <h5 class="modal-title">Agregar Producto</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-dialog-centered" style="max-width:560px;">
+<div class="modal-content" style="border-radius: 16px; border: none;">
+        <div class="modal-header" style="border-bottom:1px solid var(--color-arcilla);padding:0.85rem 1.25rem;">
+          <h5 class="modal-title" style="font-family:var(--font-brand);font-size:1.1rem;color:var(--color-ebano);">Agregar Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" style="font-size:0.75rem;"></button>
         </div>
-        <div class="modal-body pt-0">
+        <div class="modal-body" style="padding:0.85rem 1.25rem;">
           <form action="/admin/productos/agregar" method="POST" enctype="multipart/form-data">
-            <div class="form-section">
-              <div class="form-section-title">Información básica</div>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label">Nombre del producto <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="nombre" required placeholder="Ej: Vainilla del bosque">
+            <div class="row g-2 mb-2">
+              <div class="col-12">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Nombre <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="nombre" required placeholder="Ej: Vainilla del bosque" style="font-size:0.82rem;padding:0.4rem 0.65rem;border-radius:8px;">
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Precio $ <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="precio" required placeholder="20000" style="font-size:0.82rem;padding:0.4rem 0.65rem;border-radius:8px;">
+              </div>
+              <div class="col-4">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Categoría <span class="text-danger">*</span></label>
+                <select class="form-control" name="categoria" required style="font-size:0.82rem;padding:0.4rem 0.65rem;border-radius:8px;">
+                  <option value="Aromatizantes">Aromatizantes</option>
+                  <option value="Lociones">Lociones</option>
+                  <option value="Ambientadores">Ambientadores</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Stock <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="stock" value="10" style="font-size:0.82rem;padding:0.4rem 0.65rem;border-radius:8px;">
+              </div>
+            </div>
+            <div class="row g-2 mb-2 align-items-end">
+              <div class="col-6">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Rebaja (opcional)</label>
+                <input type="number" class="form-control" name="precio_rebaja" placeholder="15000" style="font-size:0.82rem;padding:0.4rem 0.65rem;border-radius:8px;">
+              </div>
+              <div class="col-6">
+                <div class="form-check" style="margin-bottom:2px;">
+                  <input class="form-check-input" type="checkbox" name="disponible" id="disponibleCheck" checked style="margin-top:0.3em;">
+                  <label class="form-check-label" for="disponibleCheck" style="font-size:0.78rem;">Disponible</label>
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Precio <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" name="precio" required placeholder="20000">
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-12">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Descripción</label>
+                <textarea class="form-control" name="descripcion" rows="2" placeholder="Describe el producto..." style="font-size:0.82rem;padding:0.4rem 0.65rem;border-radius:8px;"></textarea>
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Características</label>
+                <textarea class="form-control" name="caracteristicas" rows="2" placeholder="Una por línea" style="font-size:0.8rem;padding:0.35rem 0.55rem;border-radius:8px;"></textarea>
+              </div>
+              <div class="col-6">
+                <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Especificaciones</label>
+                <div id="specRows">
+                  <div style="display:flex;gap:4px;margin-bottom:4px;">
+                    <input type="text" class="form-control spec-key" value="Presentación" placeholder="Nombre" style="font-size:0.78rem;padding:0.3rem 0.5rem;border-radius:6px;flex:1;">
+                    <input type="text" class="form-control spec-val" placeholder="Ej: 250ml" style="font-size:0.78rem;padding:0.3rem 0.5rem;border-radius:6px;flex:1;">
+                  </div>
+                  <div style="display:flex;gap:4px;margin-bottom:4px;">
+                    <input type="text" class="form-control spec-key" value="Duración" placeholder="Nombre" style="font-size:0.78rem;padding:0.3rem 0.5rem;border-radius:6px;flex:1;">
+                    <input type="text" class="form-control spec-val" placeholder="Ej: 30 días" style="font-size:0.78rem;padding:0.3rem 0.5rem;border-radius:6px;flex:1;">
                   </div>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                  <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" name="disponible" id="disponibleCheck" checked>
-                    <label class="form-check-label" for="disponibleCheck">Disponible</label>
-                  </div>
-                </div>
+                <input type="hidden" name="especificaciones" id="especificacionesInput">
               </div>
             </div>
-            <div class="form-section">
-              <div class="form-section-title">Precio y stock</div>
-              <div class="row g-3">
-                <div class="col-6 col-md-3 d-flex flex-column">
-                  <label class="form-label">Stock <span class="text-danger">*</span></label>
-                  <input type="number" class="form-control" name="stock" value="10" placeholder="10">
-                </div>
-                <div class="col-6 col-md-3 d-flex flex-column">
-                  <label class="form-label">Precio en rebaja (opcional)</label>
-                  <input type="number" class="form-control" name="precio_rebaja" placeholder="15000">
-                </div>
-              </div>
+            <div class="mb-2">
+              <label class="form-label" style="font-size:0.73rem;margin-bottom:0.2rem;">Imagen</label>
+              <input type="file" class="form-control" name="imagen" accept="image/png,image/jpeg,image/webp" style="font-size:0.8rem;padding:0.35rem 0.55rem;border-radius:8px;color:var(--color-texto);">
             </div>
-            <div class="form-section">
-              <div class="form-section-title">Descripción</div>
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label">Descripción del producto</label>
-                  <textarea class="form-control" name="descripcion" rows="3" placeholder="Describe las cualidades del producto..."></textarea>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Características</label>
-                  <textarea class="form-control" name="caracteristicas" rows="4" placeholder="Aroma fresco&#10;Duración prolongada&#10;Ideal para hogar"></textarea>
-                  <small class="form-text">Una por línea</small>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Especificaciones</label>
-                  <textarea class="form-control" name="especificaciones" rows="4" placeholder="Presentación: &#10;Duración: "></textarea>
-                  <small class="form-text">Una por línea</small>
-                </div>
-              </div>
-            </div>
-            <div class="form-section">
-              <div class="form-section-title">Imagen</div>
-              <div class="row g-3">
-                <div class="col-12">
-                  <div class="upload-area">
-                    <i class="bi bi-cloud-arrow-up"></i>
-                    <p>Arrastra la imagen aquí o haz clic para seleccionar</p>
-                    <input type="file" class="form-control" name="imagen" accept="image/png,image/jpeg,image/webp">
-                  </div>
-                </div>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-admin w-100 mt-4">
+            <button type="submit" class="btn btn-admin w-100" style="padding:0.5rem;font-size:0.82rem;border-radius:10px;margin-top:0.15rem;">
               <i class="bi bi-check-lg"></i> Guardar Producto
             </button>
           </form>
@@ -274,7 +281,7 @@
   <!-- Modal Editar Producto -->
   <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="border-radius: 20px; border: none; padding: 0.5rem;">
+      <div class="modal-content modal-slide" style="border-radius: 20px; border: none; padding: 0.5rem;">
         <div class="modal-header border-0">
           <h5 class="modal-title" style="font-family:var(--font-brand);font-size:1.4rem;color:var(--navy);" id="editModalTitle">Editar Producto</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -284,6 +291,14 @@
             <div class="mb-3">
               <label class="form-label">Nombre</label>
               <input type="text" class="form-control" id="editNombre" disabled style="background:#f0f0f0;">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Categoría</label>
+              <select class="form-control" name="categoria" id="editCategoria" required>
+                <option value="Aromatizantes">Aromatizantes</option>
+                <option value="Lociones">Lociones</option>
+                <option value="Ambientadores">Ambientadores</option>
+              </select>
             </div>
             <div class="mb-3">
               <label class="form-label">Precio normal ($)</label>
@@ -308,8 +323,8 @@
     <div class="container">
       <div class="row g-4">
         <div class="col-md-4">
-          <h5 class="footer-title">Apomat</h5>
-          <p class="footer-text">Panel de administración.</p>
+          <h5 class="footer-title">Selva Sensorial</h5>
+          <p class="footer-text">Panel de administración — Aromatizantes artesanales colombianos.</p>
         </div>
         <div class="col-md-4">
           <h5 class="footer-title">Enlaces</h5>
@@ -354,6 +369,26 @@
     function esc(s) { if (s == null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
     function escJS(s) { if (s == null) return ''; return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,''); }
 
+    document.addEventListener('DOMContentLoaded', function() {
+      var addForm = document.querySelector('#addModal form');
+      if (addForm) {
+        addForm.addEventListener('submit', function() {
+          var rows = document.querySelectorAll('#specRows .spec-row');
+          var specs = [];
+          rows.forEach(function(r) {
+            var k = r.querySelector('.spec-key').value.trim();
+            var v = r.querySelector('.spec-val').value.trim();
+            if (k || v) {
+              var obj = {};
+              obj[k || v] = v || k;
+              specs.push(obj);
+            }
+          });
+          document.getElementById('especificacionesInput').value = JSON.stringify(specs);
+        });
+      }
+    });
+
     var categoriaActual = "";
 
     function filtrarCategoria(e, el, cat) {
@@ -382,7 +417,7 @@
             return `
             <tr>
               <td style="text-align:center;font-weight:600;color:#666;">${i + 1}</td>
-              <td><img src="/site/img/${esc(p.imagen)}" class="prod-img" alt="${esc(p.nombre)}"></td>
+              <td><img src="/site/img/${esc(p.imagen)}" class="prod-img" alt="${esc(p.nombre)}" loading="lazy"></td>
               <td><strong>${esc(p.nombre)}</strong>${p.en_rebaja ? ' <span class="badge bg-danger badge-admin">Rebaja</span>' : ''}</td>
               <td><span class="badge bg-secondary badge-admin">${esc(p.categoria)}</span></td>
               <td>${p.en_rebaja ? '<span style="text-decoration:line-through;color:#999;">' + p.precio_formateado + '</span> <strong style="color:#dc3545;">' + p.precio_rebaja_formateado + '</strong>' : p.precio_formateado}</td>
@@ -392,7 +427,7 @@
                 <div class="dropdown">
                   <button class="btn-admin-sm btn-admin dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-gear"></i></button>
                   <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#" onclick="abrirEditar(${p.id}, '${escJS(p.nombre)}', ${p.precio}, ${rebajaVal}, ${stockVal})"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="abrirEditar(${p.id}, '${escJS(p.nombre)}', ${p.precio}, ${rebajaVal}, ${stockVal}, '${escJS(p.categoria)}')"><i class="bi bi-pencil me-2"></i>Editar</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="#" onclick="confirmarEliminar(event, '${escJS(p.nombre)}', ${p.id})"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
                   </ul>
@@ -410,21 +445,27 @@
       const value = el.value;
       const form = new FormData();
       form.append("disponible", value);
+      el.disabled = true;
+      el.style.opacity = '0.5';
       fetch("/admin/productos/toggle/" + id, { method: "POST", body: form })
         .then(r => r.json())
         .then(data => {
+          el.disabled = false;
+          el.style.opacity = '1';
           if (data.ok) {
             el.value = data.disponible ? "1" : "0";
           }
-        });
+        })
+        .catch(function() { el.disabled = false; el.style.opacity = '1'; });
     }
 
-    function abrirEditar(id, nombre, precio, precioRebaja, stock) {
+    function abrirEditar(id, nombre, precio, precioRebaja, stock, categoria) {
       document.getElementById("editModalTitle").textContent = "Editar: " + nombre;
       document.getElementById("editNombre").value = nombre;
       document.getElementById("editPrecio").value = precio;
       document.getElementById("editRebaja").value = (precioRebaja != null && precioRebaja > 0) ? precioRebaja : "";
       document.getElementById("editStock").value = (stock != null) ? stock : "";
+      document.getElementById("editCategoria").value = categoria || "Aromatizantes";
       document.getElementById("editForm").action = "/admin/productos/editar/" + id;
       var modal = new bootstrap.Modal(document.getElementById("editModal"));
       modal.show();
@@ -482,8 +523,8 @@
 
     function filtrarPedidos(filtro) {
       pedidosFiltro = filtro;
-      document.getElementById("btn-filtro-activos").style.background = filtro === "activos" ? "var(--gold-dark)" : "var(--gold)";
-      document.getElementById("btn-filtro-todos").style.background = filtro === "todos" ? "var(--gold-dark)" : "var(--gold)";
+      document.getElementById("btn-filtro-activos").classList.toggle("btn-admin-active", filtro === "activos");
+      document.getElementById("btn-filtro-todos").classList.toggle("btn-admin-active", filtro === "todos");
       renderizarPedidos();
     }
 
@@ -641,9 +682,9 @@
 
           var meses = d.ventas_mensuales || [];
           var maxVenta = 0;
-          for (var mi = 0; mi < meses.length; mi++) { if (Number(meses[mi].ventas) > maxVenta) maxVenta = Number(meses[mi].ventas); }
+          if (meses && Array.isArray(meses)) { for (var mi = 0; mi < meses.length; mi++) { if (Number(meses[mi].ventas) > maxVenta) maxVenta = Number(meses[mi].ventas); } }
           var chartHtml = '<div style="display:flex;align-items:end;gap:8px;height:100%;width:100%;">';
-          for (var mi = 0; mi < meses.length; mi++) {
+          if (meses && Array.isArray(meses)) { for (var mi = 0; mi < meses.length; mi++) {
             var venta = Number(meses[mi].ventas);
             var altura = maxVenta > 0 ? (venta / maxVenta * 100) : 0;
             var partes = meses[mi].mes.split("-");
@@ -651,7 +692,7 @@
             var esActual = mi === meses.length - 1;
             chartHtml += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:end;position:relative;"><div style="width:100%;max-width:48px;background:linear-gradient(180deg,var(--gold) 0%,var(--gold-dark) 100%);border-radius:8px 8px 4px 4px;height:' + Math.max(altura, 4) + '%;min-height:8px;transition:height 0.4s ease;position:relative;' + (esActual ? 'box-shadow:0 4px 12px rgba(201,150,14,0.3);' : '') + '"><div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:rgba(28,46,74,0.9);color:#fff;font-size:0.6rem;padding:2px 6px;border-radius:6px;font-weight:600;white-space:nowrap;opacity:0;transition:opacity 0.2s;" class="chart-tooltip">' + formatearPrecio(venta) + '</div></div><small style="margin-top:8px;font-size:0.65rem;color:var(--text-muted);font-weight:' + (esActual ? '600' : '400') + ';">' + nombreMes + "</small></div>";
           }
-          chartHtml += "</div>";
+          chartHtml += "</div>"; }
           document.getElementById("dashboard-chart").innerHTML = chartHtml || '<p class="text-muted text-center w-100 py-4">Sin datos de ventas mensuales</p>';
 
           var estados = d.pedidos_por_estado || {};

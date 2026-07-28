@@ -55,11 +55,21 @@
     </div>
     <div class="offcanvas-body">
       <ul class="navbar-nav flex-column mb-0">
-          <li class="nav-item"><a class="nav-link" href="/" data-bs-dismiss="offcanvas">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="/" data-bs-dismiss="offcanvas">Inicio</a></li>
         <li class="nav-item"><a class="nav-link" href="/productos" data-bs-dismiss="offcanvas">Productos</a></li>
+        <li class="nav-item"><a class="nav-link" href="/#sobre-nosotros" data-bs-dismiss="offcanvas">Sobre nosotros</a></li>
+        <li class="nav-item"><a class="nav-link" href="/#contacto" data-bs-dismiss="offcanvas">Contacto</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas"><i class="bi bi-cart3"></i> Carrito</a></li>
       </ul>
-      <!-- Menú de usuario en móvil -->
-      <div class="offcanvas-user-menu">
+      <ul class="navbar-nav flex-column mb-0" id="adminNavMobile"></ul>
+
+      <!-- Enlaces de login/registro en móvil cuando NO está logueado -->
+      <div class="offcanvas-auth-not-logged flex-column gap-2" style="display: none;">
+        <a class="btn btn-gold w-100" href="/login?register=1">Registrarse</a>
+        <a class="btn btn-gold w-100" href="/login">Iniciar sesión</a>
+      </div>
+      <!-- Menú de usuario en móvil cuando SÍ está logueado -->
+      <div class="offcanvas-user-menu" style="display: none;">
         <div class="d-flex align-items-center gap-3 mb-3">
           <span class="user-avatar fs-4"><i class="bi bi-person-circle"></i></span>
           <span class="saludo-usuario fw-medium"></span>
@@ -71,6 +81,15 @@
           <li class="nav-item"><a class="nav-link text-danger" href="#" id="deleteAccountBtnMobile"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
           <li class="nav-item"><a class="nav-link" href="#" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
         </ul>
+      </div>
+
+      <div class="contact-block">
+        <p><i class="bi bi-geo-alt"></i> Carrera 16 # 12-165, barrio La Yesquita, Quibdó, Chocó.</p>
+        <p><i class="bi bi-telephone"></i> 312 732 0463</p>
+        <div class="social-row">
+          <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+        </div>
       </div>
     </div>
   </div>

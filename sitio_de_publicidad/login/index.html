@@ -2,284 +2,381 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Apomat — Iniciar Sesión</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selva Sensorial — Iniciar Sesión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favico-32x32.png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/site/css/style.css" />
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="split-layout">
-        <div class="split-brand">
-            <div class="brand-overlay"></div>
-            <div class="brand-content">
-                <img src="/img/logo-apomat.png" alt="Apomat" class="brand-logo">
-                <h2 class="brand-heading">Aromatizantes que transforman tus espacios</h2>
-                <p class="brand-desc">Fragancias artesanales colombianas, creadas con ingredientes naturales para convertir tu hogar en una experiencia olfativa única.</p>
-                <div class="brand-testimonial">
-                    <span>"Cada aroma cuenta una historia"</span>
+
+<nav class="navbar navbar-expand-lg apomat-navbar" id="apomatNavbar">
+    <div class="container d-flex align-items-center">
+        <a class="navbar-brand" href="/#inicio">
+            <img class="brand-mark" src="/site/img/logo-apomat.png" alt="Apomat" />
+        </a>
+        <div class="d-none d-lg-flex align-items-center gap-4 ms-auto">
+            <ul class="navbar-nav apomat-links flex-row align-items-center gap-4 mb-0">
+                <li class="nav-item"><a class="nav-link" href="/#inicio">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="/productos">Productos</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#sobre-nosotros">Sobre nosotros</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#contacto">Contacto</a></li>
+            </ul>
+            <a href="#" class="cart-icon-link position-relative" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" title="Carrito">
+                <i class="bi bi-cart3 fs-5"></i>
+                <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill" style="display:none;">0</span>
+            </a>
+            <div class="align-items-center gap-3 auth-links-not-logged" style="display: flex;">
+                <a class="btn btn-gold btn-sm" href="/login">Iniciar sesión</a>
+                <a class="btn btn-gold btn-sm" href="/login?register=1">Registrarse</a>
+            </div>
+            <div class="align-items-center ps-3 border-start apomat-auth user-menu" style="display: none;">
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle user-dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="user-avatar"><i class="bi bi-person-circle"></i></span>
+                        <span class="saludo-usuario"></span>
+                        <span class="pedidos-notif-badge greeting-badge" style="display:none;background:#dc3545;color:#fff;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;line-height:15px;text-align:center;border-radius:50px;padding:0 3px;margin-left:4px;vertical-align:super;">0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
+                        <li><a class="dropdown-item" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos <span class="pedidos-notif-badge" style="display:none;background:#dc3545;color:#fff;font-size:0.6rem;font-weight:700;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:50px;padding:0 4px;float:right;">0</span></a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" id="deleteAccountBtn"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
-        <div class="split-form">
-            <div class="form-wrapper">
-                <div class="form-header">
-                    <h3>Bienvenido</h3>
-                    <p>Accede a tu cuenta o crea una nueva</p>
-                </div>
-                <ul class="nav nav-tabs nav-fill apomat-tabs" id="auth-tabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" href="#login" id="login-tab">Iniciar Sesión</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" href="#register" id="register-tab">Registrarse</a>
-                    </li>
+        <button class="navbar-toggler d-lg-none border-0 ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#apomatOffcanvas" aria-controls="apomatOffcanvas" aria-label="Abrir menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+
+<div class="offcanvas offcanvas-end apomat-offcanvas" tabindex="-1" id="apomatOffcanvas" aria-labelledby="apomatOffcanvasLabel">
+    <div class="offcanvas-header">
+        <span id="apomatOffcanvasLabel" class="visually-hidden">Menú de navegación</span>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="navbar-nav flex-column mb-0">
+            <li class="nav-item"><a class="nav-link" href="/#inicio" data-bs-dismiss="offcanvas">Inicio</a></li>
+            <li class="nav-item"><a class="nav-link" href="/productos" data-bs-dismiss="offcanvas">Productos</a></li>
+            <li class="nav-item"><a class="nav-link" href="/#sobre-nosotros" data-bs-dismiss="offcanvas">Sobre nosotros</a></li>
+            <li class="nav-item"><a class="nav-link" href="/#contacto" data-bs-dismiss="offcanvas">Contacto</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas"><i class="bi bi-cart3"></i> Carrito</a></li>
+        </ul>
+        <ul class="navbar-nav flex-column mb-0" id="adminNavMobile"></ul>
+        <div class="offcanvas-auth-not-logged flex-column gap-2" style="display: flex;">
+            <a class="btn btn-gold w-100" href="/login?register=1">Registrarse</a>
+            <a class="btn btn-gold w-100" href="/login">Iniciar sesión</a>
+        </div>
+        <div class="offcanvas-user-menu" style="display: none;">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <span class="user-avatar fs-4"><i class="bi bi-person-circle"></i></span>
+                <span class="saludo-usuario fw-medium">Hola</span>
+            </div>
+            <ul class="navbar-nav flex-column mb-0">
+                <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos</a></li>
+                <li class="nav-item"><hr class="dropdown-divider"></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="#" id="deleteAccountBtnMobile"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+            </ul>
+        </div>
+        <div class="contact-block">
+            <p><i class="bi bi-geo-alt"></i> Carrera 16 # 12-165, barrio La Yesquita, Quibdó, Chocó.</p>
+            <p><i class="bi bi-telephone"></i> 312 732 0463</p>
+            <div class="social-row">
+                <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main class="auth-main">
+    <div class="auth-bg"></div>
+    <div class="auth-card">
+        <div class="auth-card-inner">
+            <div class="auth-card-hilo"></div>
+
+            <div class="auth-header">
+                <img src="/site/img/logo-apomat.png" alt="Selva Sensorial" class="auth-logo">
+                <span class="auth-eyebrow">Selva Sensorial</span>
+                <h1 class="auth-title">Bienvenido</h1>
+                <p class="auth-desc">Accede a tu cuenta o crea una nueva para continuar tu experiencia sensorial.</p>
+            </div>
+
+            <div id="login-view" class="auth-view">
+                <form action="/login" method="POST" autocomplete="off" novalidate>
+                    <div class="auth-field">
+                        <label for="email" class="auth-label">Correo electrónico</label>
+                        <input type="email" id="email" name="email" class="auth-input" placeholder="ejemplo@correo.com" required autocomplete="off">
+                    </div>
+                    <div class="auth-field auth-field--toggle">
+                        <label for="password" class="auth-label">Contraseña</label>
+                        <div class="auth-input-wrap">
+                            <input type="password" id="password" name="password" class="auth-input" placeholder="Tu contraseña" required autocomplete="new-password">
+                            <i class="bi bi-eye auth-pw-toggle" onclick="togglePassword('password', this)"></i>
+                        </div>
+                    </div>
+                    <button class="auth-btn" type="submit">Iniciar Sesión</button>
+                    <p class="auth-switch-text">¿No tienes cuenta? <a href="#" onclick="showRegister();return false;">Regístrate</a></p>
+                </form>
+            </div>
+
+            <div id="register-view" class="auth-view" style="display:none">
+                <form id="register-form" action="/register" method="POST" autocomplete="off" novalidate>
+                    <div class="auth-field">
+                        <label for="register-name" class="auth-label">Nombre completo</label>
+                        <input type="text" id="register-name" name="nombre" class="auth-input" placeholder="Tu nombre completo" required>
+                    </div>
+                    <div class="auth-field">
+                        <label for="register-email" class="auth-label">Correo electrónico</label>
+                        <input type="email" id="register-email" name="correo" class="auth-input" placeholder="ejemplo@correo.com" required autocomplete="off">
+                    </div>
+                    <div class="auth-field auth-field--toggle">
+                        <label for="register-password" class="auth-label">Contraseña</label>
+                        <div class="auth-input-wrap">
+                            <input type="password" id="register-password" name="contrasena" class="auth-input" placeholder="Mínimo 8 caracteres" required autocomplete="new-password">
+                            <i class="bi bi-eye auth-pw-toggle" onclick="togglePassword('register-password', this)"></i>
+                        </div>
+                    </div>
+                    <div class="auth-field auth-field--toggle">
+                        <label for="register-confirm-password" class="auth-label">Confirmar contraseña</label>
+                        <div class="auth-input-wrap">
+                            <input type="password" id="register-confirm-password" name="confirm_password" class="auth-input" placeholder="Repite tu contraseña" required autocomplete="new-password">
+                            <i class="bi bi-eye auth-pw-toggle" onclick="togglePassword('register-confirm-password', this)"></i>
+                        </div>
+                    </div>
+                    <button class="auth-btn" type="submit">Crear Cuenta</button>
+                    <p class="auth-switch-text">¿Ya tienes cuenta? <a href="#" onclick="showLogin();return false;">Inicia sesión</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas">
+    <div class="offcanvas-header">
+        <h5>Carrito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="cart-offcanvas-body">
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-cart-x" style="font-size:3rem;display:block;margin-bottom:1rem;"></i>Tu carrito está vacío
+        </div>
+    </div>
+</div>
+
+<footer class="footer-apomat">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5 class="footer-title">Selva Sensorial</h5>
+                <p class="footer-text">Aromatizantes que transforman tus espacios en experiencias olfativas únicas.</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="footer-title">Enlaces</h5>
+                <ul class="footer-links">
+                    <li><a href="/#inicio">Inicio</a></li>
+                    <li><a href="/productos">Productos</a></li>
+                    <li><a href="/mis-pedidos">Mis Pedidos</a></li>
+                    <li><a href="/#sobre-nosotros">Sobre nosotros</a></li>
+                    <li><a href="/#contacto">Contacto</a></li>
                 </ul>
-
-                <div id="login-view" class="view-container">
-                    <form action="/login" method="POST" autocomplete="off" novalidate>
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Correo electrónico</label>
-                                <input type="email" required placeholder="ejemplo@correo.com" id="email" name="email" class="form-control" autocomplete="off">
-                            </div>
-
-                            <div class="mb-3 position-relative">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" required placeholder="Tu contraseña" id="password" name="password" class="form-control" autocomplete="new-password">
-                                <i class="bi bi-eye password-toggle" id="toggle-login-password" onclick="togglePassword('password', this)"></i>
-                            </div>
-
-                            <button class="btn apomat-btn w-100" type="submit">
-                                Iniciar Sesión
-                            </button>
-
-                        </div>
-                    </form>
-                </div>
-
-                <div id="register-view" class="view-container" style="display: none;">
-                    <form id="register-form" action="/register" method="POST" autocomplete="off" novalidate>
-                        <div class="form-body">
-                            <div class="mb-3">
-                                <label for="register-name" class="form-label">Nombre completo</label>
-                                <input type="text" required placeholder="Tu nombre completo" id="register-name" name="nombre" class="form-control">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="register-email" class="form-label">Correo electrónico</label>
-                                <input type="email" required placeholder="ejemplo@correo.com" id="register-email" name="correo" class="form-control" autocomplete="off">
-                            </div>
-
-                            <div class="mb-3 position-relative">
-                                <label for="register-password" class="form-label">Contraseña</label>
-                                <input type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" id="register-password" name="contrasena" class="form-control" oninput="medirFortalezaContrasena(this.value)">
-                                <i class="bi bi-eye password-toggle" id="toggle-register-password" onclick="togglePassword('register-password', this)"></i>
-                                <div class="password-strength-bar mt-2">
-                                    <div class="password-strength-fill" id="password-strength-fill"></div>
-                                </div>
-                                <small class="password-strength-text" id="password-strength-text"></small>
-                            </div>
-
-                            <div class="mb-3 position-relative">
-                                <label for="register-confirm-password" class="form-label">Confirmar contraseña</label>
-                                <input type="password" autocomplete="new-password" required placeholder="Repite tu contraseña" id="register-confirm-password" name="confirm_password" class="form-control">
-                                <i class="bi bi-eye password-toggle" id="toggle-register-confirm-password" onclick="togglePassword('register-confirm-password', this)"></i>
-                            </div>
-
-                            <button class="btn apomat-btn w-100" type="submit">
-                                Crear Cuenta
-                            </button>
-                        </div>
-                    </form>
+            </div>
+            <div class="col-md-4">
+                <h5 class="footer-title">Contacto</h5>
+                <ul class="footer-links">
+                    <li><i class="bi bi-geo-alt"></i> Cra 16 # 12-165, Quibdó, Chocó</li>
+                    <li><i class="bi bi-telephone"></i> 312 732 0463</li>
+                    <li><i class="bi bi-envelope"></i> apomat@gmail.com</li>
+                </ul>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
         </div>
+        <div class="footer-bottom">
+            <span>&copy; Imágenes de autor reservadas</span>
+        </div>
     </div>
+</footer>
 
-  <div class="page-loader" id="pageLoader">
+<div class="page-loader" id="pageLoader">
     <div class="spinner-border text-gold" role="status">
-      <span class="visually-hidden">Cargando...</span>
+        <span class="visually-hidden">Cargando...</span>
     </div>
-  </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    window.addEventListener('load', function() {
-      document.body.classList.add('page-ready');
-    });
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/site/js/carrito.js"></script>
+<script>
+const paramsLogin = new URLSearchParams(window.location.search);
 
-    document.querySelectorAll('form').forEach(function(f) {
-      f.addEventListener('submit', function() {
-        document.getElementById('pageLoader').classList.add('active');
-        document.body.classList.add('page-exit');
-      });
-    });
-        function mostrarAlerta(icono, titulo, texto) {
-            Swal.fire({
-                icon: icono,
-                title: titulo,
-                text: texto,
-                confirmButtonText: "Entendido",
-                confirmButtonColor: "#c9960e",
-                customClass: {
-                    popup: "swal-brand-popup",
-                    title: "swal-brand-title",
-                    htmlContainer: "swal-brand-text",
-                    confirmButton: "swal-brand-confirm",
-                    icon: "swal-brand-icon"
+document.body.style.opacity = '1';
+window.addEventListener('load', () => document.body.classList.add('page-ready'));
+
+function navegar(url) {
+    document.body.style.opacity = '0';
+    setTimeout(function() { window.location.href = url; }, 60);
+}
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+    var h = link.getAttribute('href');
+    if (!h || h === '#' || h.startsWith('javascript:') || link.target === '_blank' || link.hasAttribute('data-bs-toggle') || link.hasAttribute('data-bs-dismiss')) return;
+    if (h.startsWith('/#')) {
+        if (window.location.pathname === '/' || window.location.pathname === '/dashboard' || window.location.pathname === '') return;
+    }
+    if (link.host && link.host !== window.location.host) return;
+    e.preventDefault();
+    navegar(link.href);
+});
+
+const navbarEl = document.getElementById('apomatNavbar');
+window.addEventListener('scroll', () => {
+    navbarEl.classList.toggle('is-scrolled', window.scrollY > 10);
+});
+
+const timestamp = Date.now();
+fetch("/usuario?t=" + timestamp + "&r=mostrar_nombre", { cache: "no-store", method: "GET", headers: { "Pragma": "no-cache", "Cache-Control": "no-cache, no-store, must-revalidate" } })
+    .then(response => response.status === 401 ? null : response.json())
+    .then(data => {
+        const authLinks = document.querySelector(".auth-links-not-logged");
+        const userMenu = document.querySelector(".user-menu");
+        if (data && data.nombre) {
+            if (authLinks) authLinks.style.display = "none";
+            if (userMenu) userMenu.style.display = "flex";
+            const primerNombre = data.nombre.split(" ")[0];
+            document.querySelectorAll(".saludo-usuario").forEach(el => { el.textContent = "Hola, " + primerNombre; });
+            if (data.admin) {
+                var ul = document.querySelector(".apomat-navbar .apomat-links");
+                if (ul) {
+                    var li = document.createElement("li");
+                    li.className = "nav-item";
+                    li.innerHTML = '<a class="nav-link" href="/admin"><i class="bi bi-shield-lock"></i> Admin</a>';
+                    ul.appendChild(li);
                 }
-            });
-        }
-
-        const params = new URLSearchParams(window.location.search);
-
-        if (params.get("register") === "1") {
-          const registerTab = document.getElementById("register-tab");
-          if (registerTab) registerTab.click();
-        }
-
-        if (params.get("error") === "credenciales") {
-            var intentosRestantes = params.get("intentos");
-            var msg = "Correo o contrase\u00f1a incorrectos.";
-            if (intentosRestantes) msg += " Te quedan " + intentosRestantes + " intento(s).";
-            mostrarAlerta("error", "Inicio de sesi\u00f3n fallido", msg);
-        }
-
-        if (params.get("error") === "bloqueado") {
-            var segs = parseInt(params.get("segundos")) || 30;
-            mostrarAlerta("warning", "Demasiados intentos", "Espera " + segs + " segundos antes de intentar de nuevo.");
-        }
-
-
-
-        function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.remove("bi-eye");
-                icon.classList.add("bi-eye-slash");
-            } else {
-                input.type = "password";
-                icon.classList.remove("bi-eye-slash");
-                icon.classList.add("bi-eye");
+                var ulMobile = document.getElementById("adminNavMobile");
+                if (ulMobile) {
+                    var liM = document.createElement("li");
+                    liM.className = "nav-item";
+                    liM.innerHTML = '<a class="nav-link" href="/admin" data-bs-dismiss="offcanvas"><i class="bi bi-shield-lock"></i> Admin</a>';
+                    ulMobile.appendChild(liM);
+                }
             }
+        } else {
+            if (authLinks) authLinks.style.display = "flex";
+            if (userMenu) userMenu.style.display = "none";
         }
+        const mobileAuth = document.querySelector(".offcanvas-auth-not-logged");
+        const mobileUser = document.querySelector(".offcanvas-user-menu");
+        if (mobileAuth) mobileAuth.style.display = data && data.nombre ? "none" : "flex";
+        if (mobileUser) mobileUser.style.display = data && data.nombre ? "block" : "none";
+    })
+    .catch(() => {});
 
-        const loginTab = document.getElementById("login-tab");
-        const registerTab = document.getElementById("register-tab");
-        const loginView = document.getElementById("login-view");
-        const registerView = document.getElementById("register-view");
+function cerrarSesion() {
+    sessionStorage.setItem("bfcache_disabled", "true");
+    navegar("/logout");
+}
+document.querySelectorAll('#logoutBtn').forEach(function(el) {
+    el.addEventListener('click', function(e) { e.preventDefault(); cerrarSesion(); });
+});
+document.getElementById('logoutBtnMobile').addEventListener('click', function(e) {
+    e.preventDefault();
+    cerrarSesion();
+});
 
-        function ocultarTodos() {
-            loginView.style.display = "none";
-            registerView.style.display = "none";
+function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    const isPassword = input.type === "password";
+    input.type = isPassword ? "text" : "password";
+    icon.classList.toggle("bi-eye", !isPassword);
+    icon.classList.toggle("bi-eye-slash", isPassword);
+}
+
+function ocultarTodos() {
+    loginView.style.display = "none";
+    registerView.style.display = "none";
+}
+
+function showLogin() {
+    ocultarTodos();
+    loginView.style.display = "block";
+    loginView.style.animation = "slideIn 0.35s ease";
+}
+
+function showRegister() {
+    ocultarTodos();
+    registerView.style.display = "block";
+    registerView.style.animation = "slideIn 0.35s ease";
+}
+
+const loginView = document.getElementById("login-view");
+const registerView = document.getElementById("register-view");
+
+function mostrarAlertaForm(icono, titulo, texto) {
+    Swal.fire({
+        icon: icono,
+        title: titulo,
+        text: texto,
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#C49B4A",
+        customClass: {
+            popup: "swal-brand-popup",
+            title: "swal-brand-title",
+            htmlContainer: "swal-brand-text",
+            confirmButton: "swal-brand-confirm",
+            icon: "swal-brand-icon"
         }
+    });
+}
 
-        function showLogin() {
-            ocultarTodos();
-            loginView.style.display = "block";
-            loginView.style.animation = "slideIn 0.5s ease";
-            loginTab.classList.add("active");
-            registerTab.classList.remove("active");
-        }
+document.getElementById("register-form").addEventListener("submit", function(event) {
+    const password = document.getElementById("register-password").value;
+    const confirmPassword = document.getElementById("register-confirm-password").value;
+    if (password.length < 8) {
+        event.preventDefault();
+        mostrarAlertaForm("warning", "Contraseña muy corta", "La contraseña debe tener mínimo 8 caracteres.");
+        return;
+    }
+    if (password !== confirmPassword) {
+        event.preventDefault();
+        mostrarAlertaForm("warning", "Las contraseñas no coinciden", "Verifica que ambas contraseñas sean iguales.");
+    }
+});
 
-        function showRegister() {
-            ocultarTodos();
-            registerView.style.display = "block";
-            registerView.style.animation = "slideIn 0.5s ease";
-            registerTab.classList.add("active");
-            loginTab.classList.remove("active");
-        }
+function limpiarFormularios() {
+    document.querySelectorAll("form").forEach(f => f.reset());
+}
+window.addEventListener("pageshow", limpiarFormularios);
+document.addEventListener("DOMContentLoaded", limpiarFormularios);
 
-        loginTab.addEventListener("click", (e) => {
-            e.preventDefault();
-            showLogin();
-        });
-
-        registerTab.addEventListener("click", (e) => {
-            e.preventDefault();
-            showRegister();
-        });
-
-        function medirFortalezaContrasena(password) {
-            var fill = document.getElementById("password-strength-fill");
-            var text = document.getElementById("password-strength-text");
-            var fuerza = 0;
-            if (password.length >= 8) fuerza += 25;
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) fuerza += 25;
-            if (/\d/.test(password)) fuerza += 25;
-            if (/[^a-zA-Z0-9]/.test(password)) fuerza += 25;
-            fill.style.width = fuerza + "%";
-            fill.style.borderRadius = "50px";
-            if (fuerza <= 25) {
-                fill.style.background = "#dc3545";
-                text.textContent = fuerza === 0 ? "" : "Muy débil";
-                text.style.color = "#dc3545";
-            } else if (fuerza <= 50) {
-                fill.style.background = "#fd7e14";
-                text.textContent = "Débil";
-                text.style.color = "#fd7e14";
-            } else if (fuerza <= 75) {
-                fill.style.background = "#ffc107";
-                text.textContent = "Media";
-                text.style.color = "#ffc107";
-            } else {
-                fill.style.background = "#28a745";
-                text.textContent = "Fuerte";
-                text.style.color = "#28a745";
-            }
-        }
-
-        document.getElementById("register-form").addEventListener("submit", function(event) {
-            const password = document.getElementById("register-password").value;
-            const confirmPassword = document.getElementById("register-confirm-password").value;
-
-            if (password.length < 8) {
-                event.preventDefault();
-                mostrarAlerta("warning", "Contraseña muy corta", "La contraseña debe tener mínimo 8 caracteres.");
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                event.preventDefault();
-                mostrarAlerta("warning", "Las contraseñas no coinciden", "Verifica que ambas contraseñas sean iguales.");
-                return;
-            }
-        });
-
-        function limpiarFormularios() {
-            document.querySelectorAll("form").forEach(function(formulario) {
-                formulario.reset();
-            });
-        }
-
-        window.addEventListener("pageshow", limpiarFormularios);
-        document.addEventListener("DOMContentLoaded", limpiarFormularios);
-
-        if (params.get("error") === "correo_existente") {
-            showRegister();
-            mostrarAlerta("warning", "Correo ya registrado", "Ya existe una cuenta con ese correo electrónico.");
-        }
-
-        if (params.get("error") === "password_corta") {
-            showRegister();
-            mostrarAlerta("warning", "Contraseña muy corta", "La contraseña debe tener mínimo 8 caracteres.");
-        }
-
-        if (params.get("error") === "nombre_invalido") {
-            showRegister();
-            mostrarAlerta("warning", "Nombre inválido", "El nombre debe tener al menos 3 caracteres.");
-        }
-
-        if (params.get("error") === "email_invalido") {
-            showRegister();
-            mostrarAlerta("warning", "Correo inválido", "Ingresa un correo electrónico válido.");
-        }
-    </script>
+if (paramsLogin.get("register") === "1") showRegister();
+if (paramsLogin.get("error") === "credenciales") {
+    const intentos = paramsLogin.get("intentos");
+    let msg = "Correo o contraseña incorrectos.";
+    if (intentos) msg += " Te quedan " + intentos + " intento(s).";
+    mostrarAlertaForm("error", "Inicio de sesión fallido", msg);
+}
+if (paramsLogin.get("error") === "bloqueado") {
+    mostrarAlertaForm("warning", "Demasiados intentos", "Espera " + (parseInt(paramsLogin.get("segundos")) || 30) + " segundos antes de intentar de nuevo.");
+}
+if (paramsLogin.get("error") === "correo_existente") { showRegister(); mostrarAlertaForm("warning", "Correo ya registrado", "Ya existe una cuenta con ese correo electrónico."); }
+if (paramsLogin.get("error") === "password_corta") { showRegister(); mostrarAlertaForm("warning", "Contraseña muy corta", "La contraseña debe tener mínimo 8 caracteres."); }
+if (paramsLogin.get("error") === "nombre_invalido") { showRegister(); mostrarAlertaForm("warning", "Nombre inválido", "El nombre debe tener al menos 3 caracteres."); }
+if (paramsLogin.get("error") === "email_invalido") { showRegister(); mostrarAlertaForm("warning", "Correo inválido", "Ingresa un correo electrónico válido."); }
+</script>
 </body>
 </html>
