@@ -1149,7 +1149,7 @@ body.page-ready .page-loader {
 /* ---- Back Arrow Top-Left ---- */
 .pdp-back-top {
   position: absolute;
-  left: -18px;
+  left: -12px;
   top: 0;
   display: inline-flex;
   align-items: center;
@@ -1170,7 +1170,7 @@ body.page-ready .page-loader {
   transform: translateX(-3px);
   box-shadow: 0 4px 14px rgba(0,0,0,0.1);
 }
-.product-detail-section .col-lg-5 {
+.product-detail-section .col-lg-7 {
   position: relative;
 }
 
