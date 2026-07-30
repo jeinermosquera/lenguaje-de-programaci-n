@@ -300,6 +300,7 @@
 
         document.getElementById('producto-contenedor').innerHTML = `
           <div class="col-lg-5">
+            <a href="#" class="pdp-back-top" onclick="history.back();return false;"><i class="bi bi-arrow-left"></i></a>
             <div class="pdp-image-wrap">
               <div class="pdp-image">
                 <img src="/site/img/${producto.imagen}" alt="${producto.nombre}" loading="lazy" onerror="this.src='/site/img/logo-apomat.png';this.style.objectFit='contain';this.style.padding='8px';this.style.background='var(--bg-alt)'">
@@ -308,7 +309,6 @@
             </div>
           </div>
           <div class="col-lg-7">
-            <a href="#" class="pdp-back-top" onclick="history.back();return false;"><i class="bi bi-arrow-left"></i></a>
             <div class="pdp-header">
               <span class="pdp-eyebrow">Detalle del producto</span>
               <h1 class="pdp-title">${producto.nombre}</h1>
