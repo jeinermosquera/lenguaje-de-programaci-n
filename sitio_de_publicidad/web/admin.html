@@ -21,16 +21,11 @@
         <img class="brand-mark" src="/site/img/logo-apomat.png" alt="Apomat" />
       </a>
       <div class="d-none d-lg-flex align-items-center admin-nav-right">
-        <ul class="navbar-nav apomat-links flex-row align-items-center mb-0 admin-nav-links">
-          <li class="nav-item"><a class="nav-link" href="/dashboard">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link active" href="/admin">Admin</a></li>
-        </ul>
-        <div class="d-flex align-items-center admin-nav-auth">
-          <span class="auth-greeting saludo-usuario">Admin</span>
-          <a href="#" class="d-inline-flex align-items-center gap-1 text-decoration-none auth-logout" id="logoutBtn">
-            <i class="bi bi-box-arrow-right"></i>Salir
-          </a>
-        </div>
+        <a class="nav-link admin-nav-link" href="/dashboard">Inicio</a>
+        <a class="nav-link admin-nav-link active" href="/admin">Admin</a>
+        <span class="admin-nav-divider"></span>
+        <span class="auth-greeting saludo-usuario">Admin</span>
+        <a href="#" class="auth-logout" id="logoutBtn"><i class="bi bi-box-arrow-right"></i>Salir</a>
       </div>
       <button class="navbar-toggler d-lg-none border-0 ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#apomatOffcanvas">
         <span class="navbar-toggler-icon"></span>
