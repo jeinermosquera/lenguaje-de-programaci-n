@@ -299,9 +299,6 @@
           : '';
 
         document.getElementById('producto-contenedor').innerHTML = `
-          <div class="col-12">
-            <a href="#" class="pdp-back-top" onclick="history.back();return false;"><i class="bi bi-arrow-left"></i></a>
-          </div>
           <div class="col-lg-5">
             <div class="pdp-image-wrap">
               <div class="pdp-image">
@@ -311,6 +308,7 @@
             </div>
           </div>
           <div class="col-lg-7">
+            <a href="#" class="pdp-back-top" onclick="history.back();return false;"><i class="bi bi-arrow-left"></i></a>
             <div class="pdp-header">
               <span class="pdp-eyebrow">Detalle del producto</span>
               <h1 class="pdp-title">${producto.nombre}</h1>
