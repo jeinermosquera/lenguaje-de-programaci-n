@@ -1148,9 +1148,6 @@ body.page-ready .page-loader {
 
 /* ---- Back Arrow Top-Left ---- */
 .pdp-back-top {
-  position: absolute;
-  left: -12px;
-  top: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1163,15 +1160,13 @@ body.page-ready .page-loader {
   font-size: 1.2rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+  margin-bottom: 0.5rem;
 }
 .pdp-back-top:hover {
   background: var(--navbar-bg);
   color: #fff;
   transform: translateX(-3px);
   box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-}
-.product-detail-section .col-lg-7 {
-  position: relative;
 }
 
 /* ---- Responsive ---- */
