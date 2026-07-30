@@ -224,16 +224,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (d && !d.error) {
         var userId = d.id || 0;
         var storedId = localStorage.getItem("apomat_carrito_user");
-        if (storedId !== null && storedId !== String(userId)) {
+        // Solo borrar carrito al cambiar entre DOS usuarios logueados distintos
+        if (storedId !== null && storedId !== "0" && storedId !== String(userId)) {
           localStorage.removeItem("apomat_carrito");
         }
         localStorage.setItem("apomat_carrito_user", String(userId));
       } else {
-        var storedId = localStorage.getItem("apomat_carrito_user");
-        if (storedId !== null && storedId !== "0") {
-          localStorage.removeItem("apomat_carrito");
-          localStorage.setItem("apomat_carrito_user", "0");
-        }
+        // No borrar al cerrar sesion — preservar carrito anonimo
+        localStorage.setItem("apomat_carrito_user", "0");
       }
       Carrito.actualizarBadge();
       Carrito.renderizarOffcanvas();
