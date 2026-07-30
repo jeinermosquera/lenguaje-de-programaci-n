@@ -6,6 +6,20 @@
      oro #C49B4A  | hueso #F5F1EB
    ============================================= */
 
+/* ===== ADMIN NAVBAR ===== */
+.admin-nav-right {
+  margin-left: auto;
+  gap: 2rem;
+}
+.admin-nav-links {
+  gap: 2rem !important;
+}
+.admin-nav-auth {
+  gap: 1.25rem;
+  padding-left: 2rem;
+  border-left: 1px solid rgba(255,255,255,0.12);
+}
+
 /* ===== LAYOUT ===== */
 .admin-layout {
   display: flex;
