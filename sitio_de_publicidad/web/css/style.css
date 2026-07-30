@@ -1146,27 +1146,20 @@ body.page-ready .page-loader {
   font-weight: 400;
 }
 
-/* ---- Back Arrow Top-Left ---- */
-.pdp-back-top {
+/* ---- Back Link ---- */
+.pdp-back {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--card-bg);
-  color: var(--text-primary);
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
   text-decoration: none;
-  font-size: 1.2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
-  margin-bottom: 0.5rem;
+  transition: color 0.25s, gap 0.25s;
 }
-.pdp-back-top:hover {
-  background: var(--navbar-bg);
-  color: #fff;
-  transform: translateX(-3px);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+.pdp-back:hover {
+  color: var(--navbar-bg);
+  gap: 12px;
 }
 
 /* ---- Responsive ---- */
