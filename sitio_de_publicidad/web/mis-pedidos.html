@@ -36,6 +36,8 @@
               <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
               <li><a class="dropdown-item active" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos <span class="pedidos-notif-badge" style="display:none;background:#dc3545;color:#fff;font-size:0.6rem;font-weight:700;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:50px;padding:0 4px;float:right;">0</span></a></li>
               <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" id="deleteAccountBtn"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
+              <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
             </ul>
           </div>
@@ -75,6 +77,8 @@
         <ul class="navbar-nav flex-column mb-0">
           <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#editarPerfilModal"><i class="bi bi-pencil"></i> Editar perfil</a></li>
           <li class="nav-item"><a class="nav-link" href="/mis-pedidos"><i class="bi bi-box-seam"></i> Mis Pedidos</a></li>
+          <li class="nav-item"><hr class="dropdown-divider"></li>
+          <li class="nav-item"><a class="nav-link text-danger" href="#" id="deleteAccountBtnMobile"><i class="bi bi-trash"></i> Eliminar cuenta</a></li>
           <li class="nav-item"><a class="nav-link" href="#" id="logoutBtnMobile"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
         </ul>
       </div>
@@ -256,6 +260,22 @@
       el.addEventListener('click', function(e) { e.preventDefault(); navegar('/logout'); });
     });
     document.getElementById('logoutBtnMobile').addEventListener('click', function(e) { e.preventDefault(); navegar('/logout'); });
+
+    document.getElementById('deleteAccountBtn').addEventListener('click', function() {
+      Swal.fire({
+        title: 'Eliminar cuenta',
+        text: 'Esta acción eliminará tu cuenta y todos tus datos. ¿Estás seguro?',
+        icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Eliminar', cancelButtonText: 'Cancelar',
+        customClass: { popup: 'swal-brand-popup', title: 'swal-brand-title', htmlContainer: 'swal-brand-text', confirmButton: 'swal-brand-confirm' }
+      }).then(function(r) {
+        if (r.isConfirmed) {
+          fetch('/api/usuario/eliminar', { method: 'POST' })
+            .then(function(r2) { return r2.json(); })
+            .then(function(d) { if (d.ok) navegar('/logout'); else Swal.fire('Error', d.error || 'Ocurrió un error', 'error'); });
+        }
+      });
+    });
 
     document.getElementById('editarPerfilModal').addEventListener('show.bs.modal', function() {
       document.getElementById('pw-actual').value = '';
