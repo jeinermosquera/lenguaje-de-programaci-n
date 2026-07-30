@@ -172,7 +172,7 @@ var Carrito = {
             }
           }).then(function (result) {
             if (result.isConfirmed) {
-              window.location.href = "/login";
+              window.location.href = "/login?next=/pago";
             }
           });
         }

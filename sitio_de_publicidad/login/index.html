@@ -127,6 +127,7 @@
                             <i class="bi bi-eye auth-pw-toggle" onclick="togglePassword('password', this)"></i>
                         </div>
                     </div>
+                    <input type="hidden" name="next" id="next-input" value="">
                     <button class="auth-btn" type="submit">Iniciar Sesión</button>
                     <p class="auth-switch-text">¿No tienes cuenta? <a href="#" onclick="showRegister();return false;">Regístrate</a></p>
                 </form>
@@ -156,6 +157,7 @@
                             <i class="bi bi-eye auth-pw-toggle" onclick="togglePassword('register-confirm-password', this)"></i>
                         </div>
                     </div>
+                    <input type="hidden" name="next" value="">
                     <button class="auth-btn" type="submit">Crear Cuenta</button>
                     <p class="auth-switch-text">¿Ya tienes cuenta? <a href="#" onclick="showLogin();return false;">Inicia sesión</a></p>
                 </form>
@@ -362,6 +364,12 @@ function limpiarFormularios() {
 }
 window.addEventListener("pageshow", limpiarFormularios);
 document.addEventListener("DOMContentLoaded", limpiarFormularios);
+
+// Pasar ?next= a los formularios
+var nextVal = paramsLogin.get("next") || "";
+if (nextVal) {
+    document.querySelectorAll("input[name='next']").forEach(function(inp) { inp.value = nextVal; });
+}
 
 if (paramsLogin.get("register") === "1") showRegister();
 if (paramsLogin.get("error") === "credenciales") {

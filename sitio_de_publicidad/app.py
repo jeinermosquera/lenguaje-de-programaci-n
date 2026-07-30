@@ -272,10 +272,15 @@ def register():
     session["nombre"] = full_name
     session["admin"] = (email == ADMIN_EMAIL)
 
+    next_url = request.form.get("next") or request.args.get("next") or "/"
+
     if session["admin"]:
         return redirect("/admin?register=success")
 
-    return redirect("/dashboard?register=success")
+    if next_url.startswith("/login"):
+        next_url = "/"
+
+    return redirect(next_url + ("?register=success" if "?" not in next_url else "&register=success"))
 
 MAX_LOGIN_ATTEMPTS = 5
 LOGIN_LOCKOUT_SECONDS = 30
@@ -336,10 +341,16 @@ def login():
     session["login_attempts"] = 0
     session["login_locked_until"] = 0
 
+    next_url = request.form.get("next") or request.args.get("next") or "/"
+
     if session["admin"]:
         return redirect("/admin?login=success")
 
-    return redirect("/dashboard?login=success")
+    # Evita redirigir a /login en bucle
+    if next_url.startswith("/login"):
+        next_url = "/"
+
+    return redirect(next_url + ("?login=success" if "?" not in next_url else "&login=success"))
 
 
 @app.route("/dashboard")
@@ -560,7 +571,7 @@ def api_eliminar_usuario():
 def pago():
     """Sirve web/pago.html (página de pago con Stripe). Requiere sesión."""
     if "logueado" not in session:
-        return redirect("/login")
+        return redirect("/login?next=/pago")
 
     return send_from_directory(SITE_DIR, "pago.html")
 
