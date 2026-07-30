@@ -50,7 +50,10 @@ body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text-primary);
-  transition: opacity 60ms ease;
+  transition: opacity 0.4s ease;
+}
+body.page-fade-out {
+  opacity: 0;
 }
 
 /* ===== NAVBAR ===== */
@@ -682,6 +685,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.page-loader.active {
+  opacity: 1;
+  pointer-events: auto;
 }
 body.page-ready .page-loader {
   display: none;

@@ -352,7 +352,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     window.addEventListener('load', function() { document.body.classList.add('page-ready'); });
-    function navegar(url) { document.body.classList.add('page-fade-out'); document.getElementById('pageLoader').classList.add('active'); setTimeout(function() { window.location.replace(url); }, 300); }
+    function navegar(url) { document.body.classList.add('page-fade-out'); document.getElementById('pageLoader').classList.add('active');       setTimeout(function() { window.location.replace(url); }, 400); }
     function mostrarAlerta(icono, titulo, texto, btnTexto) {
       Swal.fire({
         icon: icono, title: titulo, text: texto,

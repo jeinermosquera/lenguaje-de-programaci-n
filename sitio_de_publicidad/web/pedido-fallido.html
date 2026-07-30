@@ -242,8 +242,9 @@
     });
 
     function navegar(url) {
-      document.body.style.opacity = '0';
-      setTimeout(function() { window.location.href = url; }, 60);
+      document.body.classList.add('page-fade-out');
+      document.getElementById('pageLoader').classList.add('active');
+      setTimeout(function() { window.location.href = url; }, 400);
     }
     document.addEventListener('click', function(e) {
       var link = e.target.closest('a');
