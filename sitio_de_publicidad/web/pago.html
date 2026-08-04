@@ -355,47 +355,22 @@
         } else {
           Carrito.vaciar();
           var itemsResumen = payload.items.map(function(it) {
-            return '<div class="swal-exito-item">' +
-              '<div class="swal-exito-item-info">' +
-              '<span class="swal-exito-item-name">' + it.nombre + '</span>' +
-              '<span class="swal-exito-item-qty">Cantidad: ' + it.cantidad + '</span></div>' +
-              '<span class="swal-exito-item-price">' + formatearPrecio(it.precio * it.cantidad) + '</span></div>';
-          }).join('');
-          var envioResumen = payload.costo_envio === 0
-            ? '<span class="swal-exito-gratis">GRATIS</span>'
-            : formatearPrecio(payload.costo_envio);
+            return '• ' + it.nombre + ' x' + it.cantidad + ' = $' + (it.precio * it.cantidad).toLocaleString('es-CO');
+          }).join('\n');
           Swal.fire({
             icon: 'success',
-            title: '¡Pago exitoso!',
-            width: '460px',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            html: '<div class="swal-exito">' +
-              '<p class="swal-exito-sub">Tu pedido fue registrado correctamente. Gracias por tu compra.</p>' +
-              '<div class="swal-exito-ref">' +
-              '<span class="swal-exito-ref-label">N.º de referencia</span>' +
-              '<span class="swal-exito-ref-value">' + data.referencia + '</span></div>' +
-              '<div class="swal-exito-receipt">' +
-              itemsResumen +
-              '<div class="swal-exito-line"><span>Envío</span><span>' + envioResumen + '</span></div>' +
-              '<div class="swal-exito-total">' +
-              '<span class="swal-exito-total-label">Total pagado</span>' +
-              '<span class="swal-exito-total-value">' + formatearPrecio(payload.total) + '</span></div></div>' +
-              '<div class="swal-exito-actions">' +
-              '<button type="button" class="swal-exito-btn swal-exito-btn-primary" data-url="/mis-pedidos">Mis Pedidos</button>' +
-              '<button type="button" class="swal-exito-btn swal-exito-btn-ghost" data-url="/">Volver al inicio</button>' +
-              '</div></div>',
-            customClass: { popup: 'swal-brand-popup', title: 'swal-brand-title', htmlContainer: 'swal-brand-text', icon: 'swal-brand-icon' },
-            didOpen: function() {
-              var btns = Swal.getPopup().querySelectorAll('.swal-exito-btn');
-              for (var i = 0; i < btns.length; i++) {
-                btns[i].addEventListener('click', function() {
-                  navegar(this.getAttribute('data-url'));
-                });
-              }
-            }
-          });
+            title: 'Pago exitoso',
+            html: '<div style="text-align:left;">' +
+              '<p style="margin-bottom:8px;"><strong>Referencia:</strong> ' + data.referencia + '</p>' +
+              '<p style="margin-bottom:6px;"><strong>Productos:</strong></p>' +
+              '<pre style="font-family:var(--font-body);font-size:0.85rem;background:var(--color-hueso);padding:0.8rem;border-radius:8px;white-space:pre-wrap;margin-bottom:10px;">' + itemsResumen + '</pre>' +
+              '<p><strong>Total:</strong> $' + payload.total.toLocaleString('es-CO') + '</p>' +
+              '</div>',
+            confirmButtonText: 'Ir al inicio',
+            confirmButtonColor: '#C49B4A',
+            footer: '<a href="/productos" style="color:var(--color-oro);">Seguir comprando</a>',
+            customClass: { popup: 'swal-brand-popup', title: 'swal-brand-title', htmlContainer: 'swal-brand-text', confirmButton: 'swal-brand-confirm', icon: 'swal-brand-icon' }
+          }).then(function() { window.location.replace('/'); });
         }
       } catch (err) {
         restaurarFormulario();
