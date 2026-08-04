@@ -41,7 +41,16 @@ body { margin: 0; font-family: var(--font-body); background: var(--color-lino); 
 
 /* Step panels */
 .step-panel { display: none; }
-.step-panel.active { display: block; }
+.step-panel.active { display: block; animation: stepFadeIn 0.4s ease; }
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Step labels clickable */
+.checkout-step { cursor: pointer; }
+.checkout-step:not(.active):hover .step-label { color: var(--color-ebano); }
+.checkout-step:not(.active):hover::before { border: 2px solid var(--color-oro); box-shadow: 0 0 0 4px rgba(196,155,74,0.15); }
 
 /* Continue button */
 .btn-continuar { width: 100%; padding: 0.9rem; border: none; border-radius: 50px; background: var(--color-oro); color: #fff; font-family: var(--font-body); font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.15s; margin-top: 0.5rem; }
