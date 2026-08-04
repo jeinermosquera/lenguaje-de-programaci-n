@@ -115,3 +115,34 @@ body { margin: 0; font-family: var(--font-body); background: var(--color-lino); 
 /* Modal overrides */
 .modal-content { border-radius: 20px !important; border: none !important; padding: 1rem !important; }
 .modal-header { border-bottom: none !important; }
+
+/* ===== SWEETALERT (brand overrides) ===== */
+.swal-brand-popup { border-radius: 24px !important; padding: 1.6rem !important; box-shadow: 0 20px 60px rgba(44,41,37,0.28) !important; }
+.swal-brand-title { font-family: var(--font-brand) !important; font-size: 1.75rem !important; font-weight: 600 !important; color: var(--color-ebano) !important; }
+.swal-brand-text { font-family: var(--font-body) !important; color: var(--color-texto) !important; }
+.swal-brand-confirm { border-radius: 50px !important; font-family: var(--font-body) !important; font-weight: 600 !important; letter-spacing: 0.02em !important; padding: 0.65rem 2.2rem !important; background: var(--color-oro) !important; border-color: var(--color-oro) !important; color: #fff !important; }
+.swal-brand-icon { border-color: var(--color-oro) !important; color: var(--color-oro) !important; }
+
+/* ===== Success alert (receipt) ===== */
+.swal-exito-sub { text-align: center; font-size: 0.85rem; color: var(--color-texto-suave); margin: 0 0 1rem; }
+.swal-exito-ref { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--color-hueso); border: 1px solid var(--color-arcilla); border-radius: 12px; padding: 0.7rem 1rem; margin-bottom: 1rem; }
+.swal-exito-ref-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-texto-suave); font-weight: 600; }
+.swal-exito-ref-value { font-size: 1rem; font-weight: 700; color: var(--color-oro-dark); letter-spacing: 0.04em; font-family: var(--font-brand); }
+.swal-exito-receipt { background: #fff; border: 1px solid var(--color-arcilla); border-radius: 16px; padding: 0.3rem 1.1rem; margin-bottom: 1.25rem; }
+.swal-exito-item { display: flex; align-items: center; gap: 10px; padding: 0.7rem 0; border-bottom: 1px dashed var(--color-arcilla); }
+.swal-exito-item-info { flex: 1; min-width: 0; }
+.swal-exito-item-name { display: block; font-size: 0.85rem; font-weight: 500; color: var(--color-ebano); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.swal-exito-item-qty { display: block; font-size: 0.72rem; color: var(--color-texto-suave); }
+.swal-exito-item-price { font-size: 0.85rem; font-weight: 600; color: var(--color-ebano); white-space: nowrap; }
+.swal-exito-line { display: flex; justify-content: space-between; padding: 0.55rem 0; font-size: 0.8rem; color: var(--color-texto-suave); }
+.swal-exito-gratis { color: #28a745; font-weight: 600; }
+.swal-exito-total { display: flex; justify-content: space-between; align-items: center; border-top: 1.5px solid var(--color-ebano); margin-top: 0.35rem; padding: 0.75rem 0 0.85rem; }
+.swal-exito-total-label { font-size: 0.85rem; font-weight: 600; color: var(--color-ebano); }
+.swal-exito-total-value { font-size: 1.3rem; font-weight: 700; font-family: var(--font-brand); color: var(--color-oro-dark); }
+.swal-exito-actions { display: grid; gap: 0.6rem; }
+.swal-exito-btn { width: 100%; padding: 0.75rem 1rem; border-radius: 50px; border: none; font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s; }
+.swal-exito-btn:active { transform: scale(0.98); }
+.swal-exito-btn-primary { background: var(--color-oro); color: #fff; }
+.swal-exito-btn-primary:hover { background: var(--color-ebano); }
+.swal-exito-btn-ghost { background: transparent; color: var(--color-ebano); border: 1.5px solid var(--color-arcilla); }
+.swal-exito-btn-ghost:hover { border-color: var(--color-ebano); background: var(--color-hueso); }
