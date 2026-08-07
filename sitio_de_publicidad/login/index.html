@@ -334,7 +334,7 @@ function mostrarAlertaForm(icono, titulo, texto) {
         title: titulo,
         text: texto,
         confirmButtonText: "Entendido",
-        confirmButtonColor: "#C49B4A",
+        confirmButtonColor: "#8A6412",
         customClass: {
             popup: "swal-brand-popup",
             title: "swal-brand-title",
@@ -383,6 +383,7 @@ if (paramsLogin.get("error") === "bloqueado") {
 }
 if (paramsLogin.get("error") === "correo_existente") { showRegister(); mostrarAlertaForm("warning", "Correo ya registrado", "Ya existe una cuenta con ese correo electrónico."); }
 if (paramsLogin.get("error") === "password_corta") { showRegister(); mostrarAlertaForm("warning", "Contraseña muy corta", "La contraseña debe tener mínimo 8 caracteres."); }
+if (paramsLogin.get("error") === "password_no_coinciden") { showRegister(); mostrarAlertaForm("warning", "Las contraseñas no coinciden", "La contraseña y su confirmación no son iguales, verifica e intenta de nuevo."); }
 if (paramsLogin.get("error") === "nombre_invalido") { showRegister(); mostrarAlertaForm("warning", "Nombre inválido", "El nombre debe tener al menos 3 caracteres."); }
 if (paramsLogin.get("error") === "email_invalido") { showRegister(); mostrarAlertaForm("warning", "Correo inválido", "Ingresa un correo electrónico válido."); }
 </script>

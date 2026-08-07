@@ -581,11 +581,11 @@
       var confirmar = document.getElementById('pw-confirmar').value;
       if (nueva || confirmar || actual) {
         if (nueva.length < 8) {
-          Swal.fire({ icon: "warning", title: "Contraseña muy corta", text: "Mínimo 8 caracteres", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          Swal.fire({ icon: "warning", title: "Contraseña muy corta", text: "Mínimo 8 caracteres", confirmButtonColor: "#8A6412", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
           return;
         }
         if (nueva !== confirmar) {
-          Swal.fire({ icon: "warning", title: "No coinciden", text: "Las contraseñas no son iguales", confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          Swal.fire({ icon: "warning", title: "No coinciden", text: "Las contraseñas no son iguales", confirmButtonColor: "#8A6412", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
           return;
         }
         payload.cambiar_contrasena = true;
@@ -600,10 +600,10 @@
       .then(function(r) { return r.json(); })
       .then(function(res) {
         if (res.ok) {
-          Swal.fire({ icon: "success", title: "Perfil actualizado", timer: 2000, showConfirmButton: false, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          Swal.fire({ icon: "success", title: "Perfil actualizado", timer: 2000, showConfirmButton: false, confirmButtonColor: "#8A6412", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
           document.querySelector('[data-bs-dismiss="modal"]').click();
         } else {
-          Swal.fire({ icon: "error", title: "Error", text: res.error, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
+          Swal.fire({ icon: "error", title: "Error", text: res.error, confirmButtonColor: "#8A6412", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } });
         }
       });
     });
@@ -627,7 +627,7 @@
             .then(function(res) { return res.json(); })
             .then(function(data) {
               if (data.ok) { window.location.replace("/logout"); }
-              else { Swal.fire({ icon: "error", title: "Error", text: data.error, confirmButtonColor: "#c9960e", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } }); }
+              else { Swal.fire({ icon: "error", title: "Error", text: data.error, confirmButtonColor: "#8A6412", customClass: { popup: "swal-brand-popup", title: "swal-brand-title", icon: "swal-brand-icon" } }); }
             });
         }
       });
@@ -640,7 +640,7 @@
         title: titulo,
         text: texto,
         confirmButtonText: btnTexto || "Continuar",
-        confirmButtonColor: "#c9960e",
+        confirmButtonColor: "#8A6412",
         customClass: {
           popup: "swal-brand-popup",
           title: "swal-brand-title",

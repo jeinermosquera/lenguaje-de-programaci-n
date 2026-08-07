@@ -258,7 +258,7 @@
   background: var(--color-oro);
   border: none;
   border-radius: 50px;
-  color: #fff;
+  color: #2C2925;
   padding: 0.5rem 1.3rem;
   font-size: 0.8rem;
   font-weight: 500;
@@ -273,7 +273,7 @@
 
 .btn-admin:hover {
   background: #b08a3e;
-  color: #fff;
+  color: #2C2925;
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(196,155,74,0.28);
 }

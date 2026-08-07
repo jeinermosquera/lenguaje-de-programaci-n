@@ -78,6 +78,7 @@ sitio_de_publicidad/
 | nombre | VARCHAR(100) | Nombre completo del usuario |
 | correo | VARCHAR(100) UNIQUE | Correo electrónico |
 | contrasena | VARCHAR(255) | Hash generado con Werkzeug |
+| rol | VARCHAR(20) DEFAULT 'cliente' | Rol del usuario: `cliente` o `admin` (se asigna en BD) |
 
 ### Tabla: `producto`
 | Campo | Tipo | Descripción |
@@ -137,9 +138,10 @@ Crear archivo `.env` en la raíz del proyecto:
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+SECRET_KEY=<clave aleatoria de sesión>
 ```
 
-El backend lee estas claves con `os.getenv()` y tiene fallback a placeholders si no existen. El archivo `.env` está en `.gitignore` para no exponer credenciales.
+El backend lee estas claves con `os.getenv()` y tiene fallback a placeholders si no existen. El archivo `.env` está en `.gitignore` para no exponer credenciales. `SECRET_KEY` firma las cookies de sesión: debe ser una cadena aleatoria larga (ej. `python -c "import secrets; print(secrets.token_hex(32))"`) y **no debe quedar hardcodeada en el código**.
 
 ---
 
@@ -225,8 +227,9 @@ El backend lee estas claves con `os.getenv()` y tiene fallback a placeholders si
 ### Funciones auxiliares
 | Función | Descripción |
 |---|---|
-| `inicializar_base_datos()` | Crea/actualiza tablas `producto`, `pedido`, `detalle_pedido`, `contacto`. Agrega columnas `precio_rebaja`, `stock`, `costo_envio` si no existen. |
+| `inicializar_base_datos()` | Crea/actualiza tablas `producto`, `pedido`, `detalle_pedido`, `contacto`. Agrega columnas `precio_rebaja`, `stock`, `costo_envio`, `updated_at` y `usuario.rol` si no existen. Asigna `rol='admin'` al usuario con `correo = ADMIN_EMAIL`. |
 | `get_connection()` | Retorna conexión a MySQL (`127.0.0.1:3306/jeiner_db`, root sin contraseña) |
+| `es_url_interna(url)` | Valida que una URL sea interna (empieza con `/`, no con `//` y sin `:` de esquema). Evita open redirect en el parámetro `next`. |
 | `producto_db_a_dict(row)` | Convierte tupla de BD a dict con `precio_formateado`, `precio_rebaja_formateado`, `en_rebaja`, `stock` |
 | `add_header(response)` | `@app.after_request` — desactiva caché del navegador |
 
@@ -300,6 +303,13 @@ Formato: "16 de julio de 2026". Implementado con arrays de meses/días en españ
 ### 8. "Mis Pedidos" en menú desplegable
 - Enlace movido de la barra de navegación al menú desplegable del usuario (en todas las páginas)
 
+### 9. Cambios de seguridad (04/08/2026)
+- **Clave secreta de sesión**: `app.secret_key` ya no está hardcodeada; se lee de la variable de entorno `SECRET_KEY` (con fallback temporal en código). La clave debe configurarse en `.env`.
+- **Cookies de sesión en texto plano**: eliminados `cookies.txt`, `cookies_a.txt`, `cookies_b.txt` de la raíz del repo y agregado `cookies*.txt` a `.gitignore`.
+- **Administración por rol en BD**: nueva columna `usuario.rol` (`cliente`/`admin`). El acceso admin ya no se otorga registrándose con el correo `apomat@gmail.com`; el rol se lee de la BD en `register`, `login` y se ajusta en `api_editar_usuario`. Al inicializar, la BD asigna `rol='admin'` al usuario con `correo = ADMIN_EMAIL`.
+- **Open redirect**: nueva función `es_url_interna()` que valida el parámetro `next` en login/registro (solo rutas internas que empiezan con `/`, sin `//` ni esquema `http`).
+- **Subida de imágenes**: solo se aceptan extensiones `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif` (constante `EXTENSIONES_IMAGEN_PERMITIDAS`); extensión inválida → `/admin?error=imagen` sin guardar el archivo.
+
 ---
 
 ## Flujo de pago
@@ -322,7 +332,7 @@ Formato: "16 de julio de 2026". Implementado con arrays de meses/días en españ
 
 ## Administración
 
-El admin (correo: `apomat@gmail.com`) tiene acceso a `/admin` con:
+El administrador tiene acceso a `/admin` — el usuario con `correo = apomat@gmail.com` recibe `rol='admin'` automáticamente al inicializar la base de datos. Secciones:
 
 ### Productos
 - **CRUD completo**: agregar, editar (precio, stock, rebaja), eliminar
@@ -407,5 +417,5 @@ El servidor inicia en `http://127.0.0.1:5000`.
 ### Notas
 - La app crea automáticamente las tablas al primer arranque
 - Los productos deben agregarse desde el panel admin (`/admin`)
-- Admin por defecto: `apomat@gmail.com` (registrarse con ese correo otorga permisos de admin)
+- Admin por defecto: `apomat@gmail.com` — al inicializar la BD se le asigna `rol='admin'`; el acceso admin ya no se otorga por coincidencia de email al registrarse
 - Puerto 5000, debug mode activado

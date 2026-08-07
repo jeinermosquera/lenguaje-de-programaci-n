@@ -20,9 +20,9 @@ var Carrito = {
       var disponibles = producto.stock - enCarrito;
       if (typeof Swal !== "undefined") {
         if (disponibles <= 0) {
-          Swal.fire({ icon: "warning", title: "Sin stock", text: "Ya tienes todas las unidades disponibles en tu carrito.", confirmButtonColor: "#c9960e", confirmButtonText: "Entendido" });
+          Swal.fire({ icon: "warning", title: "Sin stock", text: "Ya tienes todas las unidades disponibles en tu carrito.", confirmButtonColor: "#8A6412", confirmButtonText: "Entendido" });
         } else {
-          Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo puedes agregar " + disponibles + " unidad(es) m\u00e1s.", confirmButtonColor: "#c9960e", confirmButtonText: "Entendido" });
+          Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo puedes agregar " + disponibles + " unidad(es) m\u00e1s.", confirmButtonColor: "#8A6412", confirmButtonText: "Entendido" });
         }
       } else {
         alert("Stock insuficiente. Solo puedes agregar " + disponibles + " unidad(es) m\u00e1s.");
@@ -58,7 +58,7 @@ var Carrito = {
     if (item) {
       if (cantidad > item.cantidad && item.stock != null && cantidad > item.stock) {
         if (typeof Swal !== "undefined") {
-          Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo hay " + item.stock + " unidad(es) disponibles.", confirmButtonColor: "#c9960e", confirmButtonText: "Entendido" });
+          Swal.fire({ icon: "warning", title: "Stock insuficiente", text: "Solo hay " + item.stock + " unidad(es) disponibles.", confirmButtonColor: "#8A6412", confirmButtonText: "Entendido" });
         } else {
           alert("Stock insuficiente. Solo hay " + item.stock + " unidad(es) disponibles.");
         }
@@ -161,7 +161,7 @@ var Carrito = {
             confirmButtonText: "Continuar",
             cancelButtonText: "Cancelar",
             cancelButtonColor: "#6c757d",
-            confirmButtonColor: "#c9960e",
+            confirmButtonColor: "#8A6412",
             reverseButtons: true,
             customClass: {
               popup: "swal-brand-popup",

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="icon" type="image/png" href="favicon/favico-32x32.png">
+  <link rel="icon" type="image/png" href="/site/favicon/favico-32x32.png">
   <link rel="stylesheet" href="/site/css/style.css" />
   <link rel="stylesheet" href="/site/css/admin.css" />
 </head>
@@ -351,7 +351,7 @@
       Swal.fire({
         icon: icono, title: titulo, text: texto,
         confirmButtonText: btnTexto || "Continuar",
-        confirmButtonColor: "#c9960e",
+        confirmButtonColor: "#8A6412",
         customClass: {
           popup: "swal-brand-popup", title: "swal-brand-title",
           htmlContainer: "swal-brand-text", confirmButton: "swal-brand-confirm",
@@ -547,10 +547,10 @@
             renderizarPedidos();
             actualizarBadgePedidos();
           } else {
-            Swal.fire({ icon: "error", title: "Error", text: d.error || "No se pudo actualizar", confirmButtonColor: "#c9960e" });
+            Swal.fire({ icon: "error", title: "Error", text: d.error || "No se pudo actualizar", confirmButtonColor: "#8A6412" });
           }
         })
-        .catch(function() { Swal.fire({ icon: "error", title: "Error", text: "Error de conexi\u00f3n", confirmButtonColor: "#c9960e" }); });
+        .catch(function() { Swal.fire({ icon: "error", title: "Error", text: "Error de conexi\u00f3n", confirmButtonColor: "#8A6412" }); });
     }
 
     function formatearFecha(f) {

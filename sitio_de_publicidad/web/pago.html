@@ -241,12 +241,12 @@
 
     function irAlPaso2() {
       if (!validarPaso1()) {
-        Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completa todos los datos antes de continuar.', confirmButtonColor: '#c9960e' });
+        Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completa todos los datos antes de continuar.', confirmButtonColor: '#8A6412' });
         return;
       }
       var items = Carrito.getItems();
       if (items.length === 0) {
-        Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'No hay productos para pagar.', confirmButtonColor: '#c9960e' });
+        Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'No hay productos para pagar.', confirmButtonColor: '#8A6412' });
         return;
       }
       document.getElementById('step1').classList.remove('active');
@@ -313,7 +313,7 @@
 
       var items = Carrito.getItems();
       if (items.length === 0) {
-        Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'Agrega productos antes de pagar.', confirmButtonColor: '#c9960e' });
+        Swal.fire({ icon: 'warning', title: 'Carrito vacío', text: 'Agrega productos antes de pagar.', confirmButtonColor: '#8A6412' });
         restaurarFormulario(); return;
       }
 
@@ -341,7 +341,7 @@
         var data = await resp.json();
 
         if (data.error) {
-          Swal.fire({ icon: 'error', title: 'Error', text: data.error, confirmButtonColor: '#c9960e' });
+          Swal.fire({ icon: 'error', title: 'Error', text: data.error, confirmButtonColor: '#8A6412' });
           restaurarFormulario(); return;
         }
 
@@ -350,7 +350,7 @@
         });
 
         if (result.error) {
-          Swal.fire({ icon: 'error', title: 'Error de pago', text: result.error.message, confirmButtonColor: '#c9960e' });
+          Swal.fire({ icon: 'error', title: 'Error de pago', text: result.error.message, confirmButtonColor: '#8A6412' });
           restaurarFormulario();
         } else {
           Carrito.vaciar();
@@ -367,14 +367,14 @@
               '<p><strong>Total:</strong> $' + payload.total.toLocaleString('es-CO') + '</p>' +
               '</div>',
             confirmButtonText: 'Ir al inicio',
-            confirmButtonColor: '#C49B4A',
+            confirmButtonColor: '#8A6412',
             footer: '<a href="/productos" style="color:var(--color-oro);">Seguir comprando</a>',
             customClass: { popup: 'swal-brand-popup', title: 'swal-brand-title', htmlContainer: 'swal-brand-text', confirmButton: 'swal-brand-confirm', icon: 'swal-brand-icon' }
           }).then(function() { window.location.replace('/'); });
         }
       } catch (err) {
         restaurarFormulario();
-        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo procesar el pago.', confirmButtonColor: '#c9960e' });
+        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo procesar el pago.', confirmButtonColor: '#8A6412' });
       }
     });
 
@@ -417,7 +417,7 @@
           Swal.fire({ icon: 'success', title: 'Perfil actualizado', timer: 2000, showConfirmButton: false });
           document.querySelector('[data-bs-dismiss="modal"]').click();
         } else {
-          Swal.fire({ icon: 'error', title: 'Error', text: res.error, confirmButtonColor: '#c9960e' });
+          Swal.fire({ icon: 'error', title: 'Error', text: res.error, confirmButtonColor: '#8A6412' });
         }
       });
     });

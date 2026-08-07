@@ -5,7 +5,7 @@ import json
 import random
 import time
 from dotenv import load_dotenv
-from flask import Flask, redirect, request, send_from_directory, session, jsonify
+from flask import Flask, abort, redirect, request, send_from_directory, session, jsonify
 from werkzeug.utils import secure_filename
 
 load_dotenv()
@@ -15,10 +15,14 @@ import mysql.connector
 from mysql.connector import Error
 
 # encripta las contraseñas y verifica las contraseñas en el login
+from werkzeug.exceptions import BadRequest
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # correo del administrador (dueño)
 ADMIN_EMAIL = "apomat@gmail.com"
+
+# extensiones de imagen permitidas al subir productos
+EXTENSIONES_IMAGEN_PERMITIDAS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
 # Stripe — modo test por defecto
 import stripe
@@ -26,6 +30,9 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "sk_test_placeholder")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "pk_test_placeholder")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "whsec_placeholder")
 stripe.api_key = STRIPE_SECRET_KEY
+
+if STRIPE_SECRET_KEY == "sk_test_placeholder":
+    print("AVISO: STRIPE_SECRET_KEY no configurada (usando placeholder). Los pagos fallarán hasta definirla en .env o en las variables de entorno del servidor.")
 
 # la ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent
@@ -36,8 +43,24 @@ STATIC_DIR = BASE_DIR / "static"
 
 # crear la app de Flask
 app = Flask(__name__)
-app.secret_key = "clave_super_secreta"
+# Clave de sesión: DEBE configurarse en el archivo .env como SECRET_KEY.
+# En producción (PythonAnywhere) es obligatorio: si falta, la sesión es insegura.
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    print("AVISO: SECRET_KEY no configurada. Usando clave de desarrollo insegura. " \
+          "Defínela en .env (local) o en las variables de entorno de PythonAnywhere (producción).")
+    SECRET_KEY = "clave_super_secreta"
+app.secret_key = SECRET_KEY
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+
+# --- Error handlers ---
+@app.errorhandler(BadRequest)
+def handle_bad_request(e):
+    """Devuelve JSON para APIs, HTML para páginas normales."""
+    if request.path.startswith("/api/") or request.is_json:
+        return jsonify({"error": "JSON inválido o datos malformados"}), 400
+    return "Solicitud incorrecta", 400
+
 
 def inicializar_base_datos():
     """Crea las tablas usuario, producto, pedido, detalle_pedido y contacto si no existen.
@@ -54,6 +77,11 @@ def inicializar_base_datos():
                 contrasena VARCHAR(255) NOT NULL
             )
         """)
+
+        try:
+            cursor.execute("ALTER TABLE usuario ADD COLUMN rol VARCHAR(20) DEFAULT 'cliente'")
+        except Error:
+            pass
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS producto (
@@ -76,6 +104,11 @@ def inicializar_base_datos():
 
         try:
             cursor.execute("ALTER TABLE producto ADD COLUMN stock INT DEFAULT 0")
+        except Error:
+            pass
+
+        try:
+            cursor.execute("ALTER TABLE producto ADD COLUMN categoria VARCHAR(50) DEFAULT ''")
         except Error:
             pass
 
@@ -123,10 +156,22 @@ def inicializar_base_datos():
         except:
             pass
 
+        try:
+            cursor.execute("UPDATE usuario SET rol = 'admin' WHERE correo = %s", (ADMIN_EMAIL,))
+        except Error:
+            pass
+
+        # DDL se auto-commitea en MySQL, pero el UPDATE de rol es DML: sin commit se revierte
+        connection.commit()
+
 
 
     except Error as error:
         print(f"Error al inicializar BD: {error}")
+    except Exception as error:
+        # Nunca debe crashear la app si la BD aún no existe o no responde
+        # (p. ej. primer arranque en PythonAnywhere antes de crear la BD).
+        print(f"Error inesperado al inicializar BD (no crítico): {error}")
     finally:
         if "cursor" in locals():
             cursor.close()
@@ -142,13 +187,25 @@ def add_header(response):
     return response
 
 def get_connection():
-    """Retorna conexión MySQL a jeiner_db (127.0.0.1, root sin contraseña)."""
+    """Retorna conexión MySQL configurable por variables de entorno.
+    Defaults locales (XAMPP): 127.0.0.1, root, sin contraseña, BD jeiner_db.
+    En PythonAnywhere se configuran DB_HOST/DB_USER/DB_PASSWORD/DB_NAME sin tocar código."""
     return mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="",
-        database="jeiner_db"
+        host=os.environ.get("DB_HOST", "127.0.0.1"),
+        user=os.environ.get("DB_USER", "root"),
+        password=os.environ.get("DB_PASSWORD", ""),
+        database=os.environ.get("DB_NAME", "jeiner_db")
     )
+
+def es_url_interna(url):
+    """Valida que la URL sea interna (evita open redirect a sitios externos)."""
+    if not url or not url.startswith("/"):
+        return False
+    if url.startswith("//"):
+        return False
+    if ":" in url.split("/", 1)[0]:
+        return False
+    return True
 
 def producto_db_a_dict(r):
     """Convierte un dict de producto en dict con precios formateados y JSONs parseados."""
@@ -224,12 +281,17 @@ def register():
     full_name = request.form.get("nombre", "").strip()
     email = request.form.get("correo", "").strip().lower()
     password = request.form.get("contrasena", "")
+    confirm_password = request.form.get("confirm_password", "")
 
     if len(full_name) < 3:
         return redirect("/login?error=nombre_invalido")
 
-    if "@" not in email:
+    # MySQL truncaría silenciosamente un correo de más de 254 caracteres (límite RFC)
+    if "@" not in email or len(email) > 254:
         return redirect("/login?error=email_invalido")
+
+    if password != confirm_password:
+        return redirect("/login?error=password_no_coinciden")
 
     if len(password) < 8:
         return redirect("/login?error=password_corta")
@@ -251,6 +313,11 @@ def register():
         connection.commit()
         nuevo_id = cursor.lastrowid
 
+        # el rol real se lee de la BD (por defecto 'cliente')
+        cursor.execute("SELECT rol FROM usuario WHERE id = %s", (nuevo_id,))
+        fila = cursor.fetchone()
+        rol = fila[0] if fila else "cliente"
+
     except Error as error:
         print(error)
 
@@ -270,9 +337,11 @@ def register():
     session["logueado"] = True
     session["usuario_id"] = nuevo_id
     session["nombre"] = full_name
-    session["admin"] = (email == ADMIN_EMAIL)
+    session["admin"] = (rol == "admin")
 
     next_url = request.form.get("next") or request.args.get("next") or "/"
+    if not es_url_interna(next_url):
+        next_url = "/"
 
     if session["admin"]:
         return redirect("/admin?register=success")
@@ -310,7 +379,7 @@ def login():
         connection = get_connection()
         cursor = connection.cursor(dictionary=True)
 
-        cursor.execute("SELECT id, nombre, contrasena FROM usuario WHERE correo = %s", (email,))
+        cursor.execute("SELECT id, nombre, contrasena, rol FROM usuario WHERE correo = %s", (email,))
         user = cursor.fetchone()
 
         if user and check_password_hash(user["contrasena"], password):
@@ -337,11 +406,13 @@ def login():
     session["logueado"] = True
     session["usuario_id"] = user["id"]
     session["nombre"] = user["nombre"]
-    session["admin"] = (email == ADMIN_EMAIL)
+    session["admin"] = (user["rol"] == "admin")
     session["login_attempts"] = 0
     session["login_locked_until"] = 0
 
     next_url = request.form.get("next") or request.args.get("next") or "/"
+    if not es_url_interna(next_url):
+        next_url = "/"
 
     if session["admin"]:
         return redirect("/admin?login=success")
@@ -365,7 +436,24 @@ def productos():
 
 @app.route("/producto/<int:producto_id>")
 def producto_detalle(producto_id):
-    """Sirve web/producto.html (detalle de producto). Público."""
+    """Sirve web/producto.html (detalle de producto). Público. 404 si no existe."""
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT id FROM producto WHERE id = %s", (producto_id,))
+        existe = cursor.fetchone()
+    except Error as error:
+        print(error)
+        abort(500)
+    finally:
+        if "cursor" in locals():
+            cursor.close()
+        if "connection" in locals() and connection.is_connected():
+            connection.close()
+
+    if not existe:
+        abort(404)
+
     return send_from_directory(SITE_DIR, "producto.html")
 
 @app.route("/api/producto/<int:producto_id>")
@@ -465,7 +553,8 @@ def api_editar_usuario():
         if cursor.fetchone():
             return {"error": "El correo ya está en uso"}, 400
 
-        cursor.execute("UPDATE usuario SET nombre = %s, correo = %s WHERE id = %s", (nombre, email, usuario_id))
+        nuevo_rol = "admin" if email == ADMIN_EMAIL else "cliente"
+        cursor.execute("UPDATE usuario SET nombre = %s, correo = %s, rol = %s WHERE id = %s", (nombre, email, nuevo_rol, usuario_id))
 
         if data.get("cambiar_contrasena"):
             actual = data.get("actual", "")
@@ -484,7 +573,7 @@ def api_editar_usuario():
         connection.commit()
 
         session["nombre"] = nombre
-        session["admin"] = (email == ADMIN_EMAIL)
+        session["admin"] = (nuevo_rol == "admin")
 
         return {"ok": True}
     except Error as error:
@@ -896,6 +985,9 @@ def admin_agregar_producto():
         file = request.files["imagen"]
         if file and file.filename:
             filename = secure_filename(file.filename)
+            extension = Path(filename).suffix.lower()
+            if extension not in EXTENSIONES_IMAGEN_PERMITIDAS:
+                return redirect("/admin?error=imagen")
             # nombre único
             unique = f"prod_{int(time.time())}_{filename}"
             file.save(str(SITE_DIR / "img" / unique))
@@ -1179,13 +1271,15 @@ def logout():
 
     return response
 
-# ejecutar la app
+# inicializar la BD (tablas + rol admin de apomat@gmail.com) SIEMPRE al cargar la app,
+# sin importar cómo se lance (python app.py, flask run, etc.). Es idempotente.
+inicializar_base_datos()
+
+# ejecutar la app (solo local; en PythonAnywhere se usa wsgi.py)
 if __name__ == "__main__":
 
-    inicializar_base_datos()
-
     app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=True
+        host=os.environ.get("FLASK_HOST", "127.0.0.1"),
+        port=int(os.environ.get("FLASK_PORT", "5000")),
+        debug=os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true", "yes", "on")
     )

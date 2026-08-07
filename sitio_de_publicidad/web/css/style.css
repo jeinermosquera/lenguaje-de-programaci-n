@@ -237,7 +237,7 @@ body.page-fade-out {
 .offcanvas-auth-not-logged .btn-gold {
   background: var(--gold);
   border: 1.5px solid var(--gold);
-  color: #fff;
+  color: #2C2925;
   padding: 8px 16px;
   font-size: 0.8rem;
   border-radius: 50px;
@@ -737,6 +737,7 @@ body.page-ready .page-loader {
 /* ===== CARRITO OFFCANVAS ===== */
 .cart-badge {
   background: #C49B4A;
+  color: #2C2925;
   font-size: 0.65rem; min-width: 18px; height: 18px;
   line-height: 14px; padding: 2px 4px;
 }

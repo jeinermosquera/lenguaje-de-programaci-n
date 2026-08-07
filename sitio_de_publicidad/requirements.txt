@@ -1,0 +1,6 @@
+# Dependencias de Apomat / Selva Sensorial (Flask + MySQL + Stripe)
+# Instalar: pip install -r requirements.txt
+flask>=3.0
+mysql-connector-python>=8.0
+stripe>=10.0
+python-dotenv>=1.0
