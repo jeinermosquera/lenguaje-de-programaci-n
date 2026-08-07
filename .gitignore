@@ -1,11 +1,5 @@
 node_modules/
 __pycache__/
 *.pyc
-*.pyo
 .env
 .env.local
-.env.example.tmp
-venv/
-.venv/
-.DS_Store
-cookies*.txt

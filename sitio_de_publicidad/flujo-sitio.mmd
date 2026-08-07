@@ -8,14 +8,14 @@ flowchart TD
     classDef db fill:#D9CFC0,stroke:#A89680,stroke-width:1px,color:#2C2925,stroke-dasharray: 5 5
 
     %% ===== ENTRADA =====
-    START([Usuario entra al sitio]) --> HOME
+    START(["Usuario entra al sitio"]) --> HOME
 
     %% ===== PÁGINAS PÚBLICAS =====
-    HOME[/🏠 Home /\nindex.html/]:::page
-    PRODUCTOS[/🛍️ Productos\nproductos.html + fetch /api/productos/]:::page
-    PRODUCTO_DETALLE[/📦 Detalle Producto\nproducto.html?id=X + fetch /api/producto/X/]:::page
-    LOGIN[/🔐 Login/Registro\nlogin/index.html/]:::page
-    CONTACTO[/📞 Contacto\nsección en index.html/]:::page
+    HOME[/"Home / index.html"/]:::page
+    PRODUCTOS[/"Productos / productos.html + fetch /api/productos"/]:::page
+    PRODUCTO_DETALLE[/"Detalle Producto / producto.html?id=X + fetch /api/producto/X"/]:::page
+    LOGIN[/"Login/Registro / login/index.html"/]:::page
+    CONTACTO[/"Contacto / sección en index.html"/]:::page
 
     HOME --> PRODUCTOS
     HOME --> LOGIN
@@ -24,67 +24,67 @@ flowchart TD
     PRODUCTO_DETALLE --> CARRITO_ADD
 
     %% ===== FLUJO AUTH =====
-    LOGIN --> REGISTRO{¿Nuevo usuario?}
-    REGISTRO -->|Sí| REG_FORM[Registro: nombre, email, pass, confirm_pass]:::action
-    REGISTRO -->|No| LOGIN_FORM[Login: email, password]:::action
+    LOGIN --> REGISTRO{"¿Nuevo usuario?"}
+    REGISTRO -->|Sí| REG_FORM["Registro: nombre, email, pass, confirm_pass"]:::action
+    REGISTRO -->|No| LOGIN_FORM["Login: email, password"]:::action
 
-    REG_FORM --> VALID_REG{Validaciones:\n- email único ≤254\n- pass ≥8 chars\n- confirm_pass coincide}
-    VALID_REG -->|Fallan| REG_ERROR[Error amigable\n?error=email_invalido\n?error=password_no_coinciden]:::action
-    VALID_REG -->|OK| REG_OK[Crear usuario + hash pass\nSET rol=cliente\nIniciar sesión]:::action
-    REG_OK --> REDIR_HOME[Redirigir a /?register=success]:::action
+    REG_FORM --> VALID_REG{"Validaciones:<br/>email único ≤254<br/>pass ≥8 chars<br/>confirm_pass coincide"}
+    VALID_REG -->|Fallan| REG_ERROR["Error amigable<br/>?error=email_invalido<br/>?error=password_no_coinciden"]:::action
+    VALID_REG -->|OK| REG_OK["Crear usuario + hash pass<br/>SET rol=cliente<br/>Iniciar sesión"]:::action
+    REG_OK --> REDIR_HOME["Redirigir a /?register=success"]:::action
 
-    LOGIN_FORM --> CHECK_CRED{check_password_hash\n+ bloqueo 5 intentos/30s}
-    CHECK_CRED -->|Fallan| LOGIN_ERROR[Error credenciales\n?intentos=N / bloqueado]:::action
-    CHECK_CRED -->|OK| SET_SESSION[Crear sesión:\nlogueado=true\nusuario_id, nombre\nadmin=(rol==admin)]:::action
-    SET_SESSION --> REDIR_NEXT{¿Parámetro next?}
-    REDIR_NEXT -->|Sí + interno| REDIR_NEXT_URL[Redirigir a next\n/admin, /pago, /mis-pedidos...]:::action
+    LOGIN_FORM --> CHECK_CRED{"check_password_hash<br/>+ bloqueo 5 intentos/30s"}
+    CHECK_CRED -->|Fallan| LOGIN_ERROR["Error credenciales<br/>?intentos=N / bloqueado"]:::action
+    CHECK_CRED -->|OK| SET_SESSION["Crear sesión:<br/>logueado=true<br/>usuario_id, nombre<br/>admin=(rol==admin)"]:::action
+    SET_SESSION --> REDIR_NEXT{"¿Parámetro next?"}
+    REDIR_NEXT -->|"Sí + interno"| REDIR_NEXT_URL["Redirigir a next<br/>/admin, /pago, /mis-pedidos..."]:::action
     REDIR_NEXT -->|No| REDIR_HOME
 
     %% ===== CARRITO (localStorage) =====
-    CARRITO_ADD[Agregar al carrito\nlocalStorage: apomat_carrito]:::action
-    CARRITO_ADD --> CARRITO_VIEW[/🛒 Ver Carrito\nOffcanvas lateral/]:::page
-    CARRITO_VIEW --> CHECKOUT_BTN[Ir a Pago]:::action
+    CARRITO_ADD["Agregar al carrito<br/>localStorage: apomat_carrito"]:::action
+    CARRITO_ADD --> CARRITO_VIEW[/"Ver Carrito / Offcanvas lateral"/]:::page
+    CARRITO_VIEW --> CHECKOUT_BTN["Ir a Pago"]:::action
 
     %% ===== CHECKOUT / PAGO =====
-    CHECKOUT_BTN --> PAGO_PAGE[/💳 Checkout\npago.html/]:::page
-    PAGO_PAGE --> STEP1{¿Datos completos?}
-    STEP1 -->|No| STEP1_FIX[Completar: nombre, email,\nteléfono, dirección]:::action
-    STEP1 -->|Sí| STEP2[Paso 2: Método de pago\nStripe Elements]:::page
-    STEP2 --> STRIPE_API[POST /api/pago\n{items, nombre, email,\ntel, dir}]:::api
-    STRIPE_API --> PI_CREATE[Stripe: PaymentIntent\namount ×100 COP]:::api
-    PI_CREATE --> DB_PEDIDO[INSERT pedido + detalle_pedido\nUPDATE stock - cantidad]:::db
-    DB_PEDIDO --> PEDIDO_OK{¿Éxito?}
-    PEDIDO_OK -->|Sí| SUCCESS[/✅ Pedido Exitoso\npedido-exitoso.html/]:::page
-    PEDIDO_OK -->|No| FAIL[/❌ Pedido Fallido\npedido-fallido.html/]:::page
-    SUCCESS --> CLEAR_CART[Limpiar localStorage\ncarrito]:::action
-    FAIL --> KEEP_CART[Mantener carrito\npara reintentar]:::action
+    CHECKOUT_BTN --> PAGO_PAGE[/"Checkout / pago.html"/]:::page
+    PAGO_PAGE --> STEP1{"¿Datos completos?"}
+    STEP1 -->|No| STEP1_FIX["Completar: nombre, email,<br/>teléfono, dirección"]:::action
+    STEP1 -->|Sí| STEP2["Paso 2: Método de pago<br/>Stripe Elements"]:::page
+    STEP2 --> STRIPE_API["POST /api/pago<br/>{items, nombre, email, tel, dir}"]:::api
+    STRIPE_API --> PI_CREATE["Stripe: PaymentIntent<br/>amount ×100 COP"]:::api
+    PI_CREATE --> DB_PEDIDO["INSERT pedido + detalle_pedido<br/>UPDATE stock - cantidad"]:::db
+    DB_PEDIDO --> PEDIDO_OK{"¿Éxito?"}
+    PEDIDO_OK -->|Sí| SUCCESS[/"Pedido Exitoso / pedido-exitoso.html"/]:::page
+    PEDIDO_OK -->|No| FAIL[/"Pedido Fallido / pedido-fallido.html"/]:::page
+    SUCCESS --> CLEAR_CART["Limpiar localStorage carrito"]:::action
+    FAIL --> KEEP_CART["Mantener carrito para reintentar"]:::action
 
     %% ===== MIS PEDIDOS =====
-    MIS_PEDIDOS[/📋 Mis Pedidos\nmis-pedidos.html + fetch /api/mis-pedidos/]:::page
-    MIS_PEDIDOS --> PEDIDO_DETALLE[Ver detalle pedido\ncon items]:::page
+    MIS_PEDIDOS[/"Mis Pedidos / mis-pedidos.html + fetch /api/mis-pedidos"/]:::page
+    MIS_PEDIDOS --> PEDIDO_DETALLE["Ver detalle pedido con items"]:::page
 
     %% ===== ADMIN =====
-    ADMIN_LOGIN[Login admin\napomat@gmail.com]:::admin
-    ADMIN_LOGIN --> ADMIN_DASH[/📊 Panel Admin\nadmin.html + fetch /admin/api/*/]:::admin
-    ADMIN_DASH --> ADMIN_PRODUCTOS[/📦 Gestión Productos\nCRUD/]:::admin
-    ADMIN_DASH --> ADMIN_PEDIDOS[/📋 Gestión Pedidos\nEstados/]:::admin
+    ADMIN_LOGIN["Login admin<br/>apomat@gmail.com"]:::admin
+    ADMIN_LOGIN --> ADMIN_DASH[/"Panel Admin / admin.html + fetch /admin/api/*"/]:::admin
+    ADMIN_DASH --> ADMIN_PRODUCTOS[/"Gestión Productos / CRUD"/]:::admin
+    ADMIN_DASH --> ADMIN_PEDIDOS[/"Gestión Pedidos / Estados"/]:::admin
 
-    ADMIN_PRODUCTOS --> PROD_CREATE[Crear: POST /admin/productos/agregar\n+ imagen → web/img/]:::admin
-    ADMIN_PRODUCTOS --> PROD_EDIT[Editar: POST /admin/productos/editar/id\nprecio, rebaja, stock, categoría]:::admin
-    ADMIN_PRODUCTOS --> PROD_DELETE[Eliminar: POST /admin/productos/eliminar/id]:::admin
+    ADMIN_PRODUCTOS --> PROD_CREATE["Crear: POST /admin/productos/agregar<br/>+ imagen → web/img/"]:::admin
+    ADMIN_PRODUCTOS --> PROD_EDIT["Editar: POST /admin/productos/editar/id<br/>precio, rebaja, stock, categoría"]:::admin
+    ADMIN_PRODUCTOS --> PROD_DELETE["Eliminar: POST /admin/productos/eliminar/id"]:::admin
 
-    ADMIN_PEDIDOS --> ORDER_STATUS[Cambiar estado:\npendiente→enviado→entregado\nPOST /admin/pedidos/estado/id]:::admin
+    ADMIN_PEDIDOS --> ORDER_STATUS["Cambiar estado: pendiente→enviado→entregado<br/>POST /admin/pedidos/estado/id"]:::admin
 
     %% ===== API ENDPOINTS CLAVE =====
-    API_PRODUCTOS[/api/productos\n/api/producto/:id]:::api
-    API_PAGO[/api/pago POST]:::api
-    API_MIS_PEDIDOS[/api/mis-pedidos]:::api
-    API_ADMIN_DASH[/admin/api/dashboard]:::api
-    API_ADMIN_PROD[/admin/api/productos]:::api
-    API_ADMIN_ORDERS[/admin/api/pedidos]:::api
+    API_PRODUCTOS["/api/productos / /api/producto/:id"]:::api
+    API_PAGO["/api/pago POST"]:::api
+    API_MIS_PEDIDOS["/api/mis-pedidos"]:::api
+    API_ADMIN_DASH["/admin/api/dashboard"]:::api
+    API_ADMIN_PROD["/admin/api/productos"]:::api
+    API_ADMIN_ORDERS["/admin/api/pedidos"]:::api
 
     %% ===== BD =====
-    DB[(MySQL: jeiner_db\nusuario, producto, pedido,\ndetalle_pedido, contacto)]:::db
+    DB[("MySQL: jeiner_db<br/>usuario, producto, pedido,<br/>detalle_pedido, contacto")]:::db
 
     REG_OK --> DB
     SET_SESSION --> DB
@@ -100,10 +100,10 @@ flowchart TD
     API_ADMIN_ORDERS --> DB
 
     %% ===== SEGURIDAD =====
-    SEC_OPEN_REDIR[Validación next:\nbloquea http://, //, javascript:]:::action
-    SEC_SQL[Errores MySQL → genéricos\n(no expone tracebacks)]:::action
-    SEC_ROL[Middleware: /admin*\nrequiere session.admin=true]:::action
-    SEC_HTTPONLY[Cookies HttpOnly\nSameSite=Lax]:::action
+    SEC_OPEN_REDIR["Validación next:<br/>bloquea http://, //, javascript:"]:::action
+    SEC_SQL["Errores MySQL → genéricos<br/>(no expone tracebacks)"]:::action
+    SEC_ROL["Middleware: /admin*<br/>requiere session.admin=true"]:::action
+    SEC_HTTPONLY["Cookies HttpOnly<br/>SameSite=Lax"]:::action
 
     REDIR_NEXT --> SEC_OPEN_REDIR
     DB_PEDIDO --> SEC_SQL
@@ -111,17 +111,17 @@ flowchart TD
     SET_SESSION --> SEC_HTTPONLY
 
     %% ===== SALIDAS =====
-    LOGOUT[Logout: GET /logout\nDestruir sesión]:::action
+    LOGOUT["Logout: GET /logout<br/>Destruir sesión"]:::action
     LOGOUT --> HOME
 
-    MIS_PEDIDOS -.->|requiere login| LOGIN
-    PAGO_PAGE -.->|requiere login| LOGIN
-    ADMIN_DASH -.->|requiere admin| LOGIN
+    MIS_PEDIDOS -.->|"requiere login"| LOGIN
+    PAGO_PAGE -.->|"requiere login"| LOGIN
+    ADMIN_DASH -.->|"requiere admin"| LOGIN
 
     %% ===== LEYENDA =====
-    LEGEND_PAGES[🟦 Páginas HTML]:::page
-    LEGEND_ACTIONS[🟨 Acciones/Procesos]:::action
-    LEGEND_DECISIONS[🟨 Decisiones]:::decision
-    LEGEND_APIS[⬛ APIs JSON]:::api
-    LEGEND_ADMIN[🟫 Admin]:::admin
-    LEGEND_DB[🟫 Base de Datos]:::db
+    LEGEND_PAGES["Páginas HTML"]:::page
+    LEGEND_ACTIONS["Acciones/Procesos"]:::action
+    LEGEND_DECISIONS["Decisiones"]:::decision
+    LEGEND_APIS["APIs JSON"]:::api
+    LEGEND_ADMIN["Admin"]:::admin
+    LEGEND_DB["Base de Datos"]:::db

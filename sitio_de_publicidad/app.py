@@ -31,9 +31,6 @@ STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "pk_test_placeholde
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "whsec_placeholder")
 stripe.api_key = STRIPE_SECRET_KEY
 
-if STRIPE_SECRET_KEY == "sk_test_placeholder":
-    print("AVISO: STRIPE_SECRET_KEY no configurada (usando placeholder). Los pagos fallarán hasta definirla en .env o en las variables de entorno del servidor.")
-
 # la ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -43,14 +40,7 @@ STATIC_DIR = BASE_DIR / "static"
 
 # crear la app de Flask
 app = Flask(__name__)
-# Clave de sesión: DEBE configurarse en el archivo .env como SECRET_KEY.
-# En producción (PythonAnywhere) es obligatorio: si falta, la sesión es insegura.
-SECRET_KEY = os.environ.get("SECRET_KEY")
-if not SECRET_KEY:
-    print("AVISO: SECRET_KEY no configurada. Usando clave de desarrollo insegura. " \
-          "Defínela en .env (local) o en las variables de entorno de PythonAnywhere (producción).")
-    SECRET_KEY = "clave_super_secreta"
-app.secret_key = SECRET_KEY
+app.secret_key = "clave_super_secreta"
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 # --- Error handlers ---
@@ -187,14 +177,12 @@ def add_header(response):
     return response
 
 def get_connection():
-    """Retorna conexión MySQL configurable por variables de entorno.
-    Defaults locales (XAMPP): 127.0.0.1, root, sin contraseña, BD jeiner_db.
-    En PythonAnywhere se configuran DB_HOST/DB_USER/DB_PASSWORD/DB_NAME sin tocar código."""
+    """Retorna conexión MySQL a jeiner_db (127.0.0.1, root sin contraseña)."""
     return mysql.connector.connect(
-        host=os.environ.get("DB_HOST", "127.0.0.1"),
-        user=os.environ.get("DB_USER", "root"),
-        password=os.environ.get("DB_PASSWORD", ""),
-        database=os.environ.get("DB_NAME", "jeiner_db")
+        host="127.0.0.1",
+        user="root",
+        password="",
+        database="jeiner_db"
     )
 
 def es_url_interna(url):
@@ -1275,11 +1263,11 @@ def logout():
 # sin importar cómo se lance (python app.py, flask run, etc.). Es idempotente.
 inicializar_base_datos()
 
-# ejecutar la app (solo local; en PythonAnywhere se usa wsgi.py)
+# ejecutar la app
 if __name__ == "__main__":
 
     app.run(
-        host=os.environ.get("FLASK_HOST", "127.0.0.1"),
-        port=int(os.environ.get("FLASK_PORT", "5000")),
-        debug=os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true", "yes", "on")
+        host="127.0.0.1",
+        port=5000,
+        debug=True
     )
