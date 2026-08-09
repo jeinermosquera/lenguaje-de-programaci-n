@@ -62,12 +62,13 @@ sitio_de_publicidad/
 │   │   └── carrito.js       # Lógica del carrito (localStorage)
 │   ├── img/                 # Imágenes de productos
 │   └── favicon/
-└── node_modules/
 ```
 
 ---
 
 ## Base de datos
+
+> **Motor configurable por variable de entorno:** `DB_ENGINE=sqlite` (default, archivo local `site.db`, sin servidor) o `DB_ENGINE=mysql` (XAMPP/MySQL). Con SQLite la BD se crea sola al primer arranque; con MySQL se usan `DB_HOST/DB_USER/DB_PASSWORD/DB_NAME` (ver `.env.example`).
 
 ### Tabla: `usuario`
 | Campo | Tipo |
@@ -233,12 +234,13 @@ git clone <repo-url>
 cd sitio_de_publicidad
 
 # 2. Instalar dependencias Python
-pip install flask mysql-connector-python werkzeug stripe
+pip install flask werkzeug stripe python-dotenv   # mysql-connector-python solo si DB_ENGINE=mysql
 
 # 3. Instalar Bootstrap (opcional, para compilar SCSS)
 npm install
 
-# 4. Iniciar Apache + MySQL (XAMPP)
+# 4. Motor de BD: por defecto SQLite (archivo site.db, se crea solo).
+#    Opcional: copiar .env.example a .env y configurar DB_ENGINE=mysql para usar MySQL.
 
 # 5. Ejecutar la app
 python app.py
