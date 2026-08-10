@@ -1,0 +1,7 @@
+# Base de datos SQLite (estructura inicial versionada; los datos se crean en uso)
+*.db-wal
+*.db-shm
+
+# Python
+__pycache__/
+*.pyc
