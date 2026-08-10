@@ -10,10 +10,6 @@ from werkzeug.utils import secure_filename
 
 load_dotenv()
 
-# para conectar con la base de datos MySQL
-import mysql.connector
-from mysql.connector import Error
-
 # encripta las contraseñas y verifica las contraseñas en el login
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -38,9 +34,22 @@ LOGIN_DIR = BASE_DIR / "login"
 SITE_DIR = BASE_DIR / "web"
 STATIC_DIR = BASE_DIR / "static"
 
+# --- Motor de base de datos ---
+# DB_ENGINE=sqlite (default, archivo local sin servidor) | mysql (XAMPP/producción con MySQL)
+DB_ENGINE = os.environ.get("DB_ENGINE", "sqlite").strip().lower()
+DB_PATH = os.environ.get("DB_PATH", str(BASE_DIR / "site.db"))
+
+if DB_ENGINE == "mysql":
+    import mysql.connector
+    from mysql.connector import Error
+else:
+    import sqlite3
+    Error = sqlite3.Error
+
 # crear la app de Flask
 app = Flask(__name__)
-app.secret_key = "clave_super_secreta"
+# SECRET_KEY desde .env (obligatorio en producción); fallback solo para desarrollo local
+app.secret_key = os.environ.get("SECRET_KEY", "clave_super_secreta")
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 # --- Error handlers ---
@@ -54,100 +63,166 @@ def handle_bad_request(e):
 
 def inicializar_base_datos():
     """Crea las tablas usuario, producto, pedido, detalle_pedido y contacto si no existen.
-    Agrega columnas precio_rebaja, stock y costo_envio si faltan."""
+    Agrega columnas rol, precio_rebaja, stock, categoria, costo_envio y updated_at si faltan.
+    Idempotente; se ejecuta al cargar la app."""
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = crear_cursor(connection)
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuario (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nombre VARCHAR(100) NOT NULL,
-                correo VARCHAR(100) UNIQUE NOT NULL,
-                contrasena VARCHAR(255) NOT NULL
-            )
-        """)
+        if DB_ENGINE == "mysql":
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS usuario (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    correo VARCHAR(100) UNIQUE NOT NULL,
+                    contrasena VARCHAR(255) NOT NULL
+                )
+            """)
+        else:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS usuario (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre VARCHAR(100) NOT NULL,
+                    correo VARCHAR(100) UNIQUE NOT NULL,
+                    contrasena VARCHAR(255) NOT NULL,
+                    rol VARCHAR(20) DEFAULT 'cliente'
+                )
+            """)
 
+        # Para BD existentes sin la columna rol (una sola vez por BD)
         try:
             cursor.execute("ALTER TABLE usuario ADD COLUMN rol VARCHAR(20) DEFAULT 'cliente'")
         except Error:
             pass
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS producto (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nombre VARCHAR(150) NOT NULL,
-                imagen VARCHAR(255) NOT NULL,
-                precio INT NOT NULL,
-                descripcion TEXT,
-                caracteristicas TEXT,
-                especificaciones TEXT,
-                disponible TINYINT DEFAULT 1,
-                precio_rebaja INT DEFAULT NULL
-            )
-        """)
+        if DB_ENGINE == "mysql":
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS producto (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nombre VARCHAR(150) NOT NULL,
+                    imagen VARCHAR(255) NOT NULL,
+                    precio INT NOT NULL,
+                    descripcion TEXT,
+                    caracteristicas TEXT,
+                    especificaciones TEXT,
+                    disponible TINYINT DEFAULT 1,
+                    precio_rebaja INT DEFAULT NULL
+                )
+            """)
+        else:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS producto (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre VARCHAR(150) NOT NULL,
+                    imagen VARCHAR(255) NOT NULL,
+                    precio INTEGER NOT NULL,
+                    descripcion TEXT,
+                    caracteristicas TEXT,
+                    especificaciones TEXT,
+                    disponible INTEGER DEFAULT 1,
+                    precio_rebaja INTEGER DEFAULT NULL,
+                    stock INTEGER DEFAULT 0,
+                    categoria VARCHAR(50) DEFAULT ''
+                )
+            """)
 
-        try:
-            cursor.execute("ALTER TABLE producto ADD COLUMN precio_rebaja INT DEFAULT NULL")
-        except Error:
-            pass
-
-        try:
-            cursor.execute("ALTER TABLE producto ADD COLUMN stock INT DEFAULT 0")
-        except Error:
-            pass
-
-        try:
-            cursor.execute("ALTER TABLE producto ADD COLUMN categoria VARCHAR(50) DEFAULT ''")
-        except Error:
-            pass
+        # Columnas de producto que pueden faltar en BD antiguas
+        for col_ddl in (
+            "ALTER TABLE producto ADD COLUMN precio_rebaja INT DEFAULT NULL",
+            "ALTER TABLE producto ADD COLUMN stock INT DEFAULT 0",
+            "ALTER TABLE producto ADD COLUMN categoria VARCHAR(50) DEFAULT ''",
+        ):
+            try:
+                cursor.execute(col_ddl)
+            except Error:
+                pass
 
         try:
             cursor.execute("UPDATE producto SET stock = 10 WHERE stock IS NULL OR stock = 0")
         except Error:
             pass
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS pedido (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                usuario_id INT,
-                referencia VARCHAR(100) UNIQUE NOT NULL,
-                total INT NOT NULL,
-                estado VARCHAR(30) DEFAULT 'pendiente',
-                nombre VARCHAR(150) NOT NULL,
-                email VARCHAR(150) NOT NULL,
-                telefono VARCHAR(30),
-                direccion TEXT,
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+        if DB_ENGINE == "mysql":
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS pedido (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    usuario_id INT,
+                    referencia VARCHAR(100) UNIQUE NOT NULL,
+                    total INT NOT NULL,
+                    estado VARCHAR(30) DEFAULT 'pendiente',
+                    nombre VARCHAR(150) NOT NULL,
+                    email VARCHAR(150) NOT NULL,
+                    telefono VARCHAR(30),
+                    direccion TEXT,
+                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+                )
+            """)
+        else:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS pedido (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    usuario_id INTEGER,
+                    referencia VARCHAR(100) UNIQUE NOT NULL,
+                    total INTEGER NOT NULL,
+                    estado VARCHAR(30) DEFAULT 'pendiente',
+                    nombre VARCHAR(150) NOT NULL,
+                    email VARCHAR(150) NOT NULL,
+                    telefono VARCHAR(30),
+                    direccion TEXT,
+                    fecha TEXT DEFAULT CURRENT_TIMESTAMP,
+                    costo_envio INTEGER DEFAULT 0,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+                )
+            """)
+
+        if DB_ENGINE == "mysql":
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS detalle_pedido (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    pedido_id INT NOT NULL,
+                    producto_id INT,
+                    nombre_producto VARCHAR(150) NOT NULL,
+                    precio INT NOT NULL,
+                    cantidad INT NOT NULL,
+                    FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
+                    FOREIGN KEY (producto_id) REFERENCES producto(id)
+                )
+            """)
+        else:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS detalle_pedido (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    pedido_id INTEGER NOT NULL,
+                    producto_id INTEGER,
+                    nombre_producto VARCHAR(150) NOT NULL,
+                    precio INTEGER NOT NULL,
+                    cantidad INTEGER NOT NULL,
+                    FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
+                    FOREIGN KEY (producto_id) REFERENCES producto(id)
+                )
+            """)
+
+        # Columnas de pedido que pueden faltar en BD antiguas
+        if DB_ENGINE == "mysql":
+            cols_pedido = (
+                "ALTER TABLE pedido ADD COLUMN costo_envio INT DEFAULT 0",
+                "ALTER TABLE pedido ADD COLUMN updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP",
             )
-        """)
-
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS detalle_pedido (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                pedido_id INT NOT NULL,
-                producto_id INT,
-                nombre_producto VARCHAR(150) NOT NULL,
-                precio INT NOT NULL,
-                cantidad INT NOT NULL,
-                FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
-                FOREIGN KEY (producto_id) REFERENCES producto(id)
+        else:
+            cols_pedido = (
+                "ALTER TABLE pedido ADD COLUMN costo_envio INTEGER DEFAULT 0",
+                "ALTER TABLE pedido ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP",
             )
-        """)
+        for col_ddl in cols_pedido:
+            try:
+                cursor.execute(col_ddl)
+            except Error:
+                pass
 
         try:
-            cursor.execute("ALTER TABLE pedido ADD COLUMN costo_envio INT DEFAULT 0")
-        except:
-            pass
-
-        try:
-            cursor.execute("ALTER TABLE pedido ADD COLUMN updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-        except:
-            pass
-
-        try:
-            cursor.execute("UPDATE usuario SET rol = 'admin' WHERE correo = %s", (ADMIN_EMAIL,))
+            cursor.execute("UPDATE usuario SET rol = 'admin' WHERE correo = ?", (ADMIN_EMAIL,))
         except Error:
             pass
 
@@ -165,8 +240,8 @@ def inicializar_base_datos():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
 @app.after_request
 def add_header(response):
@@ -177,13 +252,82 @@ def add_header(response):
     return response
 
 def get_connection():
-    """Retorna conexión MySQL a jeiner_db (127.0.0.1, root sin contraseña)."""
-    return mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="",
-        database="jeiner_db"
-    )
+    """Retorna una conexión a la BD.
+    - SQLite (default): archivo local definido por DB_PATH (env), sin servidor.
+    - MySQL: env DB_HOST/DB_USER/DB_PASSWORD/DB_NAME (defaults XAMPP: 127.0.0.1, root, sin password, jeiner_db)."""
+    if DB_ENGINE == "mysql":
+        return mysql.connector.connect(
+            host=os.environ.get("DB_HOST", "127.0.0.1"),
+            user=os.environ.get("DB_USER", "root"),
+            password=os.environ.get("DB_PASSWORD", ""),
+            database=os.environ.get("DB_NAME", "jeiner_db")
+        )
+
+    connection = sqlite3.connect(DB_PATH, timeout=30)
+    # filas como diccionarios: el código accede con row["columna"] y row.get("columna")
+    connection.row_factory = lambda c, r: dict(zip([d[0] for d in c.description], r))
+    connection.execute("PRAGMA foreign_keys = ON")
+    return connection
+
+
+class CursorSQLDialectoMySQL:
+    """Envuelve un cursor de MySQL para aceptar '?' como parámetro (igual que sqlite3).
+    Las queries del código se escriben en dialecto SQLite (?); este cursor los traduce a %s en tiempo real."""
+
+    def __init__(self, cursor):
+        self._c = cursor
+
+    def __getattr__(self, nombre):
+        return getattr(self._c, nombre)
+
+    def execute(self, sql, params=None):
+        return self._c.execute(sql.replace("?", "%s"), params)
+
+    def executemany(self, sql, seq):
+        return self._c.executemany(sql.replace("?", "%s"), seq)
+
+
+def crear_cursor(connection):
+    """Crea un cursor con filas tipo dict (dictionary=True en MySQL, row_factory en SQLite)."""
+    if DB_ENGINE == "mysql":
+        return CursorSQLDialectoMySQL(connection.cursor(dictionary=True))
+    return connection.cursor()
+
+
+def cerrar_conn(connection):
+    """Cierra la conexión de forma segura (sqlite3 o MySQL)."""
+    try:
+        if DB_ENGINE == "mysql":
+            if connection.is_connected():
+                connection.close()
+        else:
+            connection.close()
+    except Exception:
+        pass
+
+
+def sql_fecha_mes(col="fecha"):
+    """Fragmento SQL del motor: extrae 'YYYY-MM' de una columna de fecha."""
+    if DB_ENGINE == "mysql":
+        return f"DATE_FORMAT({col}, '%Y-%m')"
+    return f"strftime('%Y-%m', {col})"
+
+
+def sql_fecha_hace_12_meses():
+    """Fragmento SQL del motor: fecha actual menos 12 meses."""
+    if DB_ENGINE == "mysql":
+        return "DATE_SUB(NOW(), INTERVAL 12 MONTH)"
+    return "datetime('now', '-12 months')"
+
+
+def fecha_a_iso(f):
+    """Convierte una fecha a ISO 8601 ('YYYY-MM-DDTHH:MM:SS').
+    MySQL devuelve datetime; SQLite devuelve texto 'YYYY-MM-DD HH:MM:SS'."""
+    if not f:
+        return None
+    if hasattr(f, "isoformat"):
+        return f.isoformat()
+    return str(f).replace(" ", "T")
 
 def es_url_interna(url):
     """Valida que la URL sea interna (evita open redirect a sitios externos)."""
@@ -288,11 +432,11 @@ def register():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = crear_cursor(connection)
 
         query = """
         INSERT INTO usuario (nombre, correo, contrasena)
-        VALUES (%s, %s, %s)
+        VALUES (?, ?, ?)
         """
 
         values = (full_name, email, password_hash)
@@ -302,24 +446,27 @@ def register():
         nuevo_id = cursor.lastrowid
 
         # el rol real se lee de la BD (por defecto 'cliente')
-        cursor.execute("SELECT rol FROM usuario WHERE id = %s", (nuevo_id,))
+        cursor.execute("SELECT rol FROM usuario WHERE id = ?", (nuevo_id,))
         fila = cursor.fetchone()
-        rol = fila[0] if fila else "cliente"
+        rol = fila["rol"] if fila else "cliente"
 
     except Error as error:
         print(error)
 
-        if getattr(error, "errno", None) == 1062:
+        es_duplicado = getattr(error, "errno", None) == 1062
+        if not es_duplicado and DB_ENGINE != "mysql":
+            es_duplicado = isinstance(error, sqlite3.IntegrityError)
+        if es_duplicado:
             return redirect("/login?error=correo_existente")
 
-        return f"Error MySQL: {error}", 500
+        return f"Error de BD: {error}", 500
 
     finally:
         if "cursor" in locals():
             cursor.close()
 
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     # iniciar sesión automáticamente después del registro
     session["logueado"] = True
@@ -365,9 +512,9 @@ def login():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = crear_cursor(connection)
 
-        cursor.execute("SELECT id, nombre, contrasena, rol FROM usuario WHERE correo = %s", (email,))
+        cursor.execute("SELECT id, nombre, contrasena, rol FROM usuario WHERE correo = ?", (email,))
         user = cursor.fetchone()
 
         if user and check_password_hash(user["contrasena"], password):
@@ -383,10 +530,10 @@ def login():
 
     except Error as error:
         print(error)
-        return f"Error MySQL: {error}", 500
+        return f"Error de BD: {error}", 500
     finally:
         if "cursor" in locals(): cursor.close()
-        if "connection" in locals() and connection.is_connected(): connection.close()
+        if "connection" in locals(): cerrar_conn(connection)
 
     if not exito:
         return redirect("/?error=credenciales")
@@ -427,8 +574,8 @@ def producto_detalle(producto_id):
     """Sirve web/producto.html (detalle de producto). Público. 404 si no existe."""
     try:
         connection = get_connection()
-        cursor = connection.cursor()
-        cursor.execute("SELECT id FROM producto WHERE id = %s", (producto_id,))
+        cursor = crear_cursor(connection)
+        cursor.execute("SELECT id FROM producto WHERE id = ?", (producto_id,))
         existe = cursor.fetchone()
     except Error as error:
         print(error)
@@ -436,8 +583,8 @@ def producto_detalle(producto_id):
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     if not existe:
         abort(404)
@@ -449,16 +596,16 @@ def api_producto(producto_id):
     """Retorna JSON de un producto individual desde la BD (público)."""
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM producto WHERE id = %s", (producto_id,))
+        cursor = crear_cursor(connection)
+        cursor.execute("SELECT * FROM producto WHERE id = ?", (producto_id,))
         row = cursor.fetchone()
     except Error as error:
         return {"error": str(error)}, 500
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
     if not row:
         return {"error": "No encontrado"}, 404
     return producto_db_a_dict(row)
@@ -468,7 +615,7 @@ def api_productos():
     """Retorna JSON con todos los productos ordenados por id (público)."""
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = crear_cursor(connection)
         cursor.execute("SELECT * FROM producto ORDER BY id")
         rows = cursor.fetchall()
     except Error as error:
@@ -476,8 +623,8 @@ def api_productos():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
     return [producto_db_a_dict(r) for r in rows]
 
 @app.route("/usuario")
@@ -492,8 +639,8 @@ def usuario():
     if usuario_id:
         try:
             connection = get_connection()
-            cursor = connection.cursor(dictionary=True)
-            cursor.execute("SELECT correo FROM usuario WHERE id = %s", (usuario_id,))
+            cursor = crear_cursor(connection)
+            cursor.execute("SELECT correo FROM usuario WHERE id = ?", (usuario_id,))
             row = cursor.fetchone()
             if row:
                 email = row["correo"]
@@ -502,8 +649,8 @@ def usuario():
         finally:
             if "cursor" in locals():
                 cursor.close()
-            if "connection" in locals() and connection.is_connected():
-                connection.close()
+            if "connection" in locals():
+                cerrar_conn(connection)
 
     return {
         "id": session.get("usuario_id"),
@@ -535,14 +682,14 @@ def api_editar_usuario():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = crear_cursor(connection)
 
-        cursor.execute("SELECT id FROM usuario WHERE correo = %s AND id != %s", (email, usuario_id))
+        cursor.execute("SELECT id FROM usuario WHERE correo = ? AND id != ?", (email, usuario_id))
         if cursor.fetchone():
             return {"error": "El correo ya está en uso"}, 400
 
         nuevo_rol = "admin" if email == ADMIN_EMAIL else "cliente"
-        cursor.execute("UPDATE usuario SET nombre = %s, correo = %s, rol = %s WHERE id = %s", (nombre, email, nuevo_rol, usuario_id))
+        cursor.execute("UPDATE usuario SET nombre = ?, correo = ?, rol = ? WHERE id = ?", (nombre, email, nuevo_rol, usuario_id))
 
         if data.get("cambiar_contrasena"):
             actual = data.get("actual", "")
@@ -551,12 +698,12 @@ def api_editar_usuario():
                 return {"error": "Contraseña actual requerida"}, 400
             if len(nueva) < 8:
                 return {"error": "La nueva contraseña debe tener mínimo 8 caracteres"}, 400
-            cursor.execute("SELECT contrasena FROM usuario WHERE id = %s", (usuario_id,))
+            cursor.execute("SELECT contrasena FROM usuario WHERE id = ?", (usuario_id,))
             row = cursor.fetchone()
-            if not row or not check_password_hash(row[0], actual):
+            if not row or not check_password_hash(row["contrasena"], actual):
                 return {"error": "Contraseña actual incorrecta"}, 400
             nuevo_hash = generate_password_hash(nueva)
-            cursor.execute("UPDATE usuario SET contrasena = %s WHERE id = %s", (nuevo_hash, usuario_id))
+            cursor.execute("UPDATE usuario SET contrasena = ? WHERE id = ?", (nuevo_hash, usuario_id))
 
         connection.commit()
 
@@ -569,8 +716,8 @@ def api_editar_usuario():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
 @app.route("/api/usuario/cambiar-contrasena", methods=["POST"])
 def api_cambiar_contrasena():
@@ -591,8 +738,8 @@ def api_cambiar_contrasena():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT contrasena FROM usuario WHERE id = %s", (usuario_id,))
+        cursor = crear_cursor(connection)
+        cursor.execute("SELECT contrasena FROM usuario WHERE id = ?", (usuario_id,))
         user = cursor.fetchone()
 
         if not user:
@@ -602,7 +749,7 @@ def api_cambiar_contrasena():
             return {"error": "La contraseña actual es incorrecta"}, 400
 
         nueva_hash = generate_password_hash(nueva)
-        cursor.execute("UPDATE usuario SET contrasena = %s WHERE id = %s", (nueva_hash, usuario_id))
+        cursor.execute("UPDATE usuario SET contrasena = ? WHERE id = ?", (nueva_hash, usuario_id))
         connection.commit()
 
         return {"ok": True}
@@ -611,8 +758,8 @@ def api_cambiar_contrasena():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
 @app.route("/api/usuario/eliminar", methods=["POST"])
 def api_eliminar_usuario():
@@ -624,11 +771,11 @@ def api_eliminar_usuario():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = crear_cursor(connection)
 
-        cursor.execute("DELETE FROM detalle_pedido WHERE pedido_id IN (SELECT id FROM pedido WHERE usuario_id = %s)", (usuario_id,))
-        cursor.execute("DELETE FROM pedido WHERE usuario_id = %s", (usuario_id,))
-        cursor.execute("DELETE FROM usuario WHERE id = %s", (usuario_id,))
+        cursor.execute("DELETE FROM detalle_pedido WHERE pedido_id IN (SELECT id FROM pedido WHERE usuario_id = ?)", (usuario_id,))
+        cursor.execute("DELETE FROM pedido WHERE usuario_id = ?", (usuario_id,))
+        cursor.execute("DELETE FROM usuario WHERE id = ?", (usuario_id,))
         connection.commit()
 
         return {"ok": True}
@@ -637,8 +784,8 @@ def api_eliminar_usuario():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
 # ===== CHECKOUT Y PAGOS =====
 
@@ -683,14 +830,14 @@ def api_pago():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = crear_cursor(connection)
 
         total_calculado = 0
         costo_envio = 0
         items_validados = []
 
         for item in items_data:
-            cursor.execute("SELECT id, precio, precio_rebaja, stock, nombre FROM producto WHERE id = %s AND disponible = 1", (item["id"],))
+            cursor.execute("SELECT id, precio, precio_rebaja, stock, nombre FROM producto WHERE id = ? AND disponible = 1", (item["id"],))
             prod = cursor.fetchone()
             if not prod:
                 return {"error": f"Producto ID {item['id']} no encontrado o no disponible"}, 400
@@ -715,19 +862,19 @@ def api_pago():
             automatic_payment_methods={"enabled": True},
         )
 
-        cursor = connection.cursor(dictionary=False)
+        cursor = crear_cursor(connection)
         cursor.execute("""
             INSERT INTO pedido (usuario_id, referencia, total, costo_envio, estado, nombre, email, telefono, direccion)
-            VALUES (%s, %s, %s, %s, 'pendiente', %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, 'pendiente', ?, ?, ?, ?)
         """, (session.get("usuario_id"), referencia, total_con_envio, costo_envio, nombre, email, telefono, direccion))
         pedido_id = cursor.lastrowid
 
         for item in items_validados:
             cursor.execute("""
                 INSERT INTO detalle_pedido (pedido_id, producto_id, nombre_producto, precio, cantidad)
-                VALUES (%s, %s, (SELECT nombre FROM producto WHERE id = %s), (SELECT COALESCE(precio_rebaja, precio) FROM producto WHERE id = %s), %s)
+                VALUES (?, ?, (SELECT nombre FROM producto WHERE id = ?), (SELECT COALESCE(precio_rebaja, precio) FROM producto WHERE id = ?), ?)
             """, (pedido_id, item["id"], item["id"], item["id"], item["cantidad"]))
-            cursor.execute("UPDATE producto SET stock = stock - %s WHERE id = %s AND stock >= %s",
+            cursor.execute("UPDATE producto SET stock = stock - ? WHERE id = ? AND stock >= ?",
                            (item["cantidad"], item["id"], item["cantidad"]))
             if cursor.rowcount == 0:
                 raise ValueError(f"Stock insuficiente para producto ID {item['id']}")
@@ -735,22 +882,22 @@ def api_pago():
         connection.commit()
 
     except Error as error:
-        if "connection" in locals() and connection.is_connected():
+        if "connection" in locals():
             connection.rollback()
         return {"error": "Error al procesar el pedido"}, 500
     except ValueError as e:
-        if "connection" in locals() and connection.is_connected():
+        if "connection" in locals():
             connection.rollback()
         return {"error": str(e)}, 400
     except stripe.error.StripeError as e:
-        if "connection" in locals() and connection.is_connected():
+        if "connection" in locals():
             connection.rollback()
         return {"error": "Error al procesar el pago"}, 500
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return {"ok": True, "client_secret": payment_intent.client_secret, "referencia": referencia, "payment_intent_id": payment_intent.id}
 
@@ -771,8 +918,8 @@ def stripe_webhook():
         if referencia:
             try:
                 connection = get_connection()
-                cursor = connection.cursor()
-                cursor.execute("UPDATE pedido SET estado = 'confirmado' WHERE referencia = %s", (referencia,))
+                cursor = crear_cursor(connection)
+                cursor.execute("UPDATE pedido SET estado = 'confirmado', updated_at = CURRENT_TIMESTAMP WHERE referencia = ?", (referencia,))
                 connection.commit()
             except Error as error:
                 print(f"Error webhook Stripe: {error}")
@@ -797,11 +944,11 @@ def api_mis_pedidos():
     usuario_id = session.get("usuario_id")
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = crear_cursor(connection)
         cursor.execute("""
             SELECT id, referencia, total, costo_envio, estado, fecha
             FROM pedido
-            WHERE usuario_id = %s
+            WHERE usuario_id = ?
             ORDER BY fecha DESC
         """, (usuario_id,))
         pedidos = cursor.fetchall()
@@ -809,19 +956,19 @@ def api_mis_pedidos():
             cursor.execute("""
                 SELECT nombre_producto, precio, cantidad
                 FROM detalle_pedido
-                WHERE pedido_id = %s
+                WHERE pedido_id = ?
             """, (pedido["id"],))
             pedido["items"] = cursor.fetchall()
             if pedido["items"]:
                 pedido["total_items"] = sum(i["precio"] * i["cantidad"] for i in pedido["items"])
-            pedido["fecha"] = pedido["fecha"].isoformat() if pedido["fecha"] else None
+            pedido["fecha"] = fecha_a_iso(pedido["fecha"])
     except Error as error:
         return {"error": str(error)}, 500
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return pedidos
 
@@ -838,16 +985,19 @@ def admin_actualizar_estado(pedido_id):
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
-        cursor.execute("UPDATE pedido SET estado = %s WHERE id = %s", (nuevo_estado, pedido_id))
+        cursor = crear_cursor(connection)
+        cursor.execute("SELECT id FROM pedido WHERE id = ?", (pedido_id,))
+        if not cursor.fetchone():
+            return {"error": "Pedido no encontrado"}, 404
+        cursor.execute("UPDATE pedido SET estado = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (nuevo_estado, pedido_id))
         connection.commit()
     except Error as error:
         return {"error": str(error)}, 500
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return {"ok": True}
 
@@ -865,21 +1015,32 @@ def enviar_contacto():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = crear_cursor(connection)
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS contacto (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nombre VARCHAR(100) NOT NULL,
-                correo VARCHAR(100) NOT NULL,
-                mensaje TEXT NOT NULL,
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
+        if DB_ENGINE == "mysql":
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS contacto (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    correo VARCHAR(100) NOT NULL,
+                    mensaje TEXT NOT NULL,
+                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        else:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS contacto (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre VARCHAR(100) NOT NULL,
+                    correo VARCHAR(100) NOT NULL,
+                    mensaje TEXT NOT NULL,
+                    fecha TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
 
         query = """
         INSERT INTO contacto (nombre, correo, mensaje)
-        VALUES (%s, %s, %s)
+        VALUES (?, ?, ?)
         """
 
         cursor.execute(query, (nombre, email, mensaje))
@@ -891,8 +1052,8 @@ def enviar_contacto():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return redirect(redirect_url.split("?")[0] + "?contacto=exito")
 
@@ -902,7 +1063,7 @@ def enviar_contacto():
 def admin_panel():
     """Sirve web/admin.html (panel de administración). Solo admin."""
     if "logueado" not in session or not session.get("admin"):
-        return redirect("/dashboard")
+        return redirect("/login")
 
     return send_from_directory(SITE_DIR, "admin.html")
 
@@ -915,9 +1076,9 @@ def admin_api_productos():
     categoria = request.args.get("categoria", "").strip()
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = crear_cursor(connection)
         if categoria:
-            cursor.execute("SELECT * FROM producto WHERE categoria = %s ORDER BY id", (categoria,))
+            cursor.execute("SELECT * FROM producto WHERE categoria = ? ORDER BY id", (categoria,))
         else:
             cursor.execute("SELECT * FROM producto ORDER BY id")
         rows = cursor.fetchall()
@@ -926,8 +1087,8 @@ def admin_api_productos():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return [producto_db_a_dict(r) for r in rows]
 
@@ -983,10 +1144,10 @@ def admin_agregar_producto():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = crear_cursor(connection)
         cursor.execute("""
             INSERT INTO producto (nombre, imagen, precio, categoria, descripcion, caracteristicas, especificaciones, disponible, precio_rebaja, stock)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (nombre, imagen, precio, categoria, descripcion, caracteristicas, especificaciones, disponible, precio_rebaja, stock))
         connection.commit()
     except Error as error:
@@ -994,8 +1155,8 @@ def admin_agregar_producto():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return redirect("/admin?ok=agregado")
 
@@ -1007,7 +1168,7 @@ def admin_api_pedidos():
 
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = crear_cursor(connection)
         cursor.execute("""
             SELECT p.id, p.referencia, p.total, p.costo_envio, p.estado, p.nombre, p.email, p.telefono,
                    p.direccion, p.fecha, u.nombre AS usuario_nombre
@@ -1021,7 +1182,7 @@ def admin_api_pedidos():
             cursor.execute("""
                 SELECT nombre_producto, precio, cantidad
                 FROM detalle_pedido
-                WHERE pedido_id = %s
+                WHERE pedido_id = ?
             """, (pedido["id"],))
             pedido["items"] = cursor.fetchall()
 
@@ -1030,8 +1191,8 @@ def admin_api_pedidos():
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return pedidos
 
@@ -1044,11 +1205,11 @@ def admin_api_dashboard():
     mes_filtro = request.args.get("mes", "").strip()
     where_mes = ""
     if mes_filtro and mes_filtro != "todas":
-        where_mes = " AND DATE_FORMAT(fecha, '%Y-%m') = %s "
+        where_mes = f" AND {sql_fecha_mes('fecha')} = ? "
 
     try:
         connection = get_connection()
-        cursor = connection.cursor(dictionary=True)
+        cursor = crear_cursor(connection)
 
         # Globales (sin filtro de mes)
         cursor.execute("SELECT COUNT(*) AS total FROM usuario")
@@ -1060,7 +1221,7 @@ def admin_api_dashboard():
         sql_base = "FROM pedido WHERE estado != 'cancelado'"
         params_base = []
         if mes_filtro and mes_filtro != "todas":
-            sql_base += " AND DATE_FORMAT(fecha, '%Y-%m') = %s"
+            sql_base += f" AND {sql_fecha_mes('fecha')} = ?"
             params_base.append(mes_filtro)
         cursor.execute(f"SELECT COUNT(*) AS total, COALESCE(SUM(total),0) AS monto, COALESCE(SUM(costo_envio),0) AS envios {sql_base}", params_base)
         row = cursor.fetchone()
@@ -1075,16 +1236,16 @@ def admin_api_dashboard():
 
         cursor.execute(f"SELECT COALESCE(SUM(dp.cantidad),0) AS total, COALESCE(SUM(dp.precio * dp.cantidad),0) AS ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado'", [])
         if mes_filtro and mes_filtro != "todas":
-            cursor.execute(f"SELECT COALESCE(SUM(dp.cantidad),0) AS total, COALESCE(SUM(dp.precio * dp.cantidad),0) AS ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado' AND DATE_FORMAT(p.fecha, '%Y-%m') = %s", (mes_filtro,))
+            cursor.execute(f"SELECT COALESCE(SUM(dp.cantidad),0) AS total, COALESCE(SUM(dp.precio * dp.cantidad),0) AS ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado' AND {sql_fecha_mes('p.fecha')} = ?", (mes_filtro,))
         row = cursor.fetchone()
         unidades_vendidas = row["total"]
         ingresos_brutos = row["ingresos"]
 
         # Ventas mensuales últimos 12 meses
-        cursor.execute("""
-            SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, COUNT(*) AS pedidos, COALESCE(SUM(total),0) AS ventas, COALESCE(SUM(costo_envio),0) AS envios
-            FROM pedido WHERE estado != 'cancelado' AND fecha >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-            GROUP BY DATE_FORMAT(fecha, '%Y-%m') ORDER BY mes
+        cursor.execute(f"""
+            SELECT {sql_fecha_mes('fecha')} AS mes, COUNT(*) AS pedidos, COALESCE(SUM(total),0) AS ventas, COALESCE(SUM(costo_envio),0) AS envios
+            FROM pedido WHERE estado != 'cancelado' AND fecha >= {sql_fecha_hace_12_meses()}
+            GROUP BY {sql_fecha_mes('fecha')} ORDER BY mes
         """)
         ventas_mensuales = cursor.fetchall()
 
@@ -1092,7 +1253,7 @@ def admin_api_dashboard():
         sql_top = "SELECT dp.nombre_producto, SUM(dp.cantidad) AS total_vendido, COALESCE(SUM(dp.precio * dp.cantidad),0) AS total_ingresos FROM detalle_pedido dp JOIN pedido p ON dp.pedido_id = p.id WHERE p.estado != 'cancelado'"
         params_top = []
         if mes_filtro:
-            sql_top += " AND DATE_FORMAT(p.fecha, '%Y-%m') = %s"
+            sql_top += f" AND {sql_fecha_mes('p.fecha')} = ?"
             params_top.append(mes_filtro)
         sql_top += " GROUP BY dp.nombre_producto ORDER BY total_vendido DESC LIMIT 5"
         cursor.execute(sql_top, params_top)
@@ -1102,17 +1263,16 @@ def admin_api_dashboard():
         sql_recent = "SELECT p.id, p.referencia, p.total, p.estado, p.fecha, u.nombre AS cliente FROM pedido p LEFT JOIN usuario u ON p.usuario_id = u.id WHERE 1=1"
         params_recent = []
         if mes_filtro and mes_filtro != "todas":
-            sql_recent += " AND DATE_FORMAT(p.fecha, '%Y-%m') = %s"
+            sql_recent += f" AND {sql_fecha_mes('p.fecha')} = ?"
             params_recent.append(mes_filtro)
         sql_recent += " ORDER BY p.fecha DESC LIMIT 8"
         cursor.execute(sql_recent, params_recent)
         pedidos_recientes = cursor.fetchall()
         for pr in pedidos_recientes:
-            if pr["fecha"]:
-                pr["fecha"] = pr["fecha"].isoformat()
+            pr["fecha"] = fecha_a_iso(pr["fecha"])
 
         # Meses disponibles para el selector
-        cursor.execute("SELECT DISTINCT DATE_FORMAT(fecha, '%Y-%m') AS mes FROM pedido ORDER BY mes DESC")
+        cursor.execute(f"SELECT DISTINCT {sql_fecha_mes('fecha')} AS mes FROM pedido ORDER BY mes DESC")
         meses_disponibles = [r["mes"] for r in cursor.fetchall() if r["mes"]]
 
         promedio_pedido = round(ventas_totales / total_pedidos, 0) if total_pedidos > 0 else 0
@@ -1137,7 +1297,7 @@ def admin_api_dashboard():
         return {"error": str(error)}, 500
     finally:
         if "cursor" in locals(): cursor.close()
-        if "connection" in locals() and connection.is_connected(): connection.close()
+        if "connection" in locals(): cerrar_conn(connection)
 
 @app.route("/admin/productos/toggle/<int:producto_id>", methods=["POST"])
 def admin_toggle_producto(producto_id):
@@ -1151,22 +1311,22 @@ def admin_toggle_producto(producto_id):
     else:
         try:
             connection = get_connection()
-            cursor = connection.cursor()
-            cursor.execute("SELECT disponible FROM producto WHERE id = %s", (producto_id,))
+            cursor = crear_cursor(connection)
+            cursor.execute("SELECT disponible FROM producto WHERE id = ?", (producto_id,))
             row = cursor.fetchone()
             if not row:
                 return {"error": "No encontrado"}, 404
-            nuevo = 0 if row[0] else 1
+            nuevo = 0 if row["disponible"] else 1
         except Error as error:
             return {"error": str(error)}, 500
         finally:
             if "cursor" in locals(): cursor.close()
-            if "connection" in locals() and connection.is_connected(): connection.close()
+            if "connection" in locals(): cerrar_conn(connection)
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
-        cursor.execute("UPDATE producto SET disponible = %s WHERE id = %s", (nuevo, producto_id))
+        cursor = crear_cursor(connection)
+        cursor.execute("UPDATE producto SET disponible = ? WHERE id = ?", (nuevo, producto_id))
         connection.commit()
         return {"ok": True, "disponible": bool(nuevo)}
     except Error as error:
@@ -1174,8 +1334,8 @@ def admin_toggle_producto(producto_id):
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
 @app.route("/admin/productos/editar/<int:producto_id>", methods=["POST"])
 def admin_editar_producto(producto_id):
@@ -1197,12 +1357,12 @@ def admin_editar_producto(producto_id):
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
+        cursor = crear_cursor(connection)
         if stock is not None:
-            cursor.execute("UPDATE producto SET precio = %s, precio_rebaja = %s, stock = %s, categoria = %s WHERE id = %s",
+            cursor.execute("UPDATE producto SET precio = ?, precio_rebaja = ?, stock = ?, categoria = ? WHERE id = ?",
                            (precio, precio_rebaja, stock, categoria, producto_id))
         else:
-            cursor.execute("UPDATE producto SET precio = %s, precio_rebaja = %s, categoria = %s WHERE id = %s",
+            cursor.execute("UPDATE producto SET precio = ?, precio_rebaja = ?, categoria = ? WHERE id = ?",
                            (precio, precio_rebaja, categoria, producto_id))
         connection.commit()
     except Error as error:
@@ -1210,8 +1370,8 @@ def admin_editar_producto(producto_id):
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return redirect("/admin?ok=editado")
 
@@ -1223,16 +1383,16 @@ def admin_eliminar_producto(producto_id):
 
     try:
         connection = get_connection()
-        cursor = connection.cursor()
-        cursor.execute("SELECT imagen FROM producto WHERE id = %s", (producto_id,))
+        cursor = crear_cursor(connection)
+        cursor.execute("SELECT imagen FROM producto WHERE id = ?", (producto_id,))
         row = cursor.fetchone()
         if row:
-            imagen = row[0]
+            imagen = row["imagen"]
             ruta_imagen = SITE_DIR / "img" / imagen
             if ruta_imagen.exists():
                 ruta_imagen.unlink()
-        cursor.execute("UPDATE detalle_pedido SET producto_id = NULL WHERE producto_id = %s", (producto_id,))
-        cursor.execute("DELETE FROM producto WHERE id = %s", (producto_id,))
+        cursor.execute("UPDATE detalle_pedido SET producto_id = NULL WHERE producto_id = ?", (producto_id,))
+        cursor.execute("DELETE FROM producto WHERE id = ?", (producto_id,))
         connection.commit()
     except Error as error:
         print(error)
@@ -1241,8 +1401,8 @@ def admin_eliminar_producto(producto_id):
     finally:
         if "cursor" in locals():
             cursor.close()
-        if "connection" in locals() and connection.is_connected():
-            connection.close()
+        if "connection" in locals():
+            cerrar_conn(connection)
 
     return redirect("/admin?ok=eliminado")
 
@@ -1267,7 +1427,7 @@ inicializar_base_datos()
 if __name__ == "__main__":
 
     app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=True
+        host=os.environ.get("FLASK_HOST", "127.0.0.1"),
+        port=int(os.environ.get("FLASK_PORT", "5000")),
+        debug=os.environ.get("FLASK_DEBUG", "false").lower() in ("1", "true", "yes", "on")
     )
